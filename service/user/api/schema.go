@@ -1,12 +1,11 @@
 package api
 
 type LoginRequest struct {
-	username *string
-	email    *string
-	password string
+	Username *string `json:"username"`
+	Email    *string `json:"email"`
+	Password string  `json:"password"`
 }
 
 type UserResponse struct {
-	id       string
-	username string
+	Username string `json:"username"`
 }

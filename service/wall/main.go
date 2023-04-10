@@ -1,11 +1,12 @@
 package main
 
 import (
-	"ChatDanBackend/common"
-	"fmt"
+	"ChatDanBackend/common/fiberx"
+	_ "ChatDanBackend/service/wall/config"
 )
 
 func main() {
-	fmt.Println("wall service")
-	fmt.Println(common.Min(1, 2))
+	app := fiberx.NewFiberApp("Message Box")
+	// todo: register routes
+	fiberx.AppListen(app)
 }

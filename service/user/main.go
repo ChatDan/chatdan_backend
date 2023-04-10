@@ -1,11 +1,13 @@
 package main
 
 import (
-	"ChatDanBackend/common"
-	"fmt"
+	"ChatDanBackend/common/fiberx"
+	"ChatDanBackend/service/user/api"
+	_ "ChatDanBackend/service/user/config"
 )
 
 func main() {
-	fmt.Println("user service")
-	fmt.Println(common.Min(1, 2))
+	app := fiberx.NewFiberApp("Message Box")
+	api.RegisterRoutes(app)
+	fiberx.AppListen(app)
 }

@@ -1,7 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"ChatDanBackend/common/fiberx"
+	_ "ChatDanBackend/service/message_box/config"
+)
 
 func main() {
-	fmt.Println(123)
+	app := fiberx.NewFiberApp("Message Box")
+	// todo: register routes
+	fiberx.AppListen(app)
 }

@@ -9,10 +9,14 @@ import "github.com/gofiber/fiber/v2"
 // @Accept  json
 // @Produce  json
 // @Param json body LoginRequest true "json"
-// @Success 200 {object} TokenResponse
-// @Failure 400 {object} utils.MessageResponse
-// @Failure 404 {object} utils.MessageResponse "User Not Found"
-// @Failure 500 {object} utils.MessageResponse
+// @Success 200 {object} common.Response{data=UserResponse}
+// @Failure 400 {object} common.Response "Bad Request"
+// @Failure 404 {object} common.Response "User Not Found"
+// @Failure 500 {object} common.Response "Internal Server Error"
 func Login(c *fiber.Ctx) error {
+	return c.JSON(nil)
+}
+
+func Register(c *fiber.Ctx) error {
 	return c.JSON(nil)
 }
