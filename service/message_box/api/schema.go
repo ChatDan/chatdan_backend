@@ -1,58 +1,103 @@
 package api
 
 type BoxPostRequest struct {
-	title string `json:"title"`
+	Title string `json:"title"`
 }
 
 type BoxPostResponse struct {
-	id      string `json:"id"`
-	ownerID string `json:"owner_id"`
-	title   string `json:"title"`
+	ID      string `json:"id"`
+	OwnerID string `json:"owner_id"`
+	Title   string `json:"title"`
 }
 
 type BoxesGetRequest struct {
-	pageNum  int    `json:"page_num"`
-	pageSize int    `json:"page_size"`
-	title    string `json:"title"`
-	owner    int    `json:"owner"`
+	PageNum  int    `json:"page_num"`
+	PageSize int    `json:"page_size"`
+	Title    string `json:"title"`
+	Owner    int    `json:"owner"`
 }
 
 type BoxesGetResponse struct {
-	id      string `json:"id"`
-	ownerID string `json:"owner_id"`
-	title   string `json:"title"`
+	ID      string `json:"id"`
+	OwnerID string `json:"owner_id"`
+	Title   string `json:"title"`
 }
 
 type BoxGetRequest struct {
-	id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type BoxGetResponse struct {
-	id      string    `json:"id"`
-	ownerID string    `json:"owner_id"`
-	title   string    `json:"title"`
-	posts   *[]string `json:"posts"`
+	ID      string    `json:"id"`
+	OwnerID string    `json:"owner_id"`
+	Title   string    `json:"title"`
+	Posts   *[]string `json:"posts"`
 }
 
 type BoxModifyRequest struct {
-	title string `json:"title"`
+	Title string `json:"title"`
 }
 
 type BoxPutRequest struct {
-	id   string           `json:"id"`
-	body BoxModifyRequest `json:"body"`
+	ID   string           `json:"id"`
+	Body BoxModifyRequest `json:"body"`
 }
 
 type BoxPutResponse struct {
-	id      string `json:"id"`
-	ownerID string `json:"owner_id"`
-	title   string `json:"title"`
+	ID      string `json:"id"`
+	OwnerID string `json:"owner_id"`
+	Title   string `json:"title"`
 }
 
 type BoxDeleteRequest struct {
-	id string `json:"id"`
+	ID string `json:"id"`
 }
 
 type BoxDeleteResponse struct {
-	message string `json:"message"`
+	Message string `json:"message"`
+}
+
+type PostPostRequest struct {
+	MessageBoxID string `json:"message_box_id"`
+	Content      string `json:"content"`
+	Visibility   string `json:"visibility"`
+}
+
+type PostPostResponse struct {
+	MessageBoxID string `json:"message_box_id"`
+	Content      string `json:"content"`
+	Visibility   string `json:"visibility"`
+}
+
+type PostsGetRequest struct {
+	PageNum      int    `json:"page_num"`
+	PageSize     int    `json:"page_size"`
+	MessageBoxID string `json:"message_box_id"`
+}
+
+type PostsGetResponse struct {
+	ID         string `json:"id"`
+	PosterID   string `json:"poster_id"`
+	Content    string `json:"content"`
+	Visibility string `json:"visibility"`
+}
+
+type PostGetRequest struct {
+	ID string `json:"id"`
+}
+
+type PostGetResponse struct {
+	ID         string   `json:"id"`
+	PosterID   string   `json:"poster_id"`
+	Content    string   `json:"content"`
+	Visibility string   `json:"visibility"`
+	Channels   []string `json:"channels"`
+}
+
+type PostDeleteRequest struct {
+	ID string `json:"id"`
+}
+
+type PostDeleteResponse struct {
+	Message string `json:"message"`
 }
