@@ -1,0 +1,115 @@
+basePath: /api
+definitions:
+  api.UserResponse:
+    properties:
+      username:
+        type: string
+    type: object
+  common.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      error_msg:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: jingyijun@fduhole.com
+    name: JingYiJun
+    url: https://danxi.fduhole.com
+  description: This is a user service for ChatDan.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://swagger.io/terms/
+  title: User Microservice
+  version: 0.0.1
+paths:
+  /api/user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - in: query
+        name: email
+        type: string
+      - in: query
+        name: password
+        type: string
+      - in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "404":
+          description: User Not Found
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Login
+      tags:
+      - Account
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register
+      parameters:
+      - in: query
+        name: email
+        type: string
+      - in: query
+        name: password
+        type: string
+      - in: query
+        name: username
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Register
+      tags:
+      - Account
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
