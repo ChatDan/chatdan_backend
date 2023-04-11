@@ -20,8 +20,8 @@ type BoxCreateResponse struct {
 
 type BoxListRequest struct {
 	common.PageRequest
-	Title string `json:"title"`
-	Owner int    `json:"owner"`
+	Title string `json:"title" query:"title"`
+	Owner int    `json:"owner" query:"owner"`
 }
 
 type BoxListResponse struct {
@@ -34,13 +34,11 @@ type BoxGetResponse struct {
 }
 
 type BoxModifyRequest struct {
-	Title string `json:"title" query:"title" validate:"required"`
+	Title *string `json:"title" query:"title"`
 }
 
 type BoxModifyResponse struct {
-	ID      string `json:"id"`
-	OwnerID string `json:"owner_id"`
-	Title   string `json:"title"`
+	BoxCommonResponse
 }
 
 type BoxDeleteResponse struct {
@@ -78,6 +76,15 @@ type PostListResponse struct {
 type PostGetResponse struct {
 	PostCommonResponse
 	Channels []string `json:"channels"`
+}
+
+type PostModifyRequest struct {
+	Content    *string `json:"content"`
+	Visibility *string `json:"visibility"`
+}
+
+type PostModifyResponse struct {
+	PostCommonResponse
 }
 
 type PostDeleteResponse struct {

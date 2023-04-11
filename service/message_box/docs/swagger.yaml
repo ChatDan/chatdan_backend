@@ -1,0 +1,505 @@
+basePath: /api
+definitions:
+  api.BoxCreateResponse:
+    properties:
+      id:
+        type: string
+      owner_id:
+        type: string
+      title:
+        type: string
+    type: object
+  api.BoxDeleteResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  api.BoxGetResponse:
+    properties:
+      id:
+        type: string
+      owner_id:
+        type: string
+      posts:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    type: object
+  api.BoxListResponse:
+    properties:
+      id:
+        type: string
+      owner_id:
+        type: string
+      title:
+        type: string
+    type: object
+  api.BoxModifyResponse:
+    properties:
+      id:
+        type: string
+      owner_id:
+        type: string
+      title:
+        type: string
+    type: object
+  api.PostCreateResponse:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      poster_id:
+        type: string
+      visibility:
+        type: string
+    type: object
+  api.PostDeleteResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  api.PostGetResponse:
+    properties:
+      channels:
+        items:
+          type: string
+        type: array
+      content:
+        type: string
+      id:
+        type: string
+      poster_id:
+        type: string
+      visibility:
+        type: string
+    type: object
+  api.PostListResponse:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      poster_id:
+        type: string
+      visibility:
+        type: string
+    type: object
+  api.PostModifyRequest:
+    properties:
+      content:
+        type: string
+      visibility:
+        type: string
+    type: object
+  api.PostModifyResponse:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      poster_id:
+        type: string
+      visibility:
+        type: string
+    type: object
+  common.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      error_msg:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: hastaluego@fduhole.com
+    name: PinappleUnderTheSea
+    url: https://github.com/PinappleUnderTheSea
+  description: This is a message box service for ChatDan.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://swagger.io/terms/
+  title: MessageBox Microservice
+  version: 0.0.1
+paths:
+  /messageBox:
+    post:
+      consumes:
+      - application/json
+      description: Create a message box
+      parameters:
+      - in: query
+        name: title
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.BoxCreateResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Create a message box
+      tags:
+      - Box
+  /messageBox/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a message box, owner only
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.BoxDeleteResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Delete a message box
+      tags:
+      - Box
+    get:
+      consumes:
+      - application/json
+      description: Get a message box
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.BoxGetResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Get a message box
+      tags:
+      - Box
+    put:
+      consumes:
+      - application/json
+      description: Modify a message box, owner only
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.BoxModifyResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Modify a message box
+      tags:
+      - Box
+  /messageBoxes:
+    get:
+      consumes:
+      - application/json
+      description: List message boxes
+      parameters:
+      - in: query
+        name: owner
+        type: integer
+      - in: query
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.BoxListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: List message boxes
+      tags:
+      - Box
+  /post:
+    post:
+      consumes:
+      - application/json
+      description: Create a post
+      parameters:
+      - in: query
+        name: content
+        required: true
+        type: string
+      - in: query
+        name: message_box_id
+        required: true
+        type: string
+      - enum:
+        - public
+        - private
+        in: query
+        name: visibility
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.PostCreateResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Create a post
+      tags:
+      - Post
+  /post/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a post, owner only
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.PostDeleteResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Delete a post
+      tags:
+      - Post
+    get:
+      consumes:
+      - application/json
+      description: Get a post
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.PostGetResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Get a post
+      tags:
+      - Post
+    put:
+      consumes:
+      - application/json
+      description: Modify a post, owner only
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/api.PostModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.PostModifyResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: Modify a post
+      tags:
+      - Post
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: List posts
+      parameters:
+      - in: query
+        name: message_box_id
+        required: true
+        type: string
+      - in: query
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/common.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/api.PostListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/common.Response'
+      summary: List posts
+      tags:
+      - Post
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
