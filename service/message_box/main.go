@@ -27,7 +27,10 @@ import (
 // @name Authorization
 
 func main() {
-	app := fiberx.NewFiberApp("Message Box")
-	api.RegisterRoutes(app)
-	fiberx.AppListen(app)
+	fiberx.NewFiberApp(fiberx.AppOptions{
+		AppName:        "Message Box Microservice",
+		CustomConfig:   nil,
+		Models:         nil,
+		RegisterRoutes: api.RegisterRoutes,
+	})
 }

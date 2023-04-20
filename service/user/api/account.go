@@ -12,7 +12,7 @@ import (
 // @Accept json
 // @Produce json
 // @Router /api/user/login [post]
-// @Param body query LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
+// @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
 // @Success 200 {object} common.Response{data=UserResponse}
 // @Failure 400 {object} common.Response "Bad Request"
 // @Failure 404 {object} common.Response "User Not Found"
@@ -29,7 +29,7 @@ func Login(c *fiber.Ctx) error {
 // @Accept json
 // @Produce json
 // @Router /api/user/register [post]
-// @Param body query LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
+// @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
 // @Success 200 {object} common.Response{data=UserResponse}
 // @Failure 400 {object} common.Response "Bad Request"
 // @Failure 500 {object} common.Response "Internal Server Error"

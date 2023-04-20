@@ -3,8 +3,8 @@ package main
 import (
 	"ChatDanBackend/common/fiberx"
 	"ChatDanBackend/service/user/api"
-	_ "ChatDanBackend/service/user/config"
 	_ "ChatDanBackend/service/user/docs"
+	"ChatDanBackend/service/user/model"
 )
 
 // @title           User Microservice
@@ -27,7 +27,10 @@ import (
 // @name Authorization
 
 func main() {
-	app := fiberx.NewFiberApp("Message Box")
-	api.RegisterRoutes(app)
-	fiberx.AppListen(app)
+	fiberx.NewFiberApp(fiberx.AppOptions{
+		AppName:        "User Microservice",
+		CustomConfig:   nil,
+		Models:         []any{model.User{}},
+		RegisterRoutes: api.RegisterRoutes,
+	})
 }

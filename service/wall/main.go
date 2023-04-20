@@ -2,11 +2,14 @@ package main
 
 import (
 	"ChatDanBackend/common/fiberx"
-	_ "ChatDanBackend/service/wall/config"
+	"ChatDanBackend/service/wall/model"
 )
 
 func main() {
-	app := fiberx.NewFiberApp("Message Box")
-	// todo: register routes
-	fiberx.AppListen(app)
+	fiberx.NewFiberApp(fiberx.AppOptions{
+		AppName:        "Wall Microservice",
+		CustomConfig:   nil,
+		Models:         []any{model.Wall{}},
+		RegisterRoutes: nil,
+	})
 }

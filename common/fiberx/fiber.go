@@ -2,6 +2,9 @@ package fiberx
 
 import (
 	"ChatDanBackend/common"
+	"ChatDanBackend/common/cachex"
+	"ChatDanBackend/common/configx"
+	"ChatDanBackend/common/gormx"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -12,15 +15,35 @@ import (
 	"syscall"
 )
 
-func NewFiberApp(appName string) *fiber.App {
+type AppOptions struct {
+	AppName        string
+	CustomConfig   any
+	Models         []any
+	RegisterRoutes func(app *fiber.App)
+}
+
+// NewFiberApp creates a new fiber app and listen on 0.0.0.0:8000
+func NewFiberApp(options AppOptions) {
+	// bootstrap
+	configx.InitConfig(options.CustomConfig)
+	gormx.InitDB(options.Models...)
+	cachex.InitCache()
+
+	// new fiber app
 	app := fiber.New(fiber.Config{
-		AppName:      appName,
+		AppName:      options.AppName,
 		ErrorHandler: MyErrorHandler,
 		JSONEncoder:  json.Marshal,
 		JSONDecoder:  json.Unmarshal,
 	})
+	registerMiddlewares(app)
 	registerRoutes(app)
-	return registerMiddlewares(app)
+	if options.RegisterRoutes != nil {
+		options.RegisterRoutes(app)
+	}
+
+	// listen
+	AppListen(app)
 }
 
 func AppListen(app *fiber.App) {

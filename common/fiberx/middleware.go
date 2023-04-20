@@ -9,11 +9,10 @@ import (
 	"time"
 )
 
-func registerMiddlewares(app *fiber.App) *fiber.App {
+func registerMiddlewares(app *fiber.App) {
 	app.Use(recover.New(recover.Config{EnableStackTrace: true}))
 	app.Use(MyLogger)
 	app.Use(pprof.New())
-	return app
 }
 
 func MyLogger(c *fiber.Ctx) error {
