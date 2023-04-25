@@ -5,6 +5,7 @@ import (
 	"ChatDanBackend/service/message_box/api"
 	_ "ChatDanBackend/service/message_box/config"
 	_ "ChatDanBackend/service/message_box/docs"
+	"ChatDanBackend/service/message_box/model"
 )
 
 // @title           MessageBox Microservice
@@ -30,7 +31,7 @@ func main() {
 	fiberx.NewFiberApp(fiberx.AppOptions{
 		AppName:        "Message Box Microservice",
 		CustomConfig:   nil,
-		Models:         nil,
+		Models:         []any{model.Box{}, model.Post{}},
 		RegisterRoutes: api.RegisterRoutes,
 	})
 }

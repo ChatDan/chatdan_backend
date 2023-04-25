@@ -1,7 +1,7 @@
 package configx
 
 import (
-	"ChatDanBackend/common"
+	"ChatDanBackend/common/loggerx"
 	"github.com/caarlos0/env/v8"
 	"go.uber.org/zap"
 )
@@ -17,12 +17,12 @@ func InitConfig(CustomConfig any) {
 	if err := env.Parse(&CommonConfig); err != nil {
 		panic(err)
 	}
-	common.Logger.Info("", zap.Any("common_config", CommonConfig))
+	loggerx.Logger.Info("", zap.Any("common_config", CommonConfig))
 
 	if CustomConfig != nil {
 		if err := env.Parse(&CustomConfig); err != nil {
 			panic(err)
 		}
-		common.Logger.Info("", zap.Any("custom_config", CustomConfig))
+		loggerx.Logger.Info("", zap.Any("custom_config", CustomConfig))
 	}
 }

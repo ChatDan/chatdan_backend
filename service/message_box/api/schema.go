@@ -1,6 +1,6 @@
 package api
 
-import "ChatDanBackend/common"
+import "ChatDanBackend/common/schemax"
 
 // Box
 
@@ -19,9 +19,9 @@ type BoxCreateResponse struct {
 }
 
 type BoxListRequest struct {
-	common.PageRequest
-	Title string `json:"title" query:"title"`
-	Owner int    `json:"owner" query:"owner"`
+	schemax.PageRequest
+	Title *string `json:"title" query:"title"`
+	Owner *int    `json:"owner" query:"owner"`
 }
 
 type BoxListResponse struct {
@@ -65,7 +65,7 @@ type PostCreateResponse struct {
 }
 
 type PostListRequest struct {
-	common.PageRequest
+	schemax.PageRequest
 	MessageBoxID string `json:"message_box_id" query:"message_box_id" validate:"required"`
 }
 

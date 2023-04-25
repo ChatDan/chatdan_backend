@@ -1,14 +1,18 @@
 package api
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"ChatDanBackend/common"
+	"ChatDanBackend/common/gormx"
+	"ChatDanBackend/service/message_box/model"
+	"github.com/gofiber/fiber/v2"
+)
 
 // CreateABox godoc
 // @Summary Create a message box
-// @Description Create a message box
 // @Tags Box
 // @Accept json
 // @Produce json
-// @Param box query BoxCreateRequest true "box"
+// @Param box body BoxCreateRequest true "box"
 // @Success 200 {object} common.Response{data=BoxCreateResponse}
 // @Failure 400 {object} common.Response
 // @Failure 500 {object} common.Response
@@ -19,7 +23,6 @@ func CreateABox(c *fiber.Ctx) error {
 
 // ListBoxes godoc
 // @Summary List message boxes
-// @Description List message boxes
 // @Tags Box
 // @Accept json
 // @Produce json
@@ -29,12 +32,25 @@ func CreateABox(c *fiber.Ctx) error {
 // @Failure 500 {object} common.Response
 // @Router /messageBoxes [get]
 func ListBoxes(c *fiber.Ctx) error {
-	return c.JSON(nil)
+	// validate body
+	query, err := common.ValidateBody[BoxListRequest](c)
+	if err != nil {
+		return err
+	}
+
+	querySet := gormx.DB.Offset((query.PageNum - 1) * query.PageSize).Limit(query.PageSize)
+
+	var boxes []model.Box
+	err = querySet.Find(&boxes).Error
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(common.MustConvert[BoxListResponse](boxes))
 }
 
 // GetABox godoc
 // @Summary Get a message box
-// @Description Get a message box
 // @Tags Box
 // @Accept json
 // @Produce json
@@ -49,7 +65,6 @@ func GetABox(c *fiber.Ctx) error {
 
 // ModifyABox godoc
 // @Summary Modify a message box
-// @Description Modify a message box, owner only
 // @Tags Box
 // @Accept json
 // @Produce json
@@ -65,7 +80,6 @@ func ModifyABox(c *fiber.Ctx) error {
 
 // DeleteABox godoc
 // @Summary Delete a message box
-// @Description Delete a message box, owner only
 // @Tags Box
 // @Accept json
 // @Produce json

@@ -1,10 +1,10 @@
 package fiberx
 
 import (
-	"ChatDanBackend/common"
 	"ChatDanBackend/common/cachex"
 	"ChatDanBackend/common/configx"
 	"ChatDanBackend/common/gormx"
+	"ChatDanBackend/common/loggerx"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -63,11 +63,11 @@ func AppListen(app *fiber.App) {
 	// close app
 	err := app.Shutdown()
 	if err != nil {
-		common.Logger.Error("app shutdown error", zap.Error(err))
+		loggerx.Logger.Error("app shutdown error", zap.Error(err))
 	}
 
 	// sync logger
-	err = common.Logger.Sync()
+	err = loggerx.Logger.Sync()
 	if err != nil {
 		log.Println(err)
 	}

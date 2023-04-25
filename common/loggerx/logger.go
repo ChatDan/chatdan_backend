@@ -1,4 +1,4 @@
-package common
+package loggerx
 
 import (
 	"go.uber.org/zap"

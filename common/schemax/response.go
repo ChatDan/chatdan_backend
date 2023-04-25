@@ -1,4 +1,4 @@
-package common
+package schemax
 
 type Response struct {
 	Code     int    `json:"code"`

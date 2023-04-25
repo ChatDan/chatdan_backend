@@ -1,7 +1,7 @@
 package fiberx
 
 import (
-	"ChatDanBackend/common"
+	"ChatDanBackend/common/schemax"
 	"errors"
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
@@ -12,7 +12,7 @@ func MyErrorHandler(c *fiber.Ctx, err error) error {
 		return nil
 	}
 
-	httpError := common.Response{
+	httpError := schemax.Response{
 		Code:     500,
 		ErrorMsg: err.Error(),
 	}
@@ -21,7 +21,7 @@ func MyErrorHandler(c *fiber.Ctx, err error) error {
 		httpError.Code = 404
 	} else {
 		switch e := err.(type) {
-		case *common.Response:
+		case *schemax.Response:
 			httpError = *e
 		case *fiber.Error:
 			httpError.Code = e.Code

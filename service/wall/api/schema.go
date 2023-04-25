@@ -1,6 +1,8 @@
 package api
 
-type post struct {
+import "ChatDanBackend/common/schemax"
+
+type Post struct {
 	ID         string `json:"id"`
 	PosterID   string `json:"poster_id"`
 	Content    string `json:"content"`
@@ -8,10 +10,9 @@ type post struct {
 }
 
 type WallRequest struct {
-	PageNum  int `json:"page_num"`
-	PageSize int `json:"page_size"`
+	schemax.PageRequest
 }
 
 type WallResponse struct {
-	Posts []post `json:"posts"`
+	Posts []Post `json:"posts"`
 }

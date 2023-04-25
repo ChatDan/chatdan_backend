@@ -1,7 +1,7 @@
 package fiberx
 
 import (
-	"ChatDanBackend/common"
+	"ChatDanBackend/common/loggerx"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/pprof"
 	"github.com/gofiber/fiber/v2/middleware/recover"
@@ -40,6 +40,6 @@ func MyLogger(c *fiber.Ctx) error {
 	if chainErr != nil {
 		output = append(output, zap.Error(chainErr))
 	}
-	common.Logger.Info("http log", output...)
+	loggerx.Logger.Info("http log", output...)
 	return nil
 }
