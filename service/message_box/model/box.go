@@ -6,10 +6,11 @@ import (
 )
 
 type Box struct {
-	ID        string         `json:"id"`
+	ID        int            `json:"id"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"-"`
-	OwnerID   string         `json:"owner_id"`
+	OwnerID   int            `json:"owner_id"`
 	Title     string         `json:"title"`
+	Posts     []Post         `json:"posts"`
 }

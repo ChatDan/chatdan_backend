@@ -20,17 +20,17 @@ type BoxCreateResponse struct {
 
 type BoxListRequest struct {
 	schemax.PageRequest
-	Title *string `json:"title" query:"title"`
-	Owner *int    `json:"owner" query:"owner"`
+	Title string `json:"title" query:"title"`
+	Owner int    `json:"owner" query:"owner" validate:"min=0"`
 }
 
 type BoxListResponse struct {
-	BoxCommonResponse
+	MessageBoxes []BoxCommonResponse `json:"messageBoxes"`
 }
 
 type BoxGetResponse struct {
 	BoxCommonResponse
-	Posts []string `json:"posts"`
+	Posts []string `json:"posts" copier:"-"`
 }
 
 type BoxModifyRequest struct {
