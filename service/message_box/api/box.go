@@ -2,6 +2,7 @@ package api
 
 import (
 	"ChatDanBackend/common"
+	"ChatDanBackend/common/fiberx"
 	"ChatDanBackend/common/gormx"
 	"ChatDanBackend/common/schemax"
 	"ChatDanBackend/service/message_box/model"
@@ -19,7 +20,26 @@ import (
 // @Failure 500 {object} common.Response
 // @Router /messageBox [post]
 func CreateABox(c *fiber.Ctx) error {
-	return c.JSON(nil)
+	body, err := common.ValidateBody[BoxCreateRequest](c)
+	if err != nil {
+		return err
+	}
+
+	userID, err := fiberx.GetUserIDFromJWT(c)
+	if err != err {
+		return err
+	}
+
+	box := model.Box{
+		OwnerID: userID,
+		Title:   body.Title,
+	}
+
+	err = gormx.DB.Create(&box).Error
+	if err != nil {
+		return err
+	}
+	return c.JSON(schemax.Response{Data: common.MustConvert[BoxCreateResponse](box)})
 }
 
 // ListBoxes godoc
