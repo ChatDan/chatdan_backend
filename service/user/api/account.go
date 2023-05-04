@@ -16,6 +16,7 @@ import (
 // @Failure 500 {object} common.Response "Internal Server Error"
 func Login(c *fiber.Ctx) error {
 	// todo: set cookie
+
 	return c.JSON(nil)
 }
 
