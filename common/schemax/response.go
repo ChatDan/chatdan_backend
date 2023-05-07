@@ -9,3 +9,11 @@ type Response struct {
 func (r Response) Error() string {
 	return r.ErrorMsg
 }
+
+func Success(data any) Response {
+	return Response{
+		Code:     200,
+		ErrorMsg: "",
+		Data:     data,
+	}
+}

@@ -7,4 +7,5 @@ func RegisterRoutes(app *fiber.App) {
 
 	group.Post("/user/login", Login)
 	group.Post("/user/register", Register)
+	group.Post("/user/reset", Reset)
 }

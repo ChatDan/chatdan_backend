@@ -3,6 +3,7 @@ package main
 import (
 	"ChatDanBackend/common/fiberx"
 	"ChatDanBackend/service/user/api"
+	"ChatDanBackend/service/user/config"
 	_ "ChatDanBackend/service/user/docs"
 	"ChatDanBackend/service/user/model"
 )
@@ -29,7 +30,7 @@ import (
 func main() {
 	fiberx.NewFiberApp(fiberx.AppOptions{
 		AppName:        "User Microservice",
-		CustomConfig:   nil,
+		CustomConfig:   &config.CustomConfig,
 		Models:         []any{model.User{}},
 		RegisterRoutes: api.RegisterRoutes,
 	})

@@ -5,6 +5,7 @@ import (
 	"ChatDanBackend/common/configx"
 	"ChatDanBackend/common/gormx"
 	"ChatDanBackend/common/loggerx"
+	"ChatDanBackend/common/schemax"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
@@ -31,10 +32,11 @@ func NewFiberApp(options AppOptions) {
 
 	// new fiber app
 	app := fiber.New(fiber.Config{
-		AppName:      options.AppName,
-		ErrorHandler: MyErrorHandler,
-		JSONEncoder:  json.Marshal,
-		JSONDecoder:  json.Unmarshal,
+		AppName:               options.AppName,
+		ErrorHandler:          schemax.MyErrorHandler,
+		JSONEncoder:           json.Marshal,
+		JSONDecoder:           json.Unmarshal,
+		DisableStartupMessage: true,
 	})
 	registerMiddlewares(app)
 	registerRoutes(app)

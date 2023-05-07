@@ -1,6 +1,7 @@
 package common
 
 import (
+	"ChatDanBackend/common/schemax"
 	"github.com/creasty/defaults"
 	"github.com/go-playground/validator/v10"
 	"github.com/goccy/go-json"
@@ -68,7 +69,7 @@ func ValidateBody[T any](c *fiber.Ctx) (*T, error) {
 	body := c.Body()
 	var model T
 	if len(body) == 0 {
-		return &model, defaults.Set(&model)
+		return nil, schemax.BadRequest("Body is empty")
 	} else {
 		if err := json.Unmarshal(body, &model); err != nil {
 			return nil, err
