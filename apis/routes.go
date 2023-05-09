@@ -22,19 +22,19 @@ func RegisterRoutes(app *fiber.App) {
 	group.Post("/user/reset", Reset)
 
 	// Box
-	app.Get("/messageBoxes", ListBoxes)
-	app.Get("/messageBox/:id", GetABox)
-	app.Post("/messageBox", CreateABox)
-	app.Put("/messageBox/:id", ModifyABox)
-	app.Delete("/messageBox/:id", DeleteABox)
+	group.Get("/messageBoxes", ListBoxes)
+	group.Get("/messageBox/:id", GetABox)
+	group.Post("/messageBox", CreateABox)
+	group.Put("/messageBox/:id", ModifyABox)
+	group.Delete("/messageBox/:id", DeleteABox)
 
 	// Post
-	app.Get("/posts", ListPosts)
-	app.Get("/post/:id", GetAPost)
-	app.Post("/post", CreateAPost)
-	app.Put("/post/:id", ModifyAPost)
-	app.Delete("/post/:id", DeleteAPost)
+	group.Get("/posts", ListPosts)
+	group.Get("/post/:id", GetAPost)
+	group.Post("/post", CreateAPost)
+	group.Put("/post/:id", ModifyAPost)
+	group.Delete("/post/:id", DeleteAPost)
 
 	// Wall
-	app.Get("/wall", ListWalls)
+	group.Get("/wall", ListWalls)
 }
