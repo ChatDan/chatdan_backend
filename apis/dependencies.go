@@ -9,7 +9,7 @@ import (
 )
 
 func GetCurrentUser(c *fiber.Ctx, user *User) error {
-	accessToken := c.Cookies("access")
+	accessToken := c.Cookies("jwt")
 	if accessToken == "" {
 		accessToken = c.Get("Authorization")
 		if accessToken == "" {
