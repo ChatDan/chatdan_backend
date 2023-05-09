@@ -1,0 +1,685 @@
+basePath: /api
+definitions:
+  apis.BoxCommonResponse:
+    properties:
+      id:
+        type: string
+      owner_id:
+        type: string
+      title:
+        type: string
+    type: object
+  apis.BoxCreateRequest:
+    properties:
+      title:
+        type: string
+    required:
+    - title
+    type: object
+  apis.BoxGetResponse:
+    properties:
+      id:
+        type: string
+      owner_id:
+        type: string
+      posts:
+        items:
+          type: string
+        type: array
+      title:
+        type: string
+    type: object
+  apis.BoxListResponse:
+    properties:
+      messageBoxes:
+        items:
+          $ref: '#/definitions/apis.BoxCommonResponse'
+        type: array
+    type: object
+  apis.BoxModifyRequest:
+    properties:
+      title:
+        type: string
+    type: object
+  apis.LoginRequest:
+    properties:
+      password:
+        minLength: 8
+        type: string
+      username:
+        minLength: 8
+        type: string
+    type: object
+  apis.PostCommonResponse:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      poster_id:
+        type: integer
+      visibility:
+        type: string
+    type: object
+  apis.PostCreateRequest:
+    properties:
+      content:
+        type: string
+      message_box_id:
+        type: integer
+      visibility:
+        default: public
+        enum:
+        - public
+        - private
+        type: string
+    required:
+    - content
+    - message_box_id
+    type: object
+  apis.PostDeleteResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  apis.PostGetResponse:
+    properties:
+      channels:
+        items:
+          type: string
+        type: array
+      content:
+        type: string
+      id:
+        type: integer
+      poster_id:
+        type: integer
+      visibility:
+        type: string
+    type: object
+  apis.PostListResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/apis.PostCommonResponse'
+        type: array
+    type: object
+  apis.PostModifyRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      visibility:
+        enum:
+        - public
+        - private
+        type: string
+    type: object
+  apis.ResetRequest:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        minLength: 8
+        type: string
+    type: object
+  apis.UserResponse:
+    properties:
+      is_admin:
+        type: boolean
+      username:
+        type: string
+    type: object
+  apis.WallListResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/apis.PostCommonResponse'
+        type: array
+    type: object
+  models.Map:
+    additionalProperties: {}
+    type: object
+  utils.Response:
+    properties:
+      code:
+        type: integer
+      data: {}
+      error_msg:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    email: jingyijun3104@outlook.com
+    name: JingYiJun
+    url: https://www.jingyijun.xyz
+  description: ChatDan, a question box and 'biaobai' platform for Fudaners.
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: https://swagger.io/terms/
+  title: ChatDan Backend
+  version: 0.0.1
+paths:
+  /api/user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: The two fields are required, you can also add other fields(e.g.
+          email).
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Login
+      tags:
+      - Account
+  /api/user/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: The two fields are required, you can also add other fields(e.g.
+          email).
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Register
+      tags:
+      - Account
+  /api/user/reset:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.ResetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Invalid JWT Token
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Reset Password
+      tags:
+      - Account
+  /api/wall:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.WallListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取今日表白墙
+      tags:
+      - Wall
+  /messageBox:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: box
+        in: body
+        name: box
+        required: true
+        schema:
+          $ref: '#/definitions/apis.BoxCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.BoxCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Create a message box
+      tags:
+      - Box
+  /messageBox/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.Map'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Delete a message box
+      tags:
+      - Box
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.BoxGetResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get a message box
+      tags:
+      - Box
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: box
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.BoxModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.BoxCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Modify a message box
+      tags:
+      - Box
+  /messageBoxes:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - in: query
+        minimum: 0
+        name: owner
+        type: integer
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        name: title
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.BoxListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: List message boxes
+      tags:
+      - Box
+  /post:
+    post:
+      consumes:
+      - application/json
+      description: Create a post
+      parameters:
+      - description: post
+        in: body
+        name: post
+        required: true
+        schema:
+          $ref: '#/definitions/apis.PostCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.PostCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Create a post
+      tags:
+      - Post
+  /post/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a post, owner only
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.PostDeleteResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Delete a post
+      tags:
+      - Post
+    get:
+      consumes:
+      - application/json
+      description: Get a post
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.PostGetResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get a post
+      tags:
+      - Post
+    put:
+      consumes:
+      - application/json
+      description: Modify a post, owner only
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: post
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.PostModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.PostCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Modify a post
+      tags:
+      - Post
+  /posts:
+    get:
+      consumes:
+      - application/json
+      description: List posts
+      parameters:
+      - in: query
+        name: boxID
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.PostListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: List posts
+      tags:
+      - Post
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
