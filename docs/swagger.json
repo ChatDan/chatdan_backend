@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "ChatDan, a question box and 'biaobai' platform for Fudaners.",
+        "description": "ChatDan, a message box and 'biaobai' platform for Fudaners.",
         "title": "ChatDan Backend",
         "termsOfService": "https://swagger.io/terms/",
         "contact": {
@@ -932,7 +932,7 @@
                 },
                 "username": {
                     "type": "string",
-                    "minLength": 8
+                    "minLength": 2
                 }
             }
         },

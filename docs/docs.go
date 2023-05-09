@@ -939,7 +939,7 @@ const docTemplate = `{
                 },
                 "username": {
                     "type": "string",
-                    "minLength": 8
+                    "minLength": 2
                 }
             }
         },
@@ -1110,7 +1110,7 @@ var SwaggerInfo = &swag.Spec{
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "ChatDan Backend",
-	Description:      "ChatDan, a question box and 'biaobai' platform for Fudaners.",
+	Description:      "ChatDan, a message box and 'biaobai' platform for Fudaners.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

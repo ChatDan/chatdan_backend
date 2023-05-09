@@ -47,7 +47,7 @@ definitions:
         minLength: 8
         type: string
       username:
-        minLength: 8
+        minLength: 2
         type: string
     type: object
   apis.PostCommonResponse:
@@ -156,7 +156,7 @@ info:
     email: jingyijun3104@outlook.com
     name: JingYiJun
     url: https://www.jingyijun.xyz
-  description: ChatDan, a question box and 'biaobai' platform for Fudaners.
+  description: ChatDan, a message box and 'biaobai' platform for Fudaners.
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
