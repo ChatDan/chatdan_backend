@@ -3,6 +3,7 @@ package apis
 import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
+	"encoding/base64"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/zap"
@@ -43,6 +44,13 @@ func parseJwt(token string, claims *UserClaims) (err error) {
 		return Unauthorized()
 	}
 
+	// jwt encoding ignores padding, so RawStdEncoding should be used instead of StdEncoding
+	data, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		Logger.Error("failed to decode jwt", zap.Error(err), zap.String("token", token))
+		return Unauthorized()
+	}
+
 	// decode payload
-	return json.Unmarshal([]byte(parts[1]), claims)
+	return json.Unmarshal(data, claims)
 }
