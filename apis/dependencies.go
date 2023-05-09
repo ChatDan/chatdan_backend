@@ -3,14 +3,17 @@ package apis
 import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
+	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"go.uber.org/zap"
+	"strings"
 )
 
 func GetCurrentUser(c *fiber.Ctx, user *User) error {
+	// get access token from cookie "jwt"
 	accessToken := c.Cookies("jwt")
 	if accessToken == "" {
+		// get access token from header "Authorization"
 		accessToken = c.Get("Authorization")
 		if accessToken == "" {
 			return Unauthorized()
@@ -19,19 +22,27 @@ func GetCurrentUser(c *fiber.Ctx, user *User) error {
 			accessToken = accessToken[7:]
 		}
 	}
-	token, err := jwt.ParseWithClaims(accessToken, &UserClaims{}, nil, jwt.WithoutClaimsValidation())
-	if err != nil {
-		Logger.Error("invalid jwt token", zap.String("token", accessToken), zap.Error(err))
-		return Unauthorized("invalid jwt token")
+
+	// parse jwt
+	var claims UserClaims
+	if err := parseJwt(accessToken, &claims); err != nil {
+		Logger.Error("failed to parse jwt", zap.Error(err), zap.String("token", accessToken))
+		return err
 	}
 
-	if userClaims, ok := token.Claims.(*UserClaims); ok {
-		user.ID = userClaims.UserID
-		user.IsAdmin = userClaims.IsAdmin
-		c.Locals("user_id", user.ID)
-		return nil
-	} else {
-		Logger.Error("invalid jwt token", zap.String("token", accessToken))
-		return Unauthorized("invalid jwt token")
+	// convert to user
+	user.ID = claims.UserID
+	user.IsAdmin = claims.IsAdmin
+	return nil
+}
+
+func parseJwt(token string, claims *UserClaims) (err error) {
+	// split token into 3 parts
+	parts := strings.Split(token, ".")
+	if len(parts) != 3 {
+		return Unauthorized()
 	}
+
+	// decode payload
+	return json.Unmarshal([]byte(parts[1]), claims)
 }
