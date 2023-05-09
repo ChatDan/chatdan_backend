@@ -10,7 +10,7 @@ import (
 // ListWalls
 // @Summary 获取今日表白墙
 // @Tags Wall
-// @Router /api/wall [get]
+// @Router /wall [get]
 // @Produce json
 // @Param json query WallListRequest true "query"
 // @Success 200 {object} Response{data=WallListResponse}

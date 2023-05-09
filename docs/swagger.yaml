@@ -164,43 +164,6 @@ info:
   title: ChatDan Backend
   version: 0.0.1
 paths:
-  /api/wall:
-    get:
-      parameters:
-      - in: query
-        minimum: 1
-        name: page_num
-        required: true
-        type: integer
-      - in: query
-        maximum: 100
-        minimum: 1
-        name: page_size
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/apis.WallListResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: 服务器错误
-          schema:
-            $ref: '#/definitions/utils.Response'
-      summary: 获取今日表白墙
-      tags:
-      - Wall
   /messageBox:
     post:
       consumes:
@@ -677,6 +640,43 @@ paths:
       summary: Reset Password
       tags:
       - Account
+  /wall:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.WallListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取今日表白墙
+      tags:
+      - Wall
 securityDefinitions:
   ApiKeyAuth:
     in: header

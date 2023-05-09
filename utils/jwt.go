@@ -47,7 +47,10 @@ func getConsumerUsername(userID int) string {
 
 func GetConsumer(userID int) (*ApisixConsumer, error) {
 	consumerUsername := getConsumerUsername(userID)
-	var consumer ApisixConsumer
+	var responseStruct struct {
+		Key   string         `json:"key"`
+		Value ApisixConsumer `json:"value"`
+	}
 
 	// get request
 	req := fasthttp.AcquireRequest()
@@ -79,7 +82,7 @@ func GetConsumer(userID int) (*ApisixConsumer, error) {
 	}
 
 	data := resp.Body()
-	err = json.Unmarshal(data, &consumer)
+	err = json.Unmarshal(data, &responseStruct)
 	if err != nil {
 		Logger.Error("unmarshal consumer failed",
 			zap.ByteString("body", data),
@@ -87,7 +90,7 @@ func GetConsumer(userID int) (*ApisixConsumer, error) {
 		return nil, err
 	}
 
-	return &consumer, nil
+	return &responseStruct.Value, nil
 }
 
 func CreateConsumer(userID int) (*ApisixConsumer, error) {
@@ -143,7 +146,7 @@ func CreateJwtToken(claims UserClaims) (string, error) {
 	if claims.ExpiresAt == nil {
 		claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
 	}
-	claims.Key = consumer.Plugins.JWTAuth.Key
+	claims.Key = getConsumerUsername(claims.UserID)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(consumer.Plugins.JWTAuth.Secret))
