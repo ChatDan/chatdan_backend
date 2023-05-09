@@ -15,7 +15,7 @@ import (
 // @Tags Account
 // @Accept json
 // @Produce json
-// @Router /api/user/login [post]
+// @Router /user/login [post]
 // @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
 // @Success 200 {object} Response{data=UserResponse}
 // @Failure 401 {object} Response "用户名或密码错误"
@@ -68,7 +68,7 @@ func Login(c *fiber.Ctx) (err error) {
 // @Tags Account
 // @Accept json
 // @Produce json
-// @Router /api/user/register [post]
+// @Router /user/register [post]
 // @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
 // @Success 200 {object} Response{data=UserResponse}
 // @Failure 400 {object} Response "Bad Request"
@@ -125,7 +125,7 @@ func Register(c *fiber.Ctx) (err error) {
 // @Tags Account
 // @Accept json
 // @Produce json
-// @Router /api/user/reset [post]
+// @Router /user/reset [post]
 // @Param json body ResetRequest true "json"
 // @Success 200 {object} Response{data=UserResponse}
 // @Failure 400 {object} Response "Bad Request"

@@ -164,114 +164,6 @@ info:
   title: ChatDan Backend
   version: 0.0.1
 paths:
-  /api/user/login:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: The two fields are required, you can also add other fields(e.g.
-          email).
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/apis.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/apis.UserResponse'
-              type: object
-        "401":
-          description: 用户名或密码错误
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      summary: Login
-      tags:
-      - Account
-  /api/user/register:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: The two fields are required, you can also add other fields(e.g.
-          email).
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/apis.LoginRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/apis.UserResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      summary: Register
-      tags:
-      - Account
-  /api/user/reset:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: json
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/apis.ResetRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/apis.UserResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "401":
-          description: Invalid JWT Token
-          schema:
-            $ref: '#/definitions/utils.Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.Response'
-      summary: Reset Password
-      tags:
-      - Account
   /api/wall:
     get:
       parameters:
@@ -677,6 +569,114 @@ paths:
       summary: List posts
       tags:
       - Post
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: The two fields are required, you can also add other fields(e.g.
+          email).
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "401":
+          description: 用户名或密码错误
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Login
+      tags:
+      - Account
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: The two fields are required, you can also add other fields(e.g.
+          email).
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Register
+      tags:
+      - Account
+  /user/reset:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: json
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.ResetRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "401":
+          description: Invalid JWT Token
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Reset Password
+      tags:
+      - Account
 securityDefinitions:
   ApiKeyAuth:
     in: header
