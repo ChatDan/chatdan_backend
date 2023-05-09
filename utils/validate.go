@@ -53,13 +53,13 @@ func Validate(model any) error {
 }
 
 func ValidateQuery(c *fiber.Ctx, model any) error {
-	if err := c.QueryParser(&model); err != nil {
+	if err := c.QueryParser(model); err != nil {
 		return err
 	}
-	if err := defaults.Set(&model); err != nil {
+	if err := defaults.Set(model); err != nil {
 		return err
 	}
-	return Validate(&model)
+	return Validate(model)
 }
 
 // ValidateBody supports json only
@@ -68,12 +68,12 @@ func ValidateBody(c *fiber.Ctx, model any) error {
 	if len(body) == 0 {
 		return BadRequest("Body is empty")
 	} else {
-		if err := json.Unmarshal(body, &model); err != nil {
+		if err := json.Unmarshal(body, model); err != nil {
 			return err
 		}
-		if err := defaults.Set(&model); err != nil {
+		if err := defaults.Set(model); err != nil {
 			return err
 		}
-		return Validate(&model)
+		return Validate(model)
 	}
 }
