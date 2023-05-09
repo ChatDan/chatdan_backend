@@ -8,7 +8,7 @@ import (
 // User
 
 type LoginRequest struct {
-	Username string `json:"username" validate:"min=8"`
+	Username string `json:"username" validate:"min=2"`
 	Password string `json:"password" validate:"min=8"`
 }
 
