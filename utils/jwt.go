@@ -12,8 +12,9 @@ import (
 )
 
 type UserClaims struct {
-	UserID  int  `json:"user_id"`
-	IsAdmin bool `json:"is_admin"`
+	UserID  int    `json:"user_id"`
+	IsAdmin bool   `json:"is_admin"`
+	Key     string `json:"key"`
 	jwt.RegisteredClaims
 }
 
@@ -142,6 +143,7 @@ func CreateJwtToken(claims UserClaims) (string, error) {
 	if claims.ExpiresAt == nil {
 		claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
 	}
+	claims.Key = consumer.Plugins.JWTAuth.Key
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(consumer.Plugins.JWTAuth.Secret))
