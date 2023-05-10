@@ -8,8 +8,8 @@ import (
 )
 
 // ListBoxes godoc
-// @Summary List message boxes
-// @Tags Box
+// @Summary 查询提问箱
+// @Tags MessageBox Module
 // @Accept json
 // @Produce json
 // @Param body query BoxListRequest true "page"
@@ -32,11 +32,11 @@ func ListBoxes(c *fiber.Ctx) (err error) {
 
 	// construct querySet
 	querySet := query.QuerySet(DB)
-	if query.Title != nil {
-		querySet = querySet.Where("title=?", *query.Title) // TODO: fuzzy search
+	if query.Title != "" {
+		querySet = querySet.Where("title=?", query.Title) // TODO: fuzzy search
 	}
-	if query.Owner != nil {
-		querySet = querySet.Where("owner_id=?", *query.Owner)
+	if query.Owner != 0 {
+		querySet = querySet.Where("owner_id=?", query.Owner)
 	}
 
 	// load boxes from database
@@ -55,8 +55,8 @@ func ListBoxes(c *fiber.Ctx) (err error) {
 }
 
 // GetABox godoc
-// @Summary Get a message box
-// @Tags Box
+// @Summary 获取提问箱信息
+// @Tags MessageBox Module
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
@@ -100,8 +100,8 @@ func GetABox(c *fiber.Ctx) (err error) {
 }
 
 // CreateABox godoc
-// @Summary Create a message box
-// @Tags Box
+// @Summary 创建提问箱
+// @Tags MessageBox Module
 // @Accept json
 // @Produce json
 // @Param box body BoxCreateRequest true "box"
@@ -138,8 +138,8 @@ func CreateABox(c *fiber.Ctx) (err error) {
 }
 
 // ModifyABox godoc
-// @Summary Modify a message box
-// @Tags Box
+// @Summary 修改提问箱信息
+// @Tags MessageBox Module
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
@@ -195,8 +195,8 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 }
 
 // DeleteABox godoc
-// @Summary Delete a message box
-// @Tags Box
+// @Summary 删除提问箱
+// @Tags MessageBox Module
 // @Accept json
 // @Produce json
 // @Param id path string true "id"

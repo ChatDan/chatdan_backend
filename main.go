@@ -16,6 +16,18 @@ import (
 // @description    ChatDan, a message box and 'biaobai' platform for Fudaners.
 // @termsOfService https://swagger.io/terms/
 
+// @tag.name User Module
+// @tag.description 用户模块
+
+// @tag.name MessageBox Module
+// @tag.description 提问箱模块
+
+// @tag.name Post Module
+// @tag.description 帖子模块
+
+// @tag.name Wall Module
+// @tag.description 表白墙模块
+
 // @contact.name   JingYiJun
 // @contact.url    https://www.jingyijun.xyz
 // @contact.email  jingyijun3104@outlook.com

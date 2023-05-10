@@ -13,6 +13,7 @@ type LoginRequest struct {
 }
 
 type UserResponse struct {
+	ID       int    `json:"id"`
 	Username string `json:"username"`
 	IsAdmin  bool   `json:"is_admin"`
 }
@@ -25,8 +26,8 @@ type ResetRequest struct {
 /* Box */
 
 type BoxCommonResponse struct {
-	ID      string `json:"id"`
-	OwnerID string `json:"owner_id"`
+	ID      int    `json:"id"`
+	OwnerID int    `json:"owner_id"`
 	Title   string `json:"title"`
 }
 
@@ -36,8 +37,8 @@ type BoxCreateRequest struct {
 
 type BoxListRequest struct {
 	PageRequest
-	Title *string `json:"title" query:"title"`
-	Owner *int    `json:"owner" query:"owner" validate:"omitempty,min=0"`
+	Title string `json:"title" query:"title"`
+	Owner int    `json:"owner" query:"owner" validate:"omitempty,min=0"`
 }
 
 type BoxListResponse struct {
@@ -72,7 +73,7 @@ func (p *PostCreateRequest) IsPublic() bool {
 
 type PostListRequest struct {
 	PageRequest
-	BoxID int `query:"message_box_id" validate:"required"`
+	BoxID int `json:"message_box_id" query:"message_box_id" validate:"required"`
 }
 
 type PostListResponse struct {

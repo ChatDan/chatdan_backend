@@ -8,9 +8,8 @@ import (
 )
 
 // ListPosts godoc
-// @Summary List posts
-// @Description List posts
-// @Tags Post
+// @Summary 查询所有帖子
+// @Tags Post Module
 // @Accept json
 // @Produce json
 // @Router /posts [get]
@@ -59,10 +58,8 @@ func ListPosts(c *fiber.Ctx) (err error) {
 }
 
 // GetAPost godoc
-// @Summary Get a post
-// @Description Get a post
-// @Tags Post
-// @Accept json
+// @Summary 获取帖子信息
+// @Tags Post Module
 // @Produce json
 // @Router /post/{id} [get]
 // @Param id path string true "id"
@@ -110,13 +107,12 @@ func GetAPost(c *fiber.Ctx) (err error) {
 }
 
 // CreateAPost godoc
-// @Summary Create a post
-// @Description Create a post
-// @Tags Post
+// @Summary 创建帖子
+// @Tags Post Module
 // @Accept json
 // @Produce json
 // @Param post body PostCreateRequest true "post"
-// @Success 200 {object} Response{data=PostCommonResponse}
+// @Success 201 {object} Response{data=PostCommonResponse}
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 // @Router /post [post]
@@ -161,10 +157,9 @@ func CreateAPost(c *fiber.Ctx) (err error) {
 }
 
 // ModifyAPost godoc
-// @Summary Modify a post
-// @Description Modify a post, owner only
-// @Tags Post
-// @Accept json
+// @Summary 删除帖子
+// @Description Only the owner of library can delete it
+// @Tags Post Module
 // @Produce json
 // @Router /post/{id} [put]
 // @Param id path string true "id"
@@ -223,12 +218,11 @@ func ModifyAPost(c *fiber.Ctx) (err error) {
 }
 
 // DeleteAPost godoc
-// @Summary Delete a post
-// @Description Delete a post, owner only
-// @Tags Post
-// @Accept json
+// @Summary 删除帖子
+// @Description Only the owner of library can delete it
+// @Tags Post Module
 // @Produce json
-// @Param id path string true "id"
+// @Param id path string true "Only the owner of library can delete it."
 // @Success 200 {object} Response{data=PostDeleteResponse}
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response

@@ -34,9 +34,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Box"
+                    "MessageBox Module"
                 ],
-                "summary": "Create a message box",
+                "summary": "创建提问箱",
                 "parameters": [
                     {
                         "description": "box",
@@ -91,9 +91,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Box"
+                    "MessageBox Module"
                 ],
-                "summary": "Get a message box",
+                "summary": "获取提问箱信息",
                 "parameters": [
                     {
                         "type": "string",
@@ -144,9 +144,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Box"
+                    "MessageBox Module"
                 ],
-                "summary": "Modify a message box",
+                "summary": "修改提问箱信息",
                 "parameters": [
                     {
                         "type": "string",
@@ -206,9 +206,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Box"
+                    "MessageBox Module"
                 ],
-                "summary": "Delete a message box",
+                "summary": "删除提问箱",
                 "parameters": [
                     {
                         "type": "string",
@@ -261,9 +261,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Box"
+                    "MessageBox Module"
                 ],
-                "summary": "List message boxes",
+                "summary": "查询提问箱",
                 "parameters": [
                     {
                         "minimum": 0,
@@ -328,7 +328,6 @@ const docTemplate = `{
         },
         "/post": {
             "post": {
-                "description": "Create a post",
                 "consumes": [
                     "application/json"
                 ],
@@ -336,9 +335,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Post"
+                    "Post Module"
                 ],
-                "summary": "Create a post",
+                "summary": "创建帖子",
                 "parameters": [
                     {
                         "description": "post",
@@ -351,8 +350,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "allOf": [
                                 {
@@ -386,17 +385,13 @@ const docTemplate = `{
         },
         "/post/{id}": {
             "get": {
-                "description": "Get a post",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Post"
+                    "Post Module"
                 ],
-                "summary": "Get a post",
+                "summary": "获取帖子信息",
                 "parameters": [
                     {
                         "type": "string",
@@ -440,17 +435,14 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "Modify a post, owner only",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Only the owner of library can delete it",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Post"
+                    "Post Module"
                 ],
-                "summary": "Modify a post",
+                "summary": "删除帖子",
                 "parameters": [
                     {
                         "type": "string",
@@ -503,21 +495,18 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Delete a post, owner only",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Only the owner of library can delete it",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Post"
+                    "Post Module"
                 ],
-                "summary": "Delete a post",
+                "summary": "删除帖子",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "id",
+                        "description": "Only the owner of library can delete it.",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -559,7 +548,6 @@ const docTemplate = `{
         },
         "/posts": {
             "get": {
-                "description": "List posts",
                 "consumes": [
                     "application/json"
                 ],
@@ -567,13 +555,13 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Post"
+                    "Post Module"
                 ],
-                "summary": "List posts",
+                "summary": "查询所有帖子",
                 "parameters": [
                     {
                         "type": "integer",
-                        "name": "boxID",
+                        "name": "message_box_id",
                         "in": "query",
                         "required": true
                     },
@@ -636,7 +624,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Account"
+                    "User Module"
                 ],
                 "summary": "Login",
                 "parameters": [
@@ -693,7 +681,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Account"
+                    "User Module"
                 ],
                 "summary": "Register",
                 "parameters": [
@@ -750,7 +738,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Account"
+                    "User Module"
                 ],
                 "summary": "Reset Password",
                 "parameters": [
@@ -810,7 +798,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Wall"
+                    "Wall Module"
                 ],
                 "summary": "获取今日表白墙",
                 "parameters": [
@@ -870,10 +858,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "owner_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
@@ -895,10 +883,10 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "owner_id": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "posts": {
                     "type": "array",
@@ -1058,6 +1046,9 @@ const docTemplate = `{
         "apis.UserResponse": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "is_admin": {
                     "type": "boolean"
                 },
@@ -1100,7 +1091,25 @@ const docTemplate = `{
             "name": "Authorization",
             "in": "header"
         }
-    }
+    },
+    "tags": [
+        {
+            "description": "用户模块",
+            "name": "User Module"
+        },
+        {
+            "description": "提问箱模块",
+            "name": "MessageBox Module"
+        },
+        {
+            "description": "帖子模块",
+            "name": "Post Module"
+        },
+        {
+            "description": "表白墙模块",
+            "name": "Wall Module"
+        }
+    ]
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

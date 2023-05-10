@@ -12,7 +12,7 @@ import (
 
 // Login godoc
 // @Summary Login
-// @Tags Account
+// @Tags User Module
 // @Accept json
 // @Produce json
 // @Router /user/login [post]
@@ -65,7 +65,7 @@ func Login(c *fiber.Ctx) (err error) {
 
 // Register godoc
 // @Summary Register
-// @Tags Account
+// @Tags User Module
 // @Accept json
 // @Produce json
 // @Router /user/register [post]
@@ -122,7 +122,7 @@ func Register(c *fiber.Ctx) (err error) {
 
 // Reset godoc
 // @Summary Reset Password
-// @Tags Account
+// @Tags User Module
 // @Accept json
 // @Produce json
 // @Router /user/reset [post]

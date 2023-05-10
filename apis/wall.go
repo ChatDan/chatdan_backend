@@ -9,7 +9,7 @@ import (
 
 // ListWalls
 // @Summary 获取今日表白墙
-// @Tags Wall
+// @Tags Wall Module
 // @Router /wall [get]
 // @Produce json
 // @Param json query WallListRequest true "query"

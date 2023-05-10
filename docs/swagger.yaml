@@ -3,9 +3,9 @@ definitions:
   apis.BoxCommonResponse:
     properties:
       id:
-        type: string
+        type: integer
       owner_id:
-        type: string
+        type: integer
       title:
         type: string
     type: object
@@ -19,9 +19,9 @@ definitions:
   apis.BoxGetResponse:
     properties:
       id:
-        type: string
+        type: integer
       owner_id:
-        type: string
+        type: integer
       posts:
         items:
           type: string
@@ -127,6 +127,8 @@ definitions:
     type: object
   apis.UserResponse:
     properties:
+      id:
+        type: integer
       is_admin:
         type: boolean
       username:
@@ -195,9 +197,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Create a message box
+      summary: 创建提问箱
       tags:
-      - Box
+      - MessageBox Module
   /messageBox/{id}:
     delete:
       consumes:
@@ -228,9 +230,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Delete a message box
+      summary: 删除提问箱
       tags:
-      - Box
+      - MessageBox Module
     get:
       consumes:
       - application/json
@@ -260,9 +262,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Get a message box
+      summary: 获取提问箱信息
       tags:
-      - Box
+      - MessageBox Module
     put:
       consumes:
       - application/json
@@ -298,9 +300,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Modify a message box
+      summary: 修改提问箱信息
       tags:
-      - Box
+      - MessageBox Module
   /messageBoxes:
     get:
       consumes:
@@ -344,14 +346,13 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: List message boxes
+      summary: 查询提问箱
       tags:
-      - Box
+      - MessageBox Module
   /post:
     post:
       consumes:
       - application/json
-      description: Create a post
       parameters:
       - description: post
         in: body
@@ -362,8 +363,8 @@ paths:
       produces:
       - application/json
       responses:
-        "200":
-          description: OK
+        "201":
+          description: Created
           schema:
             allOf:
             - $ref: '#/definitions/utils.Response'
@@ -379,16 +380,14 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Create a post
+      summary: 创建帖子
       tags:
-      - Post
+      - Post Module
   /post/{id}:
     delete:
-      consumes:
-      - application/json
-      description: Delete a post, owner only
+      description: Only the owner of library can delete it
       parameters:
-      - description: id
+      - description: Only the owner of library can delete it.
         in: path
         name: id
         required: true
@@ -413,13 +412,10 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Delete a post
+      summary: 删除帖子
       tags:
-      - Post
+      - Post Module
     get:
-      consumes:
-      - application/json
-      description: Get a post
       parameters:
       - description: id
         in: path
@@ -446,13 +442,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Get a post
+      summary: 获取帖子信息
       tags:
-      - Post
+      - Post Module
     put:
-      consumes:
-      - application/json
-      description: Modify a post, owner only
+      description: Only the owner of library can delete it
       parameters:
       - description: id
         in: path
@@ -485,17 +479,16 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: Modify a post
+      summary: 删除帖子
       tags:
-      - Post
+      - Post Module
   /posts:
     get:
       consumes:
       - application/json
-      description: List posts
       parameters:
       - in: query
-        name: boxID
+        name: message_box_id
         required: true
         type: integer
       - in: query
@@ -529,9 +522,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: List posts
+      summary: 查询所有帖子
       tags:
-      - Post
+      - Post Module
   /user/login:
     post:
       consumes:
@@ -566,7 +559,7 @@ paths:
             $ref: '#/definitions/utils.Response'
       summary: Login
       tags:
-      - Account
+      - User Module
   /user/register:
     post:
       consumes:
@@ -601,7 +594,7 @@ paths:
             $ref: '#/definitions/utils.Response'
       summary: Register
       tags:
-      - Account
+      - User Module
   /user/reset:
     post:
       consumes:
@@ -639,7 +632,7 @@ paths:
             $ref: '#/definitions/utils.Response'
       summary: Reset Password
       tags:
-      - Account
+      - User Module
   /wall:
     get:
       parameters:
@@ -676,10 +669,19 @@ paths:
             $ref: '#/definitions/utils.Response'
       summary: 获取今日表白墙
       tags:
-      - Wall
+      - Wall Module
 securityDefinitions:
   ApiKeyAuth:
     in: header
     name: Authorization
     type: apiKey
 swagger: "2.0"
+tags:
+- description: 用户模块
+  name: User Module
+- description: 提问箱模块
+  name: MessageBox Module
+- description: 帖子模块
+  name: Post Module
+- description: 表白墙模块
+  name: Wall Module
