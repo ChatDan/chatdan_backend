@@ -13,19 +13,21 @@ type User struct {
 	// 元数据
 	ID             int            `json:"id"`
 	Username       string         `json:"username" gorm:"index,size:30"`
-	Email          string         `json:"email" gorm:"index"`
+	Email          *string        `json:"email" gorm:"index"` // 邮箱，可选登录
 	HashedPassword string         `json:"-" gorm:"size:256"`
 	LoginTime      time.Time      `json:"-" gorm:"autoUpdateTime"`
 	RegisterTime   time.Time      `json:"-" gorm:"autoCreateTime"`
 	DeletedAt      gorm.DeletedAt `json:"-"`
 	Banned         bool           `json:"banned"`
 	IsAdmin        bool           `json:"is_admin"`
-	Avatar         string         `json:"avatar" gorm:"size:256"`       // 头像链接
-	Introduction   string         `json:"introduction" gorm:"size:256"` // 个人简介/个性签名
+	Avatar         *string        `json:"avatar" gorm:"size:256"`       // 头像链接
+	Introduction   *string        `json:"introduction" gorm:"size:256"` // 个人简介/个性签名
 
 	// 关联数据
-	FavoriteTopics []*Topic `json:"favorite_topics" gorm:"many2many:user_favorites"` // 收藏的话题
-	FollowedUsers  []*User  `json:"followed_users" gorm:"many2many:user_follows"`    // 关注的用户
+	UserJwtSecret  *UserJwtSecret `json:"-" gorm:"foreignKey:UserID"`
+	ViewedTopics   []*Topic       `json:"viewed_topics" gorm:"many2many:topic_user_views"`       // 浏览过的话题
+	FavoriteTopics []*Topic       `json:"favorite_topics" gorm:"many2many:topic_user_favorites"` // 收藏的话题
+	FollowedUsers  []*User        `json:"followed_users" gorm:"many2many:user_follows"`          // 关注的用户
 
 	// 统计数据
 	TopicCount          int `json:"topic_count" gorm:"not null;default:0"`           // 发表的话题数
@@ -36,7 +38,7 @@ type User struct {
 }
 
 type UserJwtSecret struct {
-	ID     int    `json:"id"`
+	UserID int    `json:"id" gorm:"primaryKey"`
 	Secret string `json:"secret" gorm:"size:256"`
 }
 
@@ -48,7 +50,7 @@ func CreateJwtToken(user *User) (string, error) {
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				userJwtSecret = UserJwtSecret{
-					ID:     user.ID,
+					UserID: user.ID,
 					Secret: randstr.Base62(32),
 				}
 				err = DB.Create(&userJwtSecret).Error

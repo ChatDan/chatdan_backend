@@ -165,3 +165,11 @@ func Reset(c *fiber.Ctx) (err error) {
 
 	return Success(c, response)
 }
+
+// Logout godoc
+// @Summary Logout
+// @Tags User Module
+// @Accept json
+// @Produce json
+// @Router /user/logout [post]
+// @Success 200 {object} Response{data=UserResponse}

@@ -60,6 +60,15 @@ func InitDB() {
 	if err = DB.SetupJoinTable(Topic{}, "LikedUsers", &TopicUserLikes{}); err != nil {
 		panic(err)
 	}
+	if err = DB.SetupJoinTable(Topic{}, "FavoredUsers", &TopicUserFavorites{}); err != nil {
+		panic(err)
+	}
+	if err = DB.SetupJoinTable(Topic{}, "ViewedUsers", &TopicUserViews{}); err != nil {
+		panic(err)
+	}
+	if err = DB.SetupJoinTable(Comment{}, "LikedUsers", &CommentUserLikes{}); err != nil {
+		panic(err)
+	}
 
 	err = DB.AutoMigrate(
 		User{},

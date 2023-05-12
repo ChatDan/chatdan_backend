@@ -92,7 +92,7 @@ func GetAChannel(c *fiber.Ctx) (err error) {
 }
 
 // CreateAChannel
-// @Summary 创建一条回复 thread
+// @Summary 创建一条回复 thread, only owner of the post or owner of the message box can create channel
 // @Tags Channel Module
 // @Accept json
 // @Produce json
@@ -114,10 +114,15 @@ func CreateAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	// load post
+	// load post and related Box
 	var post Post
-	if err = DB.First(&post, body.PostID).Error; err != nil {
+	if err = DB.Preload("Box").First(&post, body.PostID).Error; err != nil {
 		return
+	}
+
+	// check if user is owner of the post or owner of the message box
+	if post.PosterID != user.ID && post.Box.OwnerID != user.ID {
+		return Forbidden("只有提问者或者提问箱的所有者才能创建回复 thread")
 	}
 
 	// create channel
