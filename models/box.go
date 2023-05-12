@@ -7,9 +7,9 @@ import (
 
 type Box struct {
 	ID        int            `json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	CreatedAt time.Time      `json:"time_created"`
+	UpdatedAt time.Time      `json:"time_updated"`
+	DeletedAt gorm.DeletedAt `json:"time_deleted"`
 	OwnerID   int            `json:"owner_id"`
 	Owner     *User          `json:"owner" gorm:"foreignKey:OwnerID"`
 	Title     string         `json:"title"`
@@ -18,9 +18,9 @@ type Box struct {
 
 type Post struct {
 	ID        int            `json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
+	CreatedAt time.Time      `json:"time_created"`
+	UpdatedAt time.Time      `json:"time_updated"`
+	DeletedAt gorm.DeletedAt `json:"time_deleted"`
 	PosterID  int            `json:"poster_id"`
 	Poster    *User          `json:"poster" gorm:"foreignKey:PosterID"`
 	BoxID     int            `json:"message_box_id"`
@@ -43,11 +43,11 @@ const (
 
 type Channel struct {
 	ID        int            `json:"id"`
-	CreatedAt time.Time      `json:"created_at"`
-	UpdatedAt time.Time      `json:"updated_at"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at"`
-	OwnerID   int            `json:"owner_id"`
-	Owner     *User          `json:"owner" gorm:"foreignKey:OwnerID"`
+	CreatedAt time.Time      `json:"time_created"`
+	UpdatedAt time.Time      `json:"time_updated"`
+	DeletedAt gorm.DeletedAt `json:"time_deleted"`
+	OwnerID   int            `json:"poster_id"`
+	Owner     *User          `json:"poster" gorm:"foreignKey:OwnerID"`
 	PostID    int            `json:"post_id"`
 	Post      *Post          `json:"post" gorm:"foreignKey:PostID"`
 	Content   string         `json:"content"`

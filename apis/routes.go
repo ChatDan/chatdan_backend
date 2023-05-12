@@ -35,6 +35,13 @@ func RegisterRoutes(app *fiber.App) {
 	group.Put("/post/:id", ModifyAPost)
 	group.Delete("/post/:id", DeleteAPost)
 
+	// Channel
+	group.Get("/channels", ListChannels)
+	group.Get("/channel/:id", GetAChannel)
+	group.Post("/channel", CreateAChannel)
+	group.Put("/channel/:id", ModifyAChannel)
+	group.Delete("/channel/:id", DeleteAChannel)
+
 	// Wall
 	group.Get("/wall", ListWalls)
 }

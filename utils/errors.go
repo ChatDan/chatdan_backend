@@ -79,6 +79,9 @@ func MyErrorHandler(c *fiber.Ctx, err error) error {
 			httpError = *e
 		case *fiber.Error:
 			httpError.Code = e.Code
+		case *ErrorDetail:
+			httpError.Code = 400
+			httpError.Data = e
 		case fiber.MultiError:
 			httpError.Code = 400
 			httpError.ErrorMsg = ""

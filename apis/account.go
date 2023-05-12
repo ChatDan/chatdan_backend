@@ -29,7 +29,7 @@ func Login(c *fiber.Ctx) (err error) {
 
 	// get user from database
 	var user User
-	if err := DB.Where("username = ?", body.Username).First(&user).Error; err != nil {
+	if err = DB.Where("username = ?", body.Username).First(&user).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return Unauthorized("用户名或密码错误")
 		}
@@ -41,7 +41,7 @@ func Login(c *fiber.Ctx) (err error) {
 		return Unauthorized("用户名或密码错误")
 	}
 
-	token, err := CreateJwtToken(UserClaims{UserID: user.ID, IsAdmin: user.IsAdmin})
+	token, err := CreateJwtToken(&user)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func Register(c *fiber.Ctx) (err error) {
 
 	if err = DB.Transaction(func(tx *gorm.DB) error {
 		var exists User
-		if err := tx.Where("username = ?", user.Username).First(&exists).Error; err == nil {
+		if err = tx.Where("username = ?", user.Username).First(&exists).Error; err == nil {
 			return BadRequest("用户已存在")
 		}
 
@@ -98,7 +98,7 @@ func Register(c *fiber.Ctx) (err error) {
 	}
 
 	// create jwt token
-	token, err := CreateJwtToken(UserClaims{UserID: user.ID, IsAdmin: user.IsAdmin})
+	token, err := CreateJwtToken(&user)
 	if err != nil {
 		return
 	}

@@ -10,7 +10,6 @@ import (
 // ListPosts godoc
 // @Summary 查询所有帖子
 // @Tags Post Module
-// @Accept json
 // @Produce json
 // @Router /posts [get]
 // @Param body query PostListRequest true "page"
@@ -223,7 +222,7 @@ func ModifyAPost(c *fiber.Ctx) (err error) {
 // @Tags Post Module
 // @Produce json
 // @Param id path string true "Only the owner of library can delete it."
-// @Success 200 {object} Response{data=PostDeleteResponse}
+// @Success 200 {object} Response{data=EmptyStruct}
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 // @Router /post/{id} [delete]
@@ -256,5 +255,5 @@ func DeleteAPost(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, Map{})
+	return Success(c, EmptyStruct{})
 }

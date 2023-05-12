@@ -67,13 +67,12 @@ func ValidateBody(c *fiber.Ctx, model any) error {
 	body := c.Body()
 	if len(body) == 0 {
 		return BadRequest("Body is empty")
-	} else {
-		if err := json.Unmarshal(body, model); err != nil {
-			return err
-		}
-		if err := defaults.Set(model); err != nil {
-			return err
-		}
-		return Validate(model)
 	}
+	if err := json.Unmarshal(body, model); err != nil {
+		return err
+	}
+	if err := defaults.Set(model); err != nil {
+		return err
+	}
+	return Validate(model)
 }

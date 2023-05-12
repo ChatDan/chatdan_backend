@@ -5,3 +5,5 @@ import "github.com/jinzhu/copier"
 type Map = map[string]any
 
 var CopyOption = copier.Option{IgnoreEmpty: true}
+
+type EmptyStruct struct{}

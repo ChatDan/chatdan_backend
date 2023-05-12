@@ -200,7 +200,7 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
-// @Success 200 {object} Response{data=Map}
+// @Success 200 {object} Response{data=EmptyStruct}
 // @Failure 400 {object} Response "Bad Request"
 // @Failure 500 {object} Response "Internal Server Error"
 // @Router /messageBox/{id} [delete]
@@ -233,5 +233,5 @@ func DeleteABox(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	return Success(c, Map{})
+	return Success(c, EmptyStruct{})
 }

@@ -25,6 +25,9 @@ import (
 // @tag.name Post Module
 // @tag.description 帖子模块
 
+// @tag.name Channel Module
+// @tag.description 帖子回复 thread 模块
+
 // @tag.name Wall Module
 // @tag.description 表白墙模块
 

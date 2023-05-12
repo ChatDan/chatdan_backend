@@ -17,7 +17,7 @@ func (q PageRequest) QuerySet(tx *gorm.DB) *gorm.DB {
 type Response struct {
 	Code     int    `json:"code"`
 	ErrorMsg string `json:"error_msg"`
-	Data     any    `json:"data"`
+	Data     any    `json:"data,omitempty"`
 }
 
 func (r Response) Error() string {

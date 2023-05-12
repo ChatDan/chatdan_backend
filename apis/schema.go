@@ -65,6 +65,7 @@ type PostCommonResponse struct {
 	PosterID   int    `json:"poster_id"`
 	Content    string `json:"content"`
 	Visibility string `json:"visibility"`
+	IsOwner    bool   `json:"is_owner"`
 }
 
 func (p *PostCreateRequest) IsPublic() bool {
@@ -86,8 +87,8 @@ type PostGetResponse struct {
 }
 
 type PostCreateRequest struct {
-	BoxID      int    `json:"message_box_id" validate:"required"`
-	Content    string `json:"content" validate:"required"`
+	BoxID      int    `json:"message_box_id" validate:"required,min=1"`
+	Content    string `json:"content" validate:"required,min=1,max=2000"` // 限制长度
 	Visibility string `json:"visibility" validate:"omitempty,oneof=public private" default:"public"`
 }
 
@@ -112,8 +113,31 @@ type PostModifyResponse struct {
 	PostCommonResponse
 }
 
-type PostDeleteResponse struct {
-	Message string `json:"message"`
+/* Channel */
+
+type ChannelCommonResponse struct {
+	ID      int    `json:"id"`
+	PostID  int    `json:"post_id"`
+	Content string `json:"content"`
+	IsOwner bool   `json:"is_owner"`
+}
+
+type ChannelCreateRequest struct {
+	PostID  int    `json:"post_id" validate:"required"`
+	Content string `json:"content" validate:"required,min=1,max=2000"`
+}
+
+type ChannelListRequest struct {
+	PageRequest
+	PostID int `json:"post_id" query:"post_id" validate:"required,min=1"`
+}
+
+type ChannelListResponse struct {
+	Channels []ChannelCommonResponse `json:"channels"`
+}
+
+type ChannelModifyRequest struct {
+	Content string `json:"content" validate:"required,min=1,max=2000"`
 }
 
 // Wall

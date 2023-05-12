@@ -4,6 +4,7 @@ import (
 	"ChatDanBackend/config"
 	"ChatDanBackend/utils"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"gorm.io/gorm/logger"
@@ -32,8 +33,31 @@ var gormConfig = &gorm.Config{
 
 func InitDB() {
 	var err error
-	DB, err = gorm.Open(mysql.Open(config.Config.DbUrl), gormConfig)
+	switch config.Config.DbType {
+	case "mysql":
+		if config.Config.DbUrl == "" {
+			panic("mysql db url required")
+		}
+		DB, err = gorm.Open(mysql.Open(config.Config.DbUrl), gormConfig)
+	case "sqlite":
+		if config.Config.DbUrl == "" {
+			config.Config.DbUrl = "data.db"
+		}
+		DB, err = gorm.Open(sqlite.Open(config.Config.DbUrl), gormConfig)
+	case "memory":
+		DB, err = gorm.Open(mysql.Open(":memory:"), gormConfig)
+	default:
+		panic("unknown db type")
+	}
 	if err != nil {
+		panic(err)
+	}
+
+	if config.Config.Debug {
+		DB = DB.Debug()
+	}
+
+	if err = DB.SetupJoinTable(Topic{}, "LikedUsers", &TopicUserLikes{}); err != nil {
 		panic(err)
 	}
 
@@ -43,13 +67,20 @@ func InitDB() {
 		Post{},
 		Channel{},
 		Wall{},
+		Division{},
+		Topic{},
+		Comment{},
+		Tag{},
 	)
 	if err != nil {
 		panic(err)
 	}
 
-	if config.Config.Debug {
-		DB = DB.Debug()
+	if config.Config.Standalone {
+		err = DB.AutoMigrate(UserJwtSecret{})
+	}
+	if err != nil {
+		panic(err)
 	}
 
 	utils.Logger.Info("database connected")

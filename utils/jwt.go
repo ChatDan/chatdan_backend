@@ -137,7 +137,7 @@ func CreateConsumer(userID int) (*ApisixConsumer, error) {
 	}
 }
 
-func CreateJwtToken(claims UserClaims) (string, error) {
+func CreateJwtTokenFromApisix(claims UserClaims) (string, error) {
 	consumer, err := GetConsumer(claims.UserID)
 	if err != nil {
 		return "", err
@@ -150,4 +150,13 @@ func CreateJwtToken(claims UserClaims) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(consumer.Plugins.JWTAuth.Secret))
+}
+
+func CreateJwtTokenStandalone(claims UserClaims, secret []byte) (string, error) {
+	if claims.ExpiresAt == nil {
+		claims.ExpiresAt = jwt.NewNumericDate(time.Now().Add(24 * time.Hour))
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(secret)
 }

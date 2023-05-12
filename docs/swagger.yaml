@@ -41,6 +41,45 @@ definitions:
       title:
         type: string
     type: object
+  apis.ChannelCommonResponse:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      is_owner:
+        type: boolean
+      post_id:
+        type: integer
+    type: object
+  apis.ChannelCreateRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      post_id:
+        type: integer
+    required:
+    - content
+    - post_id
+    type: object
+  apis.ChannelListResponse:
+    properties:
+      channels:
+        items:
+          $ref: '#/definitions/apis.ChannelCommonResponse'
+        type: array
+    type: object
+  apis.ChannelModifyRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+    required:
+    - content
+    type: object
   apis.LoginRequest:
     properties:
       password:
@@ -56,6 +95,8 @@ definitions:
         type: string
       id:
         type: integer
+      is_owner:
+        type: boolean
       poster_id:
         type: integer
       visibility:
@@ -64,8 +105,12 @@ definitions:
   apis.PostCreateRequest:
     properties:
       content:
+        description: 限制长度
+        maxLength: 2000
+        minLength: 1
         type: string
       message_box_id:
+        minimum: 1
         type: integer
       visibility:
         default: public
@@ -77,11 +122,6 @@ definitions:
     - content
     - message_box_id
     type: object
-  apis.PostDeleteResponse:
-    properties:
-      message:
-        type: string
-    type: object
   apis.PostGetResponse:
     properties:
       channels:
@@ -92,6 +132,8 @@ definitions:
         type: string
       id:
         type: integer
+      is_owner:
+        type: boolean
       poster_id:
         type: integer
       visibility:
@@ -141,8 +183,7 @@ definitions:
           $ref: '#/definitions/apis.PostCommonResponse'
         type: array
     type: object
-  models.Map:
-    additionalProperties: {}
+  models.EmptyStruct:
     type: object
   utils.Response:
     properties:
@@ -166,6 +207,181 @@ info:
   title: ChatDan Backend
   version: 0.0.1
 paths:
+  /channel:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: channel
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.ChannelCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.ChannelCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 创建一条回复 thread
+      tags:
+      - Channel Module
+  /channel/{id}:
+    delete:
+      parameters:
+      - description: channel id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 删除一条回复 thread
+      tags:
+      - Channel Module
+    get:
+      parameters:
+      - description: channel id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.ChannelCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取一条回复 thread 信息
+      tags:
+      - Channel Module
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: channel id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: channel
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.ChannelModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.ChannelCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 修改一条回复 thread
+      tags:
+      - Channel Module
+  /channels:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.ChannelListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询帖子的所有回复 thread
+      tags:
+      - Channel Module
   /messageBox:
     post:
       consumes:
@@ -220,7 +436,7 @@ paths:
             - $ref: '#/definitions/utils.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/models.Map'
+                  $ref: '#/definitions/models.EmptyStruct'
               type: object
         "400":
           description: Bad Request
@@ -402,7 +618,7 @@ paths:
             - $ref: '#/definitions/utils.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/apis.PostDeleteResponse'
+                  $ref: '#/definitions/models.EmptyStruct'
               type: object
         "400":
           description: Bad Request
@@ -484,8 +700,6 @@ paths:
       - Post Module
   /posts:
     get:
-      consumes:
-      - application/json
       parameters:
       - in: query
         name: message_box_id
@@ -683,5 +897,7 @@ tags:
   name: MessageBox Module
 - description: 帖子模块
   name: Post Module
+- description: 帖子回复 thread 模块
+  name: Channel Module
 - description: 表白墙模块
   name: Wall Module

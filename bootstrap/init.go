@@ -18,6 +18,7 @@ import (
 func InitFiberApp() *fiber.App {
 	config.InitConfig()
 	models.InitDB()
+	utils.InitCache()
 
 	app := fiber.New(fiber.Config{
 		AppName:               config.Config.AppName,
