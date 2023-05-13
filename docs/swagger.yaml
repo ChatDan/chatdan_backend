@@ -106,6 +106,128 @@ definitions:
     required:
     - content
     type: object
+  apis.CommentCommonResponse:
+    properties:
+      anonyname:
+        type: string
+        x-nullable: true
+      content:
+        type: string
+      dislike_count:
+        description: 点踩数
+        type: integer
+      disliked:
+        type: boolean
+      id:
+        type: integer
+      is_anonymous:
+        type: boolean
+      is_hidden:
+        type: boolean
+      is_owner:
+        description: 动态生成的字段
+        type: boolean
+      like_count:
+        description: 统计数据
+        type: integer
+      liked:
+        type: boolean
+      poster:
+        $ref: '#/definitions/apis.UserResponse'
+      poster_id:
+        type: integer
+      ranking:
+        type: integer
+      reply_to_id:
+        type: integer
+        x-nullable: true
+      time_created:
+        type: string
+      time_updated:
+        type: string
+      topic_id:
+        type: integer
+    type: object
+  apis.CommentCreateRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+    required:
+    - content
+    type: object
+  apis.CommentListResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/apis.CommentCommonResponse'
+        type: array
+    type: object
+  apis.CommentModifyRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      is_hidden:
+        description: admin only
+        type: boolean
+    type: object
+  apis.DivisionCommonResponse:
+    properties:
+      description:
+        type: string
+        x-nullable: true
+      id:
+        type: integer
+      name:
+        type: string
+      pinned_topics:
+        items:
+          $ref: '#/definitions/apis.TopicCommonResponse'
+        type: array
+        x-nullable: true
+    type: object
+  apis.DivisionCreateRequest:
+    properties:
+      description:
+        maxLength: 200
+        minLength: 1
+        type: string
+      name:
+        maxLength: 20
+        minLength: 1
+        type: string
+      pinned_topic_ids:
+        items:
+          type: integer
+        type: array
+    required:
+    - name
+    type: object
+  apis.DivisionListResponse:
+    properties:
+      divisions:
+        items:
+          $ref: '#/definitions/apis.DivisionCommonResponse'
+        type: array
+    type: object
+  apis.DivisionModifyRequest:
+    properties:
+      description:
+        maxLength: 200
+        minLength: 1
+        type: string
+      name:
+        maxLength: 20
+        minLength: 1
+        type: string
+      pinned_topic_ids:
+        items:
+          type: integer
+        type: array
+    type: object
   apis.LoginRequest:
     properties:
       password:
@@ -214,6 +336,153 @@ definitions:
         type: string
       old_password:
         minLength: 8
+        type: string
+    type: object
+  apis.TagCommonResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      temperature:
+        type: integer
+    type: object
+  apis.TagCreateRequest:
+    properties:
+      name:
+        maxLength: 20
+        minLength: 1
+        type: string
+    required:
+    - name
+    type: object
+  apis.TagListResponse:
+    properties:
+      tags:
+        items:
+          $ref: '#/definitions/apis.TagCommonResponse'
+        type: array
+    type: object
+  apis.TagModifyRequest:
+    properties:
+      name:
+        maxLength: 20
+        minLength: 1
+        type: string
+      temperature:
+        maximum: 100
+        minimum: 1
+        type: integer
+    type: object
+  apis.TopicCommonResponse:
+    properties:
+      anonyname:
+        type: string
+        x-nullable: true
+      comment_count:
+        description: 评论数
+        type: integer
+      content:
+        type: string
+      dislike_count:
+        description: 点踩数
+        type: integer
+      disliked:
+        type: boolean
+      division_id:
+        type: integer
+      favorite_count:
+        description: 收藏数
+        type: integer
+      id:
+        type: integer
+      is_anonymous:
+        type: boolean
+      is_hidden:
+        type: boolean
+      is_owner:
+        description: 动态生成的字段
+        type: boolean
+      last_comment:
+        allOf:
+        - $ref: '#/definitions/apis.CommentCommonResponse'
+        description: 按照时间排序最后一条评论或者按照点赞数排序最高赞的评论，创建之后为空
+        x-nullable: true
+      like_count:
+        description: 点赞数
+        type: integer
+      liked:
+        type: boolean
+      poster:
+        $ref: '#/definitions/apis.UserResponse'
+      poster_id:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      time_created:
+        type: string
+      time_updated:
+        type: string
+      title:
+        type: string
+      view_count:
+        description: 统计数据
+        type: integer
+    type: object
+  apis.TopicCreateRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      division_id:
+        minimum: 1
+        type: integer
+      is_anonymous:
+        type: boolean
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 50
+        minLength: 1
+        type: string
+    required:
+    - content
+    - division_id
+    - title
+    type: object
+  apis.TopicListResponse:
+    properties:
+      topics:
+        items:
+          $ref: '#/definitions/apis.TopicCommonResponse'
+        type: array
+    type: object
+  apis.TopicModifyRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      division_id:
+        description: admin only
+        minimum: 1
+        type: integer
+      is_hidden:
+        description: admin only
+        type: boolean
+      tags:
+        description: owner or admin
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 50
+        minLength: 1
         type: string
     type: object
   apis.UserListResponse:
@@ -512,6 +781,460 @@ paths:
       summary: 查询帖子的所有回复 thread
       tags:
       - Channel Module
+  /comment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: comment
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.CommentCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.CommentCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 创建一个评论
+      tags:
+      - Comment Module
+  /comment/{id}:
+    delete:
+      parameters:
+      - description: comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 删除一个评论，仅作者或管理员可删除
+      tags:
+      - Comment Module
+    get:
+      parameters:
+      - description: comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.CommentCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取一个评论
+      tags:
+      - Comment Module
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: comment
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.CommentModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.CommentCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 修改一个评论
+      tags:
+      - Comment Module
+  /comment/{id}/like:
+    post:
+      parameters:
+      - description: comment id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 点赞或点踩一个评论，或者取消点赞或点踩
+      tags:
+      - Comment Module
+  /comments:
+    get:
+      parameters:
+      - default: id
+        enum:
+        - id
+        - like
+        in: query
+        name: order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: topic_id
+        required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.CommentListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询评论，按照 id 升序 或 点赞数倒序 排序
+      tags:
+      - Comment Module
+  /comments/_user/{user_id}:
+    get:
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - default: id
+        enum:
+        - id
+        - like
+        in: query
+        name: order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: topic_id
+        required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.CommentListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询某个用户的评论，按照 id 升序 或 点赞数倒序 排序
+      tags:
+      - Comment Module
+  /division:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: division
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.DivisionCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.DivisionCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Create a division, admin only
+      tags:
+      - Division Module
+  /division/{id}:
+    delete:
+      parameters:
+      - description: division id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Delete a division, admin only
+      tags:
+      - Division Module
+    get:
+      parameters:
+      - description: division id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.DivisionCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Get a division
+      tags:
+      - Division Module
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: division id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: division
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.DivisionModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.DivisionCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Modify a division, admin only
+      tags:
+      - Division Module
+  /divisions:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.DivisionListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: List all divisions
+      tags:
+      - Division Module
   /messageBox:
     post:
       consumes:
@@ -907,6 +1630,668 @@ paths:
       summary: 查询所有帖子
       tags:
       - Post Module
+  /tag:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: tag
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.TagCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TagCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 创建一个标签
+      tags:
+      - Tag Module
+  /tag/{id}:
+    delete:
+      parameters:
+      - description: tag id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 删除一个标签，仅管理员可删除
+      tags:
+      - Tag Module
+    get:
+      parameters:
+      - description: tag id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TagCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取一个标签
+      tags:
+      - Tag Module
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: tag
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.TagModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TagCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 修改一个标签，仅管理员可修改
+      tags:
+      - Tag Module
+  /tags:
+    get:
+      parameters:
+      - default: id
+        enum:
+        - id
+        - temperature
+        in: query
+        name: order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 搜索标签名
+        in: query
+        maxLength: 20
+        minLength: 1
+        name: search
+        type: string
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TagListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询标签，按照 热度 倒序 排序
+      tags:
+      - Tag Module
+  /topic:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: topic
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.TopicCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 创建一个话题
+      tags:
+      - Topic Module
+  /topic/{id}:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 删除一个话题，仅管理员
+      tags:
+      - Topic Module
+    get:
+      parameters:
+      - description: topic id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取一个话题
+      tags:
+      - Topic Module
+    put:
+      consumes:
+      - application/json
+      description: 管理员可修改标题、内容、标签、是否隐藏，用户可修改标题、内容、标签、是否匿名
+      parameters:
+      - description: topic
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.TopicModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 修改一个话题
+      tags:
+      - Topic Module
+  /topic/{id}/_favor:
+    delete:
+      parameters:
+      - description: topic id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 取消收藏一个话题
+      tags:
+      - Topic Module
+    post:
+      parameters:
+      - description: topic id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 收藏一个话题，收藏数 +1
+      tags:
+      - Topic Module
+  /topic/{id}/_like/{like_data}:
+    put:
+      description: '1: like, -1: dislike, 0: reset，点赞点踩二选一'
+      parameters:
+      - description: topic id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: '1: like, -1: dislike, 0: reset'
+        enum:
+        - 1
+        - -1
+        - 0
+        in: path
+        name: like_data
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 点赞或点踩一个话题，或者重置点赞点踩数据
+      tags:
+      - Topic Module
+  /topic/{id}/_view:
+    post:
+      parameters:
+      - description: topic id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 浏览一个话题，浏览数 +1
+      tags:
+      - Topic Module
+  /topics:
+    get:
+      parameters:
+      - default: id
+        enum:
+        - id
+        - like
+        in: query
+        name: comment_order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: division_id
+        type: integer
+      - default: time_updated
+        enum:
+        - time_created
+        - time_updated
+        in: query
+        name: order_by
+        type: string
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - in: query
+        name: start_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询话题，按照最近创建或最近回复排序
+      tags:
+      - Topic Module
+  /topics/_favor:
+    get:
+      parameters:
+      - default: id
+        enum:
+        - id
+        - like
+        in: query
+        name: comment_order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: division_id
+        type: integer
+      - default: time_updated
+        enum:
+        - time_created
+        - time_updated
+        in: query
+        name: order_by
+        type: string
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - in: query
+        name: start_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询收藏的话题
+      tags:
+      - Topic Module
+  /topics/_tag/{tag_id}:
+    get:
+      parameters:
+      - description: tag id
+        in: path
+        name: tag_id
+        required: true
+        type: integer
+      - default: id
+        enum:
+        - id
+        - like
+        in: query
+        name: comment_order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: division_id
+        type: integer
+      - default: time_updated
+        enum:
+        - time_created
+        - time_updated
+        in: query
+        name: order_by
+        type: string
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - in: query
+        name: start_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询标签下的话题
+      tags:
+      - Topic Module
+  /topics/_user/{user_id}:
+    get:
+      description: 用户查询自己发布的话题，以及点进其他用户主页时查询用户发布的话题
+      parameters:
+      - description: user id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - default: id
+        enum:
+        - id
+        - like
+        in: query
+        name: comment_order_by
+        type: string
+      - in: query
+        minimum: 1
+        name: division_id
+        type: integer
+      - default: time_updated
+        enum:
+        - time_created
+        - time_updated
+        in: query
+        name: order_by
+        type: string
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - in: query
+        name: start_time
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询用户发布的话题
+      tags:
+      - Topic Module
   /user/{id}:
     delete:
       parameters:

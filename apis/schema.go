@@ -265,25 +265,31 @@ func (d DivisionModifyRequest) IsEmpty() bool {
 /* Topic */
 
 type TopicCommonResponse struct {
-	ID           int       `json:"id"`
-	CreatedAt    time.Time `json:"time_created"`
-	UpdatedAt    time.Time `json:"time_updated"`
-	Title        string    `json:"title"`
-	Content      string    `json:"content"`
-	IsHidden     bool      `json:"is_hidden"`
-	IsOwner      bool      `json:"is_owner"`
-	IsAnonymous  bool      `json:"is_anonymous"`
-	Anonyname    *string   `json:"anonyname,omitempty" extensions:"x-nullable"`
-	PosterID     int       `json:"poster_id,omitempty"`
-	Poster       *User     `json:"poster,omitempty"`
-	DivisionID   int       `json:"division_id"`
-	Tags         []string  `json:"tags"`
-	LastComment  *Comment  `json:"last_comment,omitempty" extensions:"x-nullable"` // 按照时间排序最后一条评论或者按照点赞数排序最高赞的评论，创建之后为空
-	ViewCount    int       `json:"view_count"`                                     // 浏览数
-	LikeCount    int       `json:"like_count"`                                     // 点赞数
-	DislikeCount int       `json:"dislike_count"`                                  // 点踩数
-	CommentCount int       `json:"comment_count"`                                  // 评论数
-	FavorCount   int       `json:"favorite_count"`                                 // 收藏数
+	ID          int                    `json:"id"`
+	CreatedAt   time.Time              `json:"time_created"`
+	UpdatedAt   time.Time              `json:"time_updated"`
+	Title       string                 `json:"title"`
+	Content     string                 `json:"content"`
+	IsHidden    bool                   `json:"is_hidden"`
+	IsAnonymous bool                   `json:"is_anonymous"`
+	Anonyname   *string                `json:"anonyname,omitempty" extensions:"x-nullable"`
+	PosterID    int                    `json:"poster_id,omitempty"`
+	Poster      *UserResponse          `json:"poster,omitempty"`
+	DivisionID  int                    `json:"division_id"`
+	Tags        []string               `json:"tags"`
+	LastComment *CommentCommonResponse `json:"last_comment,omitempty" extensions:"x-nullable"` // 按照时间排序最后一条评论或者按照点赞数排序最高赞的评论，创建之后为空
+
+	// 统计数据
+	ViewCount    int `json:"view_count"`     // 浏览数
+	LikeCount    int `json:"like_count"`     // 点赞数
+	DislikeCount int `json:"dislike_count"`  // 点踩数
+	CommentCount int `json:"comment_count"`  // 评论数
+	FavorCount   int `json:"favorite_count"` // 收藏数
+
+	// 动态生成的字段
+	IsOwner  bool `json:"is_owner"`
+	Liked    bool `json:"liked"`
+	Disliked bool `json:"disliked"`
 }
 
 type TopicListRequest struct {
@@ -321,21 +327,27 @@ func (t *TopicModifyRequest) IsEmpty() bool {
 /* Comment */
 
 type CommentCommonResponse struct {
-	ID           int       `json:"id"`
-	CreatedAt    time.Time `json:"time_created"`
-	UpdatedAt    time.Time `json:"time_updated"`
-	Content      string    `json:"content"`
-	IsOwner      bool      `json:"is_owner"`
-	IsHidden     bool      `json:"is_hidden"`
-	TopicID      int       `json:"topic_id"`
-	ReplyToID    *int      `json:"reply_to_id,omitempty" extensions:"x-nullable"`
-	IsAnonymous  bool      `json:"is_anonymous"`
-	Anonyname    *string   `json:"anonyname,omitempty" extensions:"x-nullable"`
-	PosterID     int       `json:"poster_id,omitempty"`
-	Poster       *User     `json:"poster,omitempty"`
-	Ranking      int       `json:"ranking"`
-	LikeCount    int       `json:"like_count"`    // 点赞数
-	DislikeCount int       `json:"dislike_count"` // 点踩数
+	ID          int           `json:"id"`
+	CreatedAt   time.Time     `json:"time_created"`
+	UpdatedAt   time.Time     `json:"time_updated"`
+	Content     string        `json:"content"`
+	IsHidden    bool          `json:"is_hidden"`
+	TopicID     int           `json:"topic_id"`
+	ReplyToID   *int          `json:"reply_to_id,omitempty" extensions:"x-nullable"`
+	IsAnonymous bool          `json:"is_anonymous"`
+	Anonyname   *string       `json:"anonyname,omitempty" extensions:"x-nullable"`
+	PosterID    int           `json:"poster_id,omitempty"`
+	Poster      *UserResponse `json:"poster,omitempty"`
+	Ranking     int           `json:"ranking"`
+
+	// 统计数据
+	LikeCount    int `json:"like_count"`    // 点赞数
+	DislikeCount int `json:"dislike_count"` // 点踩数
+
+	// 动态生成的字段
+	IsOwner  bool `json:"is_owner"`
+	Liked    bool `json:"liked"`
+	Disliked bool `json:"disliked"`
 }
 
 type CommentListRequest struct {

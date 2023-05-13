@@ -54,4 +54,42 @@ func RegisterRoutes(app *fiber.App) {
 
 	// Wall
 	group.Get("/wall", ListWalls)
+
+	// Division
+	group.Get("/divisions", ListDivisions)
+	group.Get("/division/:id", GetADivision)
+	group.Post("/division", CreateADivision)
+	group.Put("/division/:id", ModifyADivision)
+	group.Delete("/division/:id", DeleteADivision)
+
+	// Topic
+	group.Get("/topics", ListTopics)
+	group.Get("/topic/:id", GetATopic)
+	group.Post("/topic", CreateATopic)
+	group.Put("/topic/:id", ModifyATopic)
+	group.Delete("/topic/:id", DeleteATopic)
+	group.Put("/topic/:id/like/:data", LikeOrDislikeATopic)
+	group.Post("/topic/:id/_view", ViewATopic)
+	group.Post("/topic/:id/_favor", FavorATopic)
+	group.Post("/topic/:id/_unfavor", UnfavorATopic)
+	group.Get("/topics/_favor", ListFavoriteTopics)
+	group.Get("/topics/_user/:id", ListTopicsByUser)
+	group.Get("/topics/_tag/:tag", ListTopicsByTag)
+
+	// Comment
+	group.Get("/comments", ListComments)
+	group.Get("/comment/:id", GetAComment)
+	group.Post("/comment", CreateAComment)
+	group.Put("/comment/:id", ModifyAComment)
+	group.Delete("/comment/:id", DeleteAComment)
+	group.Put("/comment/:id/like/:data", LikeOrDislikeAComment)
+	group.Get("/comments/_user/:id", ListCommentsByUser)
+
+	// Tag
+	group.Get("/tags", ListTags)
+	group.Get("/tag/:id", GetATag)
+	group.Post("/tag", CreateATag)
+	group.Put("/tag/:id", ModifyATag) // admin only
+	group.Delete("/tag/:id", DeleteATag)
+
 }
