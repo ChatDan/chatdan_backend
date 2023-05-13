@@ -20,6 +20,16 @@ func RegisterRoutes(app *fiber.App) {
 	group.Post("/user/login", Login)
 	group.Post("/user/register", Register)
 	group.Post("/user/reset", Reset)
+	group.Post("/user/logout", Logout)
+
+	// User Info
+	group.Get("/users", ListUsers) // admin only
+	group.Get("/user/me", GetUserMe)
+	group.Put("/user/me", ModifyUserMe)
+	group.Delete("/user/me", DeleteUserMe)
+	group.Get("/user/:id", GetAUser)
+	group.Put("/user/:id", ModifyAUser)    // admin or owner only
+	group.Delete("/user/:id", DeleteAUser) // admin only
 
 	// Box
 	group.Get("/messageBoxes", ListBoxes)

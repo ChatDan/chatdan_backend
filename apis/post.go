@@ -112,7 +112,7 @@ func GetAPost(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Param post body PostCreateRequest true "post"
 // @Success 201 {object} Response{data=PostCommonResponse}
-// @Failure 400 {object} Response
+// @Failure 400 {object} Response{data=ErrorDetail}
 // @Failure 500 {object} Response
 // @Router /post [post]
 func CreateAPost(c *fiber.Ctx) (err error) {
@@ -164,7 +164,7 @@ func CreateAPost(c *fiber.Ctx) (err error) {
 // @Param id path string true "id"
 // @Param json body PostModifyRequest true "post"
 // @Success 200 {object} Response{data=PostCommonResponse}
-// @Failure 400 {object} Response
+// @Failure 400 {object} Response{data=ErrorDetail}
 // @Failure 500 {object} Response
 func ModifyAPost(c *fiber.Ctx) (err error) {
 	// get current user

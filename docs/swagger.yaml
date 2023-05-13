@@ -2,12 +2,20 @@ basePath: /api
 definitions:
   apis.BoxCommonResponse:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       owner_id:
         type: integer
+      post_count:
+        type: integer
       title:
         type: string
+      updated_at:
+        type: string
+      view_count:
+        type: integer
     type: object
   apis.BoxCreateRequest:
     properties:
@@ -18,9 +26,13 @@ definitions:
     type: object
   apis.BoxGetResponse:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       owner_id:
+        type: integer
+      post_count:
         type: integer
       posts:
         items:
@@ -28,6 +40,10 @@ definitions:
         type: array
       title:
         type: string
+      updated_at:
+        type: string
+      view_count:
+        type: integer
     type: object
   apis.BoxListResponse:
     properties:
@@ -35,6 +51,11 @@ definitions:
         items:
           $ref: '#/definitions/apis.BoxCommonResponse'
         type: array
+      total:
+        description: Box 总数，便于前端分页
+        type: integer
+      version:
+        type: integer
     type: object
   apis.BoxModifyRequest:
     properties:
@@ -70,6 +91,11 @@ definitions:
         items:
           $ref: '#/definitions/apis.ChannelCommonResponse'
         type: array
+      total:
+        description: Channel 总数，便于前端分页
+        type: integer
+      version:
+        type: integer
     type: object
   apis.ChannelModifyRequest:
     properties:
@@ -91,13 +117,22 @@ definitions:
     type: object
   apis.PostCommonResponse:
     properties:
+      anonyname:
+        type: string
+        x-nullable: true
+      channel_count:
+        type: integer
       content:
         type: string
       id:
         type: integer
+      is_anonymous:
+        type: boolean
       is_owner:
         type: boolean
       poster_id:
+        type: integer
+      view_count:
         type: integer
       visibility:
         type: string
@@ -124,6 +159,11 @@ definitions:
     type: object
   apis.PostGetResponse:
     properties:
+      anonyname:
+        type: string
+        x-nullable: true
+      channel_count:
+        type: integer
       channels:
         items:
           type: string
@@ -132,9 +172,13 @@ definitions:
         type: string
       id:
         type: integer
+      is_anonymous:
+        type: boolean
       is_owner:
         type: boolean
       poster_id:
+        type: integer
+      view_count:
         type: integer
       visibility:
         type: string
@@ -145,6 +189,11 @@ definitions:
         items:
           $ref: '#/definitions/apis.PostCommonResponse'
         type: array
+      total:
+        description: Post 总数，便于前端分页
+        type: integer
+      version:
+        type: integer
     type: object
   apis.PostModifyRequest:
     properties:
@@ -167,12 +216,62 @@ definitions:
         minLength: 8
         type: string
     type: object
+  apis.UserListResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/apis.UserResponse'
+        type: array
+    type: object
+  apis.UserModifyRequest:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      introduction:
+        minLength: 2
+        type: string
+      username:
+        minLength: 2
+        type: string
+    type: object
   apis.UserResponse:
     properties:
+      avatar:
+        description: 头像链接
+        type: string
+        x-nullable: true
+      banned:
+        description: 是否被封禁
+        type: boolean
+      comment_count:
+        description: 发表的评论数
+        type: integer
+      email:
+        description: 邮箱，可选登录
+        type: string
+        x-nullable: true
+      favorite_topics_count:
+        description: 收藏的话题数
+        type: integer
+      followers_count:
+        description: 被关注数
+        type: integer
+      following_users_count:
+        description: 关注数
+        type: integer
       id:
         type: integer
+      introduction:
+        description: 个人简介/个性签名
+        type: string
+        x-nullable: true
       is_admin:
         type: boolean
+      topic_count:
+        description: 发表的话题数
+        type: integer
       username:
         type: string
     type: object
@@ -184,6 +283,17 @@ definitions:
         type: array
     type: object
   models.EmptyStruct:
+    type: object
+  utils.ErrorDetailElement:
+    properties:
+      error_msg:
+        type: string
+      field:
+        type: string
+      tag:
+        type: string
+      value:
+        type: string
     type: object
   utils.Response:
     properties:
@@ -233,12 +343,20 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: 创建一条回复 thread
+      summary: 创建一条回复 thread, only owner of the post or owner of the message box can
+        create channel
       tags:
       - Channel Module
   /channel/{id}:
@@ -332,7 +450,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -358,6 +483,11 @@ paths:
         minimum: 1
         name: post_id
         required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
         type: integer
       produces:
       - application/json
@@ -408,7 +538,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -511,7 +648,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -542,6 +686,11 @@ paths:
       - in: query
         name: title
         type: string
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
       produces:
       - application/json
       responses:
@@ -591,7 +740,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -690,7 +846,14 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
         "500":
           description: Internal Server Error
           schema:
@@ -716,6 +879,11 @@ paths:
         name: page_size
         required: true
         type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
       produces:
       - application/json
       responses:
@@ -739,6 +907,103 @@ paths:
       summary: 查询所有帖子
       tags:
       - Post Module
+  /user/{id}:
+    delete:
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 注销用户, admin only
+      tags:
+      - User Module
+    get:
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取用户信息
+      tags:
+      - User Module
+    put:
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: user
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.UserModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 修改用户信息, admin only
+      tags:
+      - User Module
   /user/login:
     post:
       consumes:
@@ -772,6 +1037,118 @@ paths:
           schema:
             $ref: '#/definitions/utils.Response'
       summary: Login
+      tags:
+      - User Module
+  /user/logout:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "401":
+          description: Invalid JWT Token
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Logout
+      tags:
+      - User Module
+  /user/me:
+    delete:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.EmptyStruct'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 注销当前用户
+      tags:
+      - User Module
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取当前用户信息
+      tags:
+      - User Module
+    put:
+      parameters:
+      - description: user
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.UserModifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserResponse'
+              type: object
+        "400":
+          description: Invalid request body
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/utils.ErrorDetailElement'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 修改当前用户信息
       tags:
       - User Module
   /user/register:
@@ -847,6 +1224,48 @@ paths:
       summary: Reset Password
       tags:
       - User Module
+  /users:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询所有用户, admin only
+      tags:
+      - User Module
   /wall:
     get:
       parameters:
@@ -860,6 +1279,11 @@ paths:
         minimum: 1
         name: page_size
         required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
         type: integer
       produces:
       - application/json

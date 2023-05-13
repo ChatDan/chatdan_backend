@@ -57,6 +57,9 @@ func InitDB() {
 		DB = DB.Debug()
 	}
 
+	if err = DB.SetupJoinTable(User{}, "Followers", &UserFollows{}); err != nil {
+		panic(err)
+	}
 	if err = DB.SetupJoinTable(Topic{}, "LikedUsers", &TopicUserLikes{}); err != nil {
 		panic(err)
 	}

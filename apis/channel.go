@@ -99,7 +99,7 @@ func GetAChannel(c *fiber.Ctx) (err error) {
 // @Router /channel [post]
 // @Param json body ChannelCreateRequest true "channel"
 // @Success 200 {object} Response{data=ChannelCommonResponse}
-// @Failure 400 {object} Response
+// @Failure 400 {object} Response{data=ErrorDetail} "Bad Request"
 // @Failure 500 {object} Response
 func CreateAChannel(c *fiber.Ctx) (err error) {
 	// get current user
@@ -154,7 +154,7 @@ func CreateAChannel(c *fiber.Ctx) (err error) {
 // @Param id path int true "channel id"
 // @Param json body ChannelModifyRequest true "channel"
 // @Success 200 {object} Response{data=ChannelCommonResponse}
-// @Failure 400 {object} Response
+// @Failure 400 {object} Response{data=ErrorDetail}
 // @Failure 500 {object} Response
 func ModifyAChannel(c *fiber.Ctx) (err error) {
 	// get current user

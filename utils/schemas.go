@@ -8,6 +8,7 @@ import (
 type PageRequest struct {
 	PageNum  int `json:"page_num" query:"page_num" validate:"required,min=1"`
 	PageSize int `json:"page_size" query:"page_size" validate:"required,min=1,max=100"`
+	Version  int `json:"version" query:"version" validate:"omitempty,min=0"` // 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
 }
 
 func (q PageRequest) QuerySet(tx *gorm.DB) *gorm.DB {

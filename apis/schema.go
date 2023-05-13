@@ -3,10 +3,41 @@ package apis
 import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
+	"github.com/go-playground/validator/v10"
+	"github.com/oleiade/reflections"
 	"time"
 )
 
+// common
+
+type ModifyRequest interface {
+	IsEmpty() bool
+}
+
+func ModifyRequestLevelValidation(sl validator.StructLevel) {
+	if sl.Current().Interface().(ModifyRequest).IsEmpty() {
+		sl.ReportError(sl.Current().Interface(), "ModifyRequest", "ModifyRequest", "modify", "should not empty")
+	}
+}
+
+func init() {
+	Validate.RegisterStructValidation(ModifyRequestLevelValidation, UserModifyRequest{})
+	Validate.RegisterStructValidation(ModifyRequestLevelValidation, BoxModifyRequest{})
+	Validate.RegisterStructValidation(ModifyRequestLevelValidation, PostModifyRequest{})
+	Validate.RegisterStructValidation(ModifyRequestLevelValidation, DivisionModifyRequest{})
+	Validate.RegisterStructValidation(ModifyRequestLevelValidation, TopicModifyRequest{})
+	Validate.RegisterStructValidation(ModifyRequestLevelValidation, CommentModifyRequest{})
+	Validate.RegisterStructValidation(ModifyRequestLevelValidation, TagModifyRequest{})
+}
+
 // User
+
+type RegisterRequest struct {
+	LoginRequest
+	Email        *string `json:"email" validate:"omitempty,email"`
+	Avatar       *string `json:"avatar" validate:"omitempty"`
+	Introduction *string `json:"introduction" validate:"omitempty,min=2"`
+}
 
 type LoginRequest struct {
 	Username string `json:"username" validate:"min=2"`
@@ -17,15 +48,15 @@ type UserResponse struct {
 	ID                  int     `json:"id"`
 	Username            string  `json:"username"`
 	IsAdmin             bool    `json:"is_admin"`
-	Email               *string `json:"email" extensions:"x-nullable"`        // 邮箱，可选登录
-	Avatar              *string `json:"avatar" extensions:"x-nullable"`       // 头像链接
-	Introduction        *string `json:"introduction" extensions:"x-nullable"` // 个人简介/个性签名
-	Banned              bool    `json:"banned"`                               // 是否被封禁
-	TopicCount          int     `json:"topic_count"`                          // 发表的话题数
-	CommentCount        int     `json:"comment_count"`                        // 发表的评论数
-	FavoriteTopicsCount int     `json:"favorite_topics_count"`                // 收藏的话题数
-	FollowedUsersCount  int     `json:"followed_users_count"`                 // 关注的用户数
-	FollowingUsersCount int     `json:"following_users_count"`                // 粉丝数
+	Email               *string `json:"email,omitempty" extensions:"x-nullable"`        // 邮箱，可选登录
+	Avatar              *string `json:"avatar,omitempty" extensions:"x-nullable"`       // 头像链接
+	Introduction        *string `json:"introduction,omitempty" extensions:"x-nullable"` // 个人简介/个性签名
+	Banned              bool    `json:"banned"`                                         // 是否被封禁
+	TopicCount          int     `json:"topic_count"`                                    // 发表的话题数
+	CommentCount        int     `json:"comment_count"`                                  // 发表的评论数
+	FavoriteTopicsCount int     `json:"favorite_topics_count"`                          // 收藏的话题数
+	FollowersCount      int     `json:"followers_count"`                                // 被关注数
+	FollowingUsersCount int     `json:"following_users_count"`                          // 关注数
 }
 
 type ResetRequest struct {
@@ -33,12 +64,40 @@ type ResetRequest struct {
 	NewPassword string `json:"new_password" validate:"min=8"`
 }
 
+type UserListRequest struct {
+	PageRequest
+}
+
+type UserListResponse struct {
+	Users []UserResponse `json:"users"`
+}
+
+type UserModifyRequest struct {
+	Username     *string `json:"username" validate:"omitempty,min=2"`
+	Email        *string `json:"email" validate:"omitempty,email"`
+	Avatar       *string `json:"avatar" validate:"omitempty,url"`
+	Introduction *string `json:"introduction" validate:"omitempty,min=2"`
+}
+
+func (u UserModifyRequest) IsEmpty() bool {
+	return u.Username == nil && u.Email == nil && u.Avatar == nil && u.Introduction == nil
+}
+
+func (u UserModifyRequest) Fields() []string {
+	fields, _ := reflections.Fields(u)
+	return fields
+}
+
 /* Box 提问箱 */
 
 type BoxCommonResponse struct {
-	ID      int    `json:"id"`
-	OwnerID int    `json:"owner_id"`
-	Title   string `json:"title"`
+	ID        int       `json:"id"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	OwnerID   int       `json:"owner_id"`
+	Title     string    `json:"title"`
+	PostCount int       `json:"post_count"`
+	ViewCount int       `json:"view_count"`
 }
 
 type BoxCreateRequest struct {
@@ -53,6 +112,8 @@ type BoxListRequest struct {
 
 type BoxListResponse struct {
 	MessageBoxes []BoxCommonResponse `json:"messageBoxes"`
+	Version      int                 `json:"version"`
+	Total        int                 `json:"total"` // Box 总数，便于前端分页
 }
 
 type BoxGetResponse struct {
@@ -64,21 +125,25 @@ type BoxModifyRequest struct {
 	Title *string `json:"title" query:"title"`
 }
 
-func (b *BoxModifyRequest) IsEmpty() bool {
+func (b BoxModifyRequest) IsEmpty() bool {
 	return b.Title == nil
 }
 
 /* Post 帖子、提问 */
 
 type PostCommonResponse struct {
-	ID         int    `json:"id"`
-	PosterID   int    `json:"poster_id"`
-	Content    string `json:"content"`
-	Visibility string `json:"visibility"`
-	IsOwner    bool   `json:"is_owner"`
+	ID           int     `json:"id"`
+	PosterID     int     `json:"poster_id"`
+	Content      string  `json:"content"`
+	Visibility   string  `json:"visibility"`
+	IsOwner      bool    `json:"is_owner"`
+	IsAnonymous  bool    `json:"is_anonymous"`
+	Anonyname    *string `json:"anonyname,omitempty" extensions:"x-nullable"`
+	ChannelCount int     `json:"channel_count"`
+	ViewCount    int     `json:"view_count"`
 }
 
-func (p *PostCreateRequest) IsPublic() bool {
+func (p PostCreateRequest) IsPublic() bool {
 	return p.Visibility == Public
 }
 
@@ -88,7 +153,9 @@ type PostListRequest struct {
 }
 
 type PostListResponse struct {
-	Posts []PostCommonResponse
+	Posts   []PostCommonResponse
+	Version int `json:"version"`
+	Total   int `json:"total"` // Post 总数，便于前端分页
 }
 
 type PostGetResponse struct {
@@ -107,11 +174,11 @@ type PostModifyRequest struct {
 	Visibility *string `json:"visibility" validate:"omitempty,oneof=public private"`
 }
 
-func (p *PostModifyRequest) IsEmpty() bool {
+func (p PostModifyRequest) IsEmpty() bool {
 	return p.Content == nil && p.Visibility == nil
 }
 
-func (p *PostModifyRequest) IsPublic() *bool {
+func (p PostModifyRequest) IsPublic() *bool {
 	if p.Visibility == nil {
 		return nil
 	}
@@ -144,6 +211,8 @@ type ChannelListRequest struct {
 
 type ChannelListResponse struct {
 	Channels []ChannelCommonResponse `json:"channels"`
+	Version  int                     `json:"version"`
+	Total    int                     `json:"total"` // Channel 总数，便于前端分页
 }
 
 type ChannelModifyRequest struct {
@@ -189,7 +258,7 @@ type DivisionModifyRequest struct {
 	PinnedTopicIDs []int   `json:"pinned_topic_ids" validate:"omitempty,dive,min=1"`
 }
 
-func (d *DivisionModifyRequest) IsEmpty() bool {
+func (d DivisionModifyRequest) IsEmpty() bool {
 	return d.Name == nil && d.Description == nil && len(d.PinnedTopicIDs) == 0
 }
 
@@ -288,7 +357,7 @@ type CommentModifyRequest struct {
 	IsHidden *bool   `json:"is_hidden"` // admin only
 }
 
-func (c *CommentModifyRequest) IsEmpty() bool {
+func (c CommentModifyRequest) IsEmpty() bool {
 	return c.Content == nil && c.IsHidden == nil
 }
 
@@ -319,6 +388,6 @@ type TagModifyRequest struct {
 	Temperature *int    `json:"temperature" validate:"omitempty,min=1,max=100"`
 }
 
-func (t *TagModifyRequest) IsEmpty() bool {
+func (t TagModifyRequest) IsEmpty() bool {
 	return t.Name == nil && t.Temperature == nil
 }

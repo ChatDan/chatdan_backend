@@ -160,3 +160,8 @@ func CreateJwtTokenStandalone(claims UserClaims, secret []byte) (string, error) 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString(secret)
 }
+
+func DeleteJwtTokenFromApisix(userID int) error {
+	_, err := CreateConsumer(userID) // update jwt secret
+	return err
+}

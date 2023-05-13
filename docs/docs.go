@@ -36,7 +36,7 @@ const docTemplate = `{
                 "tags": [
                     "Channel Module"
                 ],
-                "summary": "创建一条回复 thread",
+                "summary": "创建一条回复 thread, only owner of the post or owner of the message box can create channel",
                 "parameters": [
                     {
                         "description": "channel",
@@ -70,7 +70,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/utils.ErrorDetailElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -184,7 +199,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/utils.ErrorDetailElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -277,6 +307,13 @@ const docTemplate = `{
                         "name": "post_id",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
+                        "name": "version",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -358,7 +395,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/utils.ErrorDetailElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -475,7 +527,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/utils.ErrorDetailElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -578,6 +645,13 @@ const docTemplate = `{
                         "type": "string",
                         "name": "title",
                         "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
+                        "name": "version",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -659,7 +733,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/utils.ErrorDetailElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -771,7 +860,22 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/utils.ErrorDetailElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -864,6 +968,13 @@ const docTemplate = `{
                         "name": "page_size",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
+                        "name": "version",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -944,6 +1055,200 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "用户名或密码错误",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/logout": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid JWT Token",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/me": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "获取当前用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "修改当前用户信息",
+                "parameters": [
+                    {
+                        "description": "user",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.UserModifyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request body",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/utils.ErrorDetailElement"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "注销当前用户",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.EmptyStruct"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/utils.Response"
                         }
@@ -1077,6 +1382,234 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "获取用户信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "修改用户信息, admin only",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "user",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.UserModifyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "注销用户, admin only",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/models.EmptyStruct"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User Module"
+                ],
+                "summary": "查询所有用户, admin only",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_num",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
+                        "name": "version",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.UserListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/wall": {
             "get": {
                 "produces": [
@@ -1101,6 +1634,13 @@ const docTemplate = `{
                         "name": "page_size",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
+                        "name": "version",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1142,14 +1682,26 @@ const docTemplate = `{
         "apis.BoxCommonResponse": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "owner_id": {
                     "type": "integer"
                 },
+                "post_count": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "view_count": {
+                    "type": "integer"
                 }
             }
         },
@@ -1167,10 +1719,16 @@ const docTemplate = `{
         "apis.BoxGetResponse": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "owner_id": {
+                    "type": "integer"
+                },
+                "post_count": {
                     "type": "integer"
                 },
                 "posts": {
@@ -1181,6 +1739,12 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "view_count": {
+                    "type": "integer"
                 }
             }
         },
@@ -1192,6 +1756,13 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/apis.BoxCommonResponse"
                     }
+                },
+                "total": {
+                    "description": "Box 总数，便于前端分页",
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         },
@@ -1245,6 +1816,13 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/apis.ChannelCommonResponse"
                     }
+                },
+                "total": {
+                    "description": "Channel 总数，便于前端分页",
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         },
@@ -1277,16 +1855,29 @@ const docTemplate = `{
         "apis.PostCommonResponse": {
             "type": "object",
             "properties": {
+                "anonyname": {
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "channel_count": {
+                    "type": "integer"
+                },
                 "content": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
                 },
+                "is_anonymous": {
+                    "type": "boolean"
+                },
                 "is_owner": {
                     "type": "boolean"
                 },
                 "poster_id": {
+                    "type": "integer"
+                },
+                "view_count": {
                     "type": "integer"
                 },
                 "visibility": {
@@ -1324,6 +1915,13 @@ const docTemplate = `{
         "apis.PostGetResponse": {
             "type": "object",
             "properties": {
+                "anonyname": {
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "channel_count": {
+                    "type": "integer"
+                },
                 "channels": {
                     "type": "array",
                     "items": {
@@ -1336,10 +1934,16 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "is_anonymous": {
+                    "type": "boolean"
+                },
                 "is_owner": {
                     "type": "boolean"
                 },
                 "poster_id": {
+                    "type": "integer"
+                },
+                "view_count": {
                     "type": "integer"
                 },
                 "visibility": {
@@ -1355,6 +1959,13 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/apis.PostCommonResponse"
                     }
+                },
+                "total": {
+                    "description": "Post 总数，便于前端分页",
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         },
@@ -1388,14 +1999,83 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.UserListResponse": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.UserResponse"
+                    }
+                }
+            }
+        },
+        "apis.UserModifyRequest": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "introduction": {
+                    "type": "string",
+                    "minLength": 2
+                },
+                "username": {
+                    "type": "string",
+                    "minLength": 2
+                }
+            }
+        },
         "apis.UserResponse": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "description": "头像链接",
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "banned": {
+                    "description": "是否被封禁",
+                    "type": "boolean"
+                },
+                "comment_count": {
+                    "description": "发表的评论数",
+                    "type": "integer"
+                },
+                "email": {
+                    "description": "邮箱，可选登录",
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "favorite_topics_count": {
+                    "description": "收藏的话题数",
+                    "type": "integer"
+                },
+                "followers_count": {
+                    "description": "被关注数",
+                    "type": "integer"
+                },
+                "following_users_count": {
+                    "description": "关注数",
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
                 },
+                "introduction": {
+                    "description": "个人简介/个性签名",
+                    "type": "string",
+                    "x-nullable": true
+                },
                 "is_admin": {
                     "type": "boolean"
+                },
+                "topic_count": {
+                    "description": "发表的话题数",
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"
@@ -1415,6 +2095,23 @@ const docTemplate = `{
         },
         "models.EmptyStruct": {
             "type": "object"
+        },
+        "utils.ErrorDetailElement": {
+            "type": "object",
+            "properties": {
+                "error_msg": {
+                    "type": "string"
+                },
+                "field": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
         },
         "utils.Response": {
             "type": "object",

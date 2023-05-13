@@ -106,7 +106,7 @@ func GetABox(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Param box body BoxCreateRequest true "box"
 // @Success 201 {object} Response{data=BoxCommonResponse}
-// @Failure 400 {object} Response "Bad Request"
+// @Failure 400 {object} Response{data=ErrorDetail} "Bad Request"
 // @Failure 500 {object} Response "Internal Server Error"
 // @Router /messageBox [post]
 func CreateABox(c *fiber.Ctx) (err error) {
@@ -145,7 +145,7 @@ func CreateABox(c *fiber.Ctx) (err error) {
 // @Param id path string true "id"
 // @Param json body BoxModifyRequest true "box"
 // @Success 200 {object} Response{data=BoxCommonResponse}
-// @Failure 400 {object} Response "Bad Request"
+// @Failure 400 {object} Response{data=ErrorDetail} "Bad Request"
 // @Failure 500 {object} Response "Internal Server Error"
 // @Router /messageBox/{id} [put]
 func ModifyABox(c *fiber.Ctx) (err error) {

@@ -169,7 +169,30 @@ func Reset(c *fiber.Ctx) (err error) {
 // Logout godoc
 // @Summary Logout
 // @Tags User Module
-// @Accept json
 // @Produce json
 // @Router /user/logout [post]
 // @Success 200 {object} Response{data=UserResponse}
+// @Failure 401 {object} Response "Invalid JWT Token"
+// @Failure 500 {object} Response "Internal Server Error"
+func Logout(c *fiber.Ctx) (err error) {
+	// get current user
+	var user User
+	if err = GetCurrentUser(c, &user); err != nil {
+		return err
+	}
+
+	// delete jwt token
+	if err = DeleteJwtToken(&user); err != nil {
+		return err
+	}
+
+	c.Cookie(&fiber.Cookie{
+		Name:    "jwt",
+		Value:   "",
+		Path:    "/",
+		Domain:  Config.Hostname,
+		Expires: time.Now().Add(-time.Hour),
+	})
+
+	return Success(c, nil)
+}
