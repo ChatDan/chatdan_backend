@@ -132,19 +132,14 @@ func (b BoxModifyRequest) IsEmpty() bool {
 /* Post 帖子、提问 */
 
 type PostCommonResponse struct {
-	ID           int     `json:"id"`
-	PosterID     int     `json:"poster_id"`
-	Content      string  `json:"content"`
-	Visibility   string  `json:"visibility"`
-	IsOwner      bool    `json:"is_owner"`
-	IsAnonymous  bool    `json:"is_anonymous"`
-	Anonyname    *string `json:"anonyname,omitempty" extensions:"x-nullable"`
-	ChannelCount int     `json:"channel_count"`
-	ViewCount    int     `json:"view_count"`
-}
-
-func (p PostCreateRequest) IsPublic() bool {
-	return p.Visibility == Public
+	ID           int    `json:"id"`
+	PosterID     int    `json:"poster_id"`
+	Content      string `json:"content"`
+	Visibility   string `json:"visibility"`
+	IsOwner      bool   `json:"is_owner"`
+	IsAnonymous  bool   `json:"is_anonymous"`
+	ChannelCount int    `json:"channel_count"`
+	ViewCount    int    `json:"view_count"`
 }
 
 type PostListRequest struct {
@@ -164,9 +159,21 @@ type PostGetResponse struct {
 }
 
 type PostCreateRequest struct {
-	BoxID      int    `json:"message_box_id" validate:"required,min=1"`
-	Content    string `json:"content" validate:"required,min=1,max=2000"` // 限制长度
-	Visibility string `json:"visibility" validate:"omitempty,oneof=public private" default:"public"`
+	BoxID       int    `json:"message_box_id" validate:"required,min=1"`
+	Content     string `json:"content" validate:"required,min=1,max=2000"` // 限制长度
+	Visibility  string `json:"visibility" validate:"omitempty,oneof=public private" default:"public"`
+	IsAnonymous *bool  `json:"is_anonymous" validate:"omitempty" default:"-"`
+}
+
+func (p *PostCreateRequest) IsPublic() bool {
+	return p.Visibility == Public
+}
+
+func (p *PostCreateRequest) SetDefaults() {
+	if p.IsAnonymous == nil {
+		p.IsAnonymous = new(bool)
+		*p.IsAnonymous = true
+	}
 }
 
 type PostModifyRequest struct {
@@ -178,7 +185,7 @@ func (p PostModifyRequest) IsEmpty() bool {
 	return p.Content == nil && p.Visibility == nil
 }
 
-func (p PostModifyRequest) IsPublic() *bool {
+func (p *PostModifyRequest) IsPublic() *bool {
 	if p.Visibility == nil {
 		return nil
 	}
@@ -320,7 +327,7 @@ type TopicModifyRequest struct {
 	Tags       []string `json:"tags"`                                   // owner or admin
 }
 
-func (t *TopicModifyRequest) IsEmpty() bool {
+func (t TopicModifyRequest) IsEmpty() bool {
 	return t.Title == nil && t.Content == nil && t.DivisionID == nil && t.IsHidden == nil && len(t.Tags) == 0
 }
 

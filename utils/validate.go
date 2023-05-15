@@ -38,6 +38,8 @@ func (e *ErrorDetailElement) Error() string {
 		e.ErrorMsg = e.Field + "不能为空"
 	case "email":
 		e.ErrorMsg = e.Field + "格式不正确"
+	case "modify":
+		e.ErrorMsg = "请求体不能为空"
 	}
 	return e.ErrorMsg
 }

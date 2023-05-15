@@ -37,7 +37,6 @@ type Post struct {
 	Content     string         `json:"content"`
 	IsPublic    bool           `json:"is_public"`    // true if the post is public
 	IsAnonymous bool           `json:"is_anonymous"` // true if the post is anonymous
-	Anonyname   *string        `json:"anonyname"`    // 匿名昵称
 
 	// 关联数据
 	PosterID int       `json:"poster_id"`
