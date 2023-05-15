@@ -581,12 +581,56 @@ definitions:
       username:
         type: string
     type: object
+  apis.WallCommonResponse:
+    properties:
+      content:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_anonymous:
+        type: boolean
+      is_shown:
+        description: 是否显示在表白墙页面
+        type: boolean
+      poster:
+        allOf:
+        - $ref: '#/definitions/apis.UserResponse'
+        description: 匿名时为 null
+      poster_id:
+        description: 匿名时为 0
+        type: integer
+      updated_at:
+        type: string
+      visibility:
+        type: string
+    type: object
+  apis.WallCreateRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      is_anonymous:
+        description: 是否匿名，不填默认匿名
+        type: boolean
+    required:
+    - content
+    type: object
   apis.WallListResponse:
     properties:
+      date:
+        description: 日期
+        example: "2006-01-02"
+        type: string
       posts:
         items:
-          $ref: '#/definitions/apis.PostCommonResponse'
+          $ref: '#/definitions/apis.WallCommonResponse'
         type: array
+      total:
+        description: Post 总数，便于前端分页
+        type: integer
     type: object
   models.EmptyStruct:
     type: object
@@ -2788,7 +2832,14 @@ paths:
       - User Module
   /wall:
     get:
+      description: 获取今日表白墙，即昨日发送的表白墙
       parameters:
+      - description: 日期，不填默认当天（即昨天发送的表白墙）
+        # noinspection YAMLSchemaValidation
+        example: "2006-01-02"
+        in: query
+        name: date
+        type: string
       - in: query
         minimum: 1
         name: page_num
@@ -2826,6 +2877,68 @@ paths:
           schema:
             $ref: '#/definitions/utils.Response'
       summary: 获取今日表白墙
+      tags:
+      - Wall Module
+    post:
+      parameters:
+      - description: json
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.WallCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.WallCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 创建表白墙
+      tags:
+      - Wall Module
+  /wall/{id}:
+    get:
+      parameters:
+      - description: wall id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.WallCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: 服务器错误
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 获取表白墙信息
       tags:
       - Wall Module
 securityDefinitions:

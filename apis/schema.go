@@ -4,6 +4,7 @@ import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-module/carbon/v2"
 	"github.com/oleiade/reflections"
 	"time"
 )
@@ -228,12 +229,55 @@ type ChannelModifyRequest struct {
 
 /* 表白墙 */
 
+type WallCommonResponse struct {
+	ID          int           `json:"id"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
+	IsAnonymous bool          `json:"is_anonymous"`
+	PosterID    int           `json:"poster_id"`        // 匿名时为 0
+	Poster      *UserResponse `json:"poster,omitempty"` // 匿名时为 null
+	Content     string        `json:"content"`
+	Visibility  string        `json:"visibility"`
+	IsShown     bool          `json:"is_shown"` // 是否显示在表白墙页面
+}
+
 type WallListRequest struct {
 	PageRequest
+	Date *carbon.Date `json:"date" query:"date" validate:"omitempty" swaggertype:"string" example:"2006-01-02"` // 日期，不填默认当天（即昨天发送的表白墙）
 }
 
 type WallListResponse struct {
-	Posts []PostCommonResponse `json:"posts"`
+	Posts []WallCommonResponse `json:"posts"`
+	Total int                  `json:"total"`                                          // Post 总数，便于前端分页
+	Date  carbon.Date          `json:"date" swaggertype:"string" example:"2006-01-02"` // 日期
+}
+
+type WallCreateRequest struct {
+	Content     string `json:"content" validate:"required,min=1,max=2000"`
+	IsAnonymous *bool  `json:"is_anonymous" validate:"omitempty"` // 是否匿名，不填默认匿名
+}
+
+func (w *WallCreateRequest) SetDefaults() {
+	if w.IsAnonymous == nil {
+		w.IsAnonymous = new(bool)
+		*w.IsAnonymous = true
+	}
+}
+
+type WallModifyRequest struct {
+	Visibility *string `json:"visibility" validate:"omitempty,oneof=public private"` // 管理员修改可见性
+}
+
+func (w WallModifyRequest) IsEmpty() bool {
+	return w.Visibility == nil
+}
+
+func (w *WallModifyRequest) IsPublic() *bool {
+	if w.Visibility == nil {
+		return nil
+	}
+	isPublic := *w.Visibility == Public
+	return &isPublic
 }
 
 /* Division */

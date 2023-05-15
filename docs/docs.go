@@ -3593,6 +3593,7 @@ const docTemplate = `{
         },
         "/wall": {
             "get": {
+                "description": "获取今日表白墙，即昨日发送的表白墙",
                 "produces": [
                     "application/json"
                 ],
@@ -3601,6 +3602,13 @@ const docTemplate = `{
                 ],
                 "summary": "获取今日表白墙",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "example": "2006-01-02",
+                        "description": "日期，不填默认当天（即昨天发送的表白墙）",
+                        "name": "date",
+                        "in": "query"
+                    },
                     {
                         "minimum": 1,
                         "type": "integer",
@@ -3637,6 +3645,110 @@ const docTemplate = `{
                                     "properties": {
                                         "data": {
                                             "$ref": "#/definitions/apis.WallListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wall Module"
+                ],
+                "summary": "创建表白墙",
+                "parameters": [
+                    {
+                        "description": "json",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.WallCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.WallCommonResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器错误",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/wall/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Wall Module"
+                ],
+                "summary": "获取表白墙信息",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "wall id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.WallCommonResponse"
                                         }
                                     }
                                 }
@@ -4511,14 +4623,79 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.WallCommonResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_anonymous": {
+                    "type": "boolean"
+                },
+                "is_shown": {
+                    "description": "是否显示在表白墙页面",
+                    "type": "boolean"
+                },
+                "poster": {
+                    "description": "匿名时为 null",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/apis.UserResponse"
+                        }
+                    ]
+                },
+                "poster_id": {
+                    "description": "匿名时为 0",
+                    "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "visibility": {
+                    "type": "string"
+                }
+            }
+        },
+        "apis.WallCreateRequest": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "minLength": 1
+                },
+                "is_anonymous": {
+                    "description": "是否匿名，不填默认匿名",
+                    "type": "boolean"
+                }
+            }
+        },
         "apis.WallListResponse": {
             "type": "object",
             "properties": {
+                "date": {
+                    "description": "日期",
+                    "type": "string",
+                    "example": "2006-01-02"
+                },
                 "posts": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/apis.PostCommonResponse"
+                        "$ref": "#/definitions/apis.WallCommonResponse"
                     }
+                },
+                "total": {
+                    "description": "Post 总数，便于前端分页",
+                    "type": "integer"
                 }
             }
         },

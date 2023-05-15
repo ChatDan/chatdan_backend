@@ -54,6 +54,8 @@ func RegisterRoutes(app *fiber.App) {
 
 	// Wall
 	group.Get("/wall", ListWalls)
+	group.Get("/wall/:id", GetAWall)
+	group.Post("/wall", CreateAWall)
 
 	// Division
 	group.Get("/divisions", ListDivisions)
