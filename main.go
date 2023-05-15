@@ -31,6 +31,21 @@ import (
 // @tag.name Wall Module
 // @tag.description 表白墙模块
 
+// @tag.name Division Module
+// @tag.description 广场分区模块
+
+// @tag.name Topic Module
+// @tag.description 广场话题模块
+
+// @tag.name Comment Module
+// @tag.description 广场评论模块
+
+// @tag.name Tag Module
+// @tag.description 广场标签模块
+
+// @tag.name Chat Module
+// @tag.description 聊天模块
+
 // @contact.name   JingYiJun
 // @contact.url    https://www.jingyijun.xyz
 // @contact.email  jingyijun3104@outlook.com

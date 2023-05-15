@@ -106,7 +106,8 @@ func GetAPost(c *fiber.Ctx) (err error) {
 }
 
 // CreateAPost godoc
-// @Summary 创建帖子
+// @Summary 创建帖子、提问
+// @Description 文本至少1字符，最多2000字符
 // @Tags Post Module
 // @Accept json
 // @Produce json

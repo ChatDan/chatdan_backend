@@ -106,6 +106,31 @@ definitions:
     required:
     - content
     type: object
+  apis.ChatCommonResponse:
+    properties:
+      another_user_id:
+        type: integer
+      id:
+        type: integer
+      last_message:
+        type: string
+      message_count:
+        type: integer
+      one_user_id:
+        type: integer
+      time_created:
+        type: string
+      time_updated:
+        type: string
+    type: object
+  apis.ChatListResponse:
+    properties:
+      chats:
+        description: 返回时按照 UpdatedAt 降序排列
+        items:
+          $ref: '#/definitions/apis.ChatCommonResponse'
+        type: array
+    type: object
   apis.CommentCommonResponse:
     properties:
       anonyname:
@@ -237,11 +262,44 @@ definitions:
         minLength: 2
         type: string
     type: object
+  apis.MessageCommonResponse:
+    properties:
+      content:
+        type: string
+      from_user_id:
+        type: integer
+      id:
+        type: integer
+      is_me:
+        type: boolean
+      time_created:
+        type: string
+      to_user_id:
+        type: integer
+    type: object
+  apis.MessageCreateRequest:
+    properties:
+      content:
+        maxLength: 2000
+        minLength: 1
+        type: string
+      to_user_id:
+        minimum: 1
+        type: integer
+    required:
+    - content
+    - to_user_id
+    type: object
+  apis.MessageListResponse:
+    properties:
+      messages:
+        description: 按照 CreatedAt 倒序排列
+        items:
+          $ref: '#/definitions/apis.MessageCommonResponse'
+        type: array
+    type: object
   apis.PostCommonResponse:
     properties:
-      anonyname:
-        type: string
-        x-nullable: true
       channel_count:
         type: integer
       content:
@@ -260,30 +318,9 @@ definitions:
         type: string
     type: object
   apis.PostCreateRequest:
-    properties:
-      content:
-        description: 限制长度
-        maxLength: 2000
-        minLength: 1
-        type: string
-      message_box_id:
-        minimum: 1
-        type: integer
-      visibility:
-        default: public
-        enum:
-        - public
-        - private
-        type: string
-    required:
-    - content
-    - message_box_id
     type: object
   apis.PostGetResponse:
     properties:
-      anonyname:
-        type: string
-        x-nullable: true
       channel_count:
         type: integer
       channels:
@@ -781,6 +818,31 @@ paths:
       summary: 查询帖子的所有回复 thread
       tags:
       - Channel Module
+  /chats:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.ChatListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询所有聊天记录，按照 time_updated 倒序排序
+      tags:
+      - Chat Module
   /comment:
     post:
       consumes:
@@ -1437,10 +1499,83 @@ paths:
       summary: 查询提问箱
       tags:
       - MessageBox Module
+  /messages:
+    get:
+      parameters:
+      - default: 10
+        in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        type: integer
+      - description: 不填默认为当前时间
+        in: query
+        name: start_time
+        type: string
+      - in: query
+        minimum: 1
+        name: to_user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.MessageListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 查询所有聊天记录，按照 time_created 或 id 倒序排序
+      tags:
+      - Chat Module
+    post:
+      parameters:
+      - description: message
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/apis.MessageCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.MessageCommonResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 发送消息
+      tags:
+      - Chat Module
   /post:
     post:
       consumes:
       - application/json
+      description: 文本至少1字符，最多2000字符
       parameters:
       - description: post
         in: body
@@ -1475,7 +1610,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/utils.Response'
-      summary: 创建帖子
+      summary: 创建帖子、提问
       tags:
       - Post Module
   /post/{id}:
@@ -2710,3 +2845,13 @@ tags:
   name: Channel Module
 - description: 表白墙模块
   name: Wall Module
+- description: 广场分区模块
+  name: Division Module
+- description: 广场话题模块
+  name: Topic Module
+- description: 广场评论模块
+  name: Comment Module
+- description: 广场标签模块
+  name: Tag Module
+- description: 聊天模块
+  name: Chat Module

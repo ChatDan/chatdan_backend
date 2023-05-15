@@ -92,4 +92,8 @@ func RegisterRoutes(app *fiber.App) {
 	group.Put("/tag/:id", ModifyATag) // admin only
 	group.Delete("/tag/:id", DeleteATag)
 
+	// Chat and Message
+	group.Get("/chats", ListChats)
+	group.Get("/messages", ListMessages)
+	group.Post("/messages", CreateMessage)
 }

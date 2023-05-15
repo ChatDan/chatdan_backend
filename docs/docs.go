@@ -350,6 +350,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/chats": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Module"
+                ],
+                "summary": "查询所有聊天记录，按照 time_updated 倒序排序",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.ChatListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/comment": {
             "post": {
                 "consumes": [
@@ -1432,8 +1475,127 @@ const docTemplate = `{
                 }
             }
         },
+        "/messages": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Module"
+                ],
+                "summary": "查询所有聊天记录，按照 time_created 或 id 倒序排序",
+                "parameters": [
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "default": 10,
+                        "name": "page_size",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "不填默认为当前时间",
+                        "name": "start_time",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "to_user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.MessageListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Chat Module"
+                ],
+                "summary": "发送消息",
+                "parameters": [
+                    {
+                        "description": "message",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/apis.MessageCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.MessageCommonResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/post": {
             "post": {
+                "description": "文本至少1字符，最多2000字符",
                 "consumes": [
                     "application/json"
                 ],
@@ -1443,7 +1605,7 @@ const docTemplate = `{
                 "tags": [
                     "Post Module"
                 ],
-                "summary": "创建帖子",
+                "summary": "创建帖子、提问",
                 "parameters": [
                     {
                         "description": "post",
@@ -3658,6 +3820,44 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.ChatCommonResponse": {
+            "type": "object",
+            "properties": {
+                "another_user_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_message": {
+                    "type": "string"
+                },
+                "message_count": {
+                    "type": "integer"
+                },
+                "one_user_id": {
+                    "type": "integer"
+                },
+                "time_created": {
+                    "type": "string"
+                },
+                "time_updated": {
+                    "type": "string"
+                }
+            }
+        },
+        "apis.ChatListResponse": {
+            "type": "object",
+            "properties": {
+                "chats": {
+                    "description": "返回时按照 UpdatedAt 降序排列",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.ChatCommonResponse"
+                    }
+                }
+            }
+        },
         "apis.CommentCommonResponse": {
             "type": "object",
             "properties": {
@@ -3848,13 +4048,62 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.MessageCommonResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "from_user_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_me": {
+                    "type": "boolean"
+                },
+                "time_created": {
+                    "type": "string"
+                },
+                "to_user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "apis.MessageCreateRequest": {
+            "type": "object",
+            "required": [
+                "content",
+                "to_user_id"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string",
+                    "maxLength": 2000,
+                    "minLength": 1
+                },
+                "to_user_id": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            }
+        },
+        "apis.MessageListResponse": {
+            "type": "object",
+            "properties": {
+                "messages": {
+                    "description": "按照 CreatedAt 倒序排列",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/apis.MessageCommonResponse"
+                    }
+                }
+            }
+        },
         "apis.PostCommonResponse": {
             "type": "object",
             "properties": {
-                "anonyname": {
-                    "type": "string",
-                    "x-nullable": true
-                },
                 "channel_count": {
                     "type": "integer"
                 },
@@ -3882,39 +4131,11 @@ const docTemplate = `{
             }
         },
         "apis.PostCreateRequest": {
-            "type": "object",
-            "required": [
-                "content",
-                "message_box_id"
-            ],
-            "properties": {
-                "content": {
-                    "description": "限制长度",
-                    "type": "string",
-                    "maxLength": 2000,
-                    "minLength": 1
-                },
-                "message_box_id": {
-                    "type": "integer",
-                    "minimum": 1
-                },
-                "visibility": {
-                    "type": "string",
-                    "default": "public",
-                    "enum": [
-                        "public",
-                        "private"
-                    ]
-                }
-            }
+            "type": "object"
         },
         "apis.PostGetResponse": {
             "type": "object",
             "properties": {
-                "anonyname": {
-                    "type": "string",
-                    "x-nullable": true
-                },
                 "channel_count": {
                     "type": "integer"
                 },
@@ -4361,6 +4582,26 @@ const docTemplate = `{
         {
             "description": "表白墙模块",
             "name": "Wall Module"
+        },
+        {
+            "description": "广场分区模块",
+            "name": "Division Module"
+        },
+        {
+            "description": "广场话题模块",
+            "name": "Topic Module"
+        },
+        {
+            "description": "广场评论模块",
+            "name": "Comment Module"
+        },
+        {
+            "description": "广场标签模块",
+            "name": "Tag Module"
+        },
+        {
+            "description": "聊天模块",
+            "name": "Chat Module"
         }
     ]
 }`

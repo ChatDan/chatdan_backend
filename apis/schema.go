@@ -410,3 +410,45 @@ type TagModifyRequest struct {
 func (t TagModifyRequest) IsEmpty() bool {
 	return t.Name == nil && t.Temperature == nil
 }
+
+/* Chat */
+
+type ChatCommonResponse struct {
+	ID            int       `json:"id"`
+	CreatedAt     time.Time `json:"time_created"`
+	UpdatedAt     time.Time `json:"time_updated"`
+	OneUserID     int       `json:"one_user_id"`
+	AnotherUserID int       `json:"another_user_id"`
+	LastMessage   string    `json:"last_message"`
+	MessageCount  int       `json:"message_count"`
+}
+
+type ChatListResponse struct {
+	Chats []ChatCommonResponse `json:"chats"` // 返回时按照 UpdatedAt 降序排列
+}
+
+/* Message */
+
+type MessageCommonResponse struct {
+	ID         int       `json:"id"`
+	CreatedAt  time.Time `json:"time_created"`
+	Content    string    `json:"content"`
+	FromUserID int       `json:"from_user_id"`
+	ToUserID   int       `json:"to_user_id"`
+	IsOwner    bool      `json:"is_me"`
+}
+
+type MessageCreateRequest struct {
+	Content  string `json:"content" validate:"required,min=1,max=2000"`
+	ToUserID int    `json:"to_user_id" validate:"required,min=1"`
+}
+
+type MessageListRequest struct {
+	PageSize  int        `json:"page_size" query:"page_size" validate:"omitempty,min=1,max=100" default:"10"`
+	ToUserID  int        `json:"to_user_id" query:"to_user_id" validate:"required,min=1"`
+	StartTime *time.Time `json:"start_time" query:"start_time" validate:"omitempty"` // 不填默认为当前时间
+}
+
+type MessageListResponse struct {
+	Messages []MessageCommonResponse `json:"messages"` // 按照 CreatedAt 倒序排列
+}
