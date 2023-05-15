@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-module/carbon/v2"
 	"github.com/jinzhu/copier"
-	"time"
 )
 
 // ListWalls
@@ -122,7 +121,7 @@ func CreateAWall(c *fiber.Ctx) (err error) {
 	if err = copier.Copy(&response, &wall); err != nil {
 		return
 	}
-	response.IsShown = response.CreatedAt.Date() != time.Now().Date()
+	response.IsShown = carbon.FromStdTime(wall.CreatedAt).Lte(carbon.Yesterday().EndOfDay()) // 创建时间在昨天结束之前的才会显示
 
 	return Created(c, response)
 }
