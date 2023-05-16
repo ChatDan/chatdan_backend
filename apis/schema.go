@@ -305,6 +305,10 @@ type DivisionModifyRequest struct {
 	PinnedTopicIDs []int   `json:"pinned_topic_ids" validate:"omitempty,dive,min=1"`
 }
 
+type DivisionDeleteRequest struct {
+	To int `json:"to" default:"1"`
+}
+
 func (d DivisionModifyRequest) IsEmpty() bool {
 	return d.Name == nil && d.Description == nil && len(d.PinnedTopicIDs) == 0
 }

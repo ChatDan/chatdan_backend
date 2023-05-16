@@ -122,6 +122,10 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
+	id, err = c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
 	err = ValidateBody(c, &body)
 	if err != nil {
 		return err
@@ -129,15 +133,17 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 	if body.IsEmpty() {
 		return BadRequest()
 	}
-	division := Division{
-		ID:             id,
-		Description:    body.Description,
-		PinnedTopicIDs: body.PinnedTopicIDs,
+	var division Division
+	result := DB.Find(&division, id)
+	if result.Error != nil {
+		return result.Error
 	}
-	if body.Name != nil {
-		division.Name = *body.Name
+
+	if err = copier.CopyWithOption(&division, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
 	}
-	result := DB.Model(&division).Updates(division)
+
+	result = DB.Model(&division).Updates(division)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -158,5 +164,39 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func DeleteADivision(c *fiber.Ctx) (err error) {
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	if !user.IsAdmin {
+		return Forbidden()
+	}
+
+	var body DivisionDeleteRequest
+	err = ValidateBody(c, &body)
+	if err != nil {
+		return err
+	}
+
+	var division Division
+	result := DB.Find(&division, id)
+
+	if result.RowsAffected == 0 {
+		return NotFound()
+	}
+
+	err = DB.Exec("UPDATE Topic SET division_id = ? WHERE division_id = ?", body.To, id).Error
+	if err != nil {
+		return err
+	}
+	err = DB.Delete(&Division{ID: id}).Error
+	if err != nil {
+		return err
+	}
 	return Success(c, EmptyStruct{})
 }
