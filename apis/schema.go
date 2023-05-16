@@ -294,9 +294,8 @@ type DivisionListResponse struct {
 }
 
 type DivisionCreateRequest struct {
-	Name           string  `json:"name" validate:"required,min=1,max=20"`
-	Description    *string `json:"description" validate:"omitempty,min=1,max=200"`
-	PinnedTopicIDs []int   `json:"pinned_topic_ids" validate:"omitempty,dive,min=1"`
+	Name        string  `json:"name" validate:"required,min=1,max=20"`
+	Description *string `json:"description" validate:"omitempty,min=1,max=200"`
 }
 
 type DivisionModifyRequest struct {
@@ -306,7 +305,7 @@ type DivisionModifyRequest struct {
 }
 
 type DivisionDeleteRequest struct {
-	To int `json:"to" default:"1"`
+	To int `json:"to" validate:"min=0" default:"1"`
 }
 
 func (d DivisionModifyRequest) IsEmpty() bool {

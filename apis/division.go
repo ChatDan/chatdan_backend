@@ -5,6 +5,7 @@ import (
 	. "ChatDanBackend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
 )
 
 // ListDivisions godoc
@@ -17,14 +18,14 @@ import (
 // @Failure 400 {object} Response{data=ErrorDetail}
 // @Failure 500 {object} Response
 func ListDivisions(c *fiber.Ctx) (err error) {
-	var divisions []*Division
+	var divisions []Division
 	result := DB.Find(&divisions)
 	if result.Error != nil {
 		return result.Error
 	}
 
 	var response DivisionListResponse
-	if err = copier.CopyWithOption(&response, &divisions, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.Copy(&response.Divisions, &divisions); err != nil {
 		return err
 	}
 
@@ -45,15 +46,17 @@ func GetADivision(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
+
 	var division Division
-	result := DB.First(&division, divisionID)
-	if result.Error != nil {
-		return result.Error
-	}
-	var response DivisionCommonResponse
-	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = DB.First(&division, divisionID).Error; err != nil {
 		return err
 	}
+
+	var response DivisionCommonResponse
+	if err = copier.Copy(&response, &division); err != nil {
+		return err
+	}
+
 	return Success(c, response)
 }
 
@@ -69,28 +72,29 @@ func GetADivision(c *fiber.Ctx) (err error) {
 // @Failure 500 {object} Response
 func CreateADivision(c *fiber.Ctx) (err error) {
 	var user User
-	err = GetCurrentUser(c, &user)
-	if err != nil {
+	if err = GetCurrentUser(c, &user); err != nil {
 		return err
 	}
 	if !user.IsAdmin {
 		return Forbidden()
 	}
+
 	var body DivisionCreateRequest
-	err = ValidateBody(c, &body)
-	if err != nil {
+	if err = ValidateBody(c, &body); err != nil {
 		return err
 	}
-	division := Division{
-		Name:        body.Name,
-		Description: body.Description,
-	}
-	result := DB.FirstOrCreate(&division, Division{Name: body.Name})
+
+	var division Division
+	// see https://gorm.io/zh_CN/docs/advanced_query.html#FirstOrCreate
+	result := DB.Where(Division{Name: body.Name}).Attrs(Division{Description: body.Description}).FirstOrCreate(&division)
 	if result.Error != nil {
 		return result.Error
+	} else if result.RowsAffected == 0 {
+		return BadRequest("division already exists")
 	}
+
 	var response DivisionCommonResponse
-	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.Copy(&response, &division); err != nil {
 		return err
 	}
 	return Created(c, response)
@@ -116,38 +120,37 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 	if !user.IsAdmin {
 		return Forbidden()
 	}
-	var body DivisionModifyRequest
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return err
 	}
-	id, err = c.ParamsInt("id")
-	if err != nil {
+
+	var body DivisionModifyRequest
+	if err = ValidateBody(c, &body); err != nil {
 		return err
 	}
-	err = ValidateBody(c, &body)
-	if err != nil {
-		return err
-	}
-	if body.IsEmpty() {
-		return BadRequest()
-	}
+
 	var division Division
-	result := DB.First(&division, id)
-	if result.Error != nil {
-		return result.Error
-	}
+	if err = DB.Transaction(func(tx *gorm.DB) error {
+		// load division with lock
+		if err = tx.Clauses(LockClause).First(&division, id).Error; err != nil {
+			return err
+		}
 
-	if err = copier.CopyWithOption(&division, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		// copy body to division
+		if err = copier.CopyWithOption(&division, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+			return err
+		}
+
+		// update division
+		return tx.Model(&division).Updates(&division).Error
+	}); err != nil {
 		return err
 	}
 
-	result = DB.Model(&division).Updates(division)
-	if result.Error != nil {
-		return result.Error
-	}
 	var response DivisionCommonResponse
-	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.Copy(&response, &division); err != nil {
 		return err
 	}
 	return Success(c, response)
@@ -163,12 +166,12 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func DeleteADivision(c *fiber.Ctx) (err error) {
-	id, err := c.ParamsInt("id")
-	if err != nil {
+	var user User
+	if err = GetCurrentUser(c, &user); err != nil {
 		return err
 	}
-	var user User
-	err = GetCurrentUser(c, &user)
+
+	id, err := c.ParamsInt("id")
 	if err != nil {
 		return err
 	}
@@ -177,24 +180,24 @@ func DeleteADivision(c *fiber.Ctx) (err error) {
 	}
 
 	var body DivisionDeleteRequest
-	err = ValidateBody(c, &body)
-	if err != nil {
+	if err = ValidateBody(c, &body); err != nil {
 		return err
 	}
 
 	var division Division
-	result := DB.First(&division, id)
+	if err = DB.Transaction(func(tx *gorm.DB) error {
+		// load division with lock
+		if err = tx.Clauses(LockClause).First(&division, id).Error; err != nil {
+			return err
+		}
 
-	if result.RowsAffected == 0 {
-		return NotFound()
-	}
+		err = tx.Exec("UPDATE Topic SET division_id = ? WHERE division_id = ?", body.To, id).Error
+		if err != nil {
+			return err
+		}
 
-	err = DB.Exec("UPDATE Topic SET division_id = ? WHERE division_id = ?", body.To, id).Error
-	if err != nil {
-		return err
-	}
-	err = DB.Delete(&Division{ID: id}).Error
-	if err != nil {
+		return DB.Delete(&division).Error
+	}); err != nil {
 		return err
 	}
 	return Success(c, EmptyStruct{})
