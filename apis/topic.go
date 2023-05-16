@@ -39,7 +39,7 @@ func ListTopics(c *fiber.Ctx) (err error) {
 		return err
 	}
 	if query.DivisionID != nil {
-		result = result.Where("division_id = ", *query.DivisionID).Find(&topics)
+		result = result.Where("division_id = ?", *query.DivisionID).Find(&topics)
 	} else {
 		result = result.Find(&topics)
 	}
@@ -127,7 +127,7 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 
 // ModifyATopic godoc
 // @Summary 修改一个话题
-// @Description 管理员可修改标题、内容、标签、是否隐藏，用户可修改标题、内容、标签、是否匿名
+// @Description 管理员可修改标题、内容、标签、是否隐藏，用户可修改标题、内容、标签
 // @Tags Topic Module
 // @Accept json
 // @Produce json
@@ -137,7 +137,65 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ModifyATopic(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var body TopicModifyRequest
+	err = ValidateBody(c, &body)
+	if err != nil {
+		return err
+	}
+
+	var findTopic Topic
+
+	result := DB.First(&findTopic, id)
+	if result.RowsAffected == 0 {
+		return NotFound()
+	}
+
+	if !user.IsAdmin && user.ID != findTopic.PosterID {
+		return Forbidden()
+	}
+
+	if body.IsHidden != nil {
+		if !user.IsAdmin {
+			return Forbidden()
+		}
+		var newTopic Topic
+		if err = copier.CopyWithOption(&newTopic, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+			return err
+		}
+		newTopic.UpdatedAt = time.Now()
+		result = DB.Model(&newTopic).Where("id = ?", id).Updates(newTopic)
+		if result.Error != nil {
+			return result.Error
+		}
+		var response TopicCommonResponse
+		if err = copier.CopyWithOption(&response, &newTopic, copier.Option{IgnoreEmpty: true}); err != nil {
+			return err
+		}
+		return Success(c, response)
+	}
+	var newTopic Topic
+	if err = copier.CopyWithOption(&newTopic, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	newTopic.UpdatedAt = time.Now()
+	result = DB.Model(&newTopic).Where("id = ?", id).Updates(newTopic)
+	if result.Error != nil {
+		return result.Error
+	}
+	var response TopicCommonResponse
+	if err = copier.CopyWithOption(&response, &newTopic, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Success(c, response)
 }
 
 // DeleteATopic godoc
@@ -149,6 +207,27 @@ func ModifyATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func DeleteATopic(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	if !user.IsAdmin {
+		return Forbidden()
+	}
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var topic Topic
+	result := DB.First(&topic, id)
+	if result.RowsAffected == 0 {
+		return NotFound()
+	}
+	result = DB.Where("id = ?", id).Delete(&topic)
+	if result.Error != nil {
+		return result.Error
+	}
 	return Success(c, EmptyStruct{})
 }
 
@@ -164,7 +243,61 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	likeData, err := c.ParamsInt("like_data")
+	if err != nil {
+		return err
+	}
+	var topic Topic
+
+	result := DB.First(&topic, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var topicUserLikes TopicUserLikes
+	result = DB.Model(&topicUserLikes).Where("user_id = ? and topic_id = ?", user.ID, id).First(&topicUserLikes)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	if result.Error != nil {
+		topic.LikeCount = topic.LikeCount - topicUserLikes.LikeData + likeData
+		topicUserLikes.LikeData = likeData
+		result = DB.Updates(&topicUserLikes)
+		if result.Error != nil {
+			return result.Error
+		}
+	} else {
+		topic.LikeCount = topic.LikeCount + likeData
+		topicUserLikes.TopicID = id
+		topicUserLikes.UserID = user.ID
+		topicUserLikes.CreatedAt = time.Now()
+		topicUserLikes.LikeData = likeData
+		result = DB.Create(&topicUserLikes)
+		if result.RowsAffected == 0 {
+			return BadRequest()
+		}
+	}
+
+	result = DB.Updates(&topic)
+	if result.RowsAffected == 0 {
+		return BadRequest()
+	}
+
+	var response TopicCommonResponse
+	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Success(c, response)
 }
 
 // ViewATopic godoc
