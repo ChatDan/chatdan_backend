@@ -4,6 +4,7 @@ import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jinzhu/copier"
 )
 
 // ListDivisions godoc
@@ -16,7 +17,18 @@ import (
 // @Failure 400 {object} Response{data=ErrorDetail}
 // @Failure 500 {object} Response
 func ListDivisions(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	var divisions []*Division
+	result := DB.Find(&divisions)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var response DivisionListResponse
+	if err = copier.CopyWithOption(&response, &divisions, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	return Success(c, &response)
 }
 
 // GetADivision godoc
@@ -29,7 +41,21 @@ func ListDivisions(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func GetADivision(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	divisionID, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var division Division
+	division.ID = divisionID
+	result := DB.Find(&division)
+	if result.Error != nil {
+		return result.Error
+	}
+	var response DivisionCommonResponse
+	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Success(c, &response)
 }
 
 // CreateADivision godoc
@@ -43,7 +69,32 @@ func GetADivision(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func CreateADivision(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	if !user.IsAdmin {
+		return Forbidden()
+	}
+	var body DivisionCreateRequest
+	err = ValidateBody(c, &body)
+	if err != nil {
+		return err
+	}
+	division := Division{
+		Name:        body.Name,
+		Description: body.Description,
+	}
+	result := DB.FirstOrCreate(&division, Division{Name: body.Name})
+	if result.Error != nil {
+		return result.Error
+	}
+	var response DivisionCommonResponse
+	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Created(c, &response)
 }
 
 // ModifyADivision godoc
@@ -58,7 +109,43 @@ func CreateADivision(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ModifyADivision(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	if !user.IsAdmin {
+		return Forbidden()
+	}
+	var body DivisionModifyRequest
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	err = ValidateBody(c, &body)
+	if err != nil {
+		return err
+	}
+	if body.IsEmpty() {
+		return BadRequest()
+	}
+	division := Division{
+		ID:             id,
+		Description:    body.Description,
+		PinnedTopicIDs: body.PinnedTopicIDs,
+	}
+	if body.Name != nil {
+		division.Name = *body.Name
+	}
+	result := DB.Model(&division).Updates(division)
+	if result.Error != nil {
+		return result.Error
+	}
+	var response DivisionCommonResponse
+	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Success(c, response)
 }
 
 // DeleteADivision godoc

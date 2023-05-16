@@ -289,10 +289,6 @@ type DivisionCommonResponse struct {
 	PinnedTopics []TopicCommonResponse `json:"pinned_topics" extensions:"x-nullable"`
 }
 
-type DivisionListRequest struct {
-	PageRequest
-}
-
 type DivisionListResponse struct {
 	Divisions []DivisionCommonResponse `json:"divisions"`
 }
