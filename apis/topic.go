@@ -4,6 +4,8 @@ import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jinzhu/copier"
+	"time"
 )
 
 // ListTopics godoc
@@ -16,7 +18,39 @@ import (
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListTopics(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return nil
+	}
+	var query TopicListRequest
+	err = ValidateQuery(c, &query)
+	nowTime := time.Now()
+	if query.StartTime == nil {
+
+		query.StartTime = &nowTime
+	}
+	if err != nil {
+		return err
+	}
+	var topics []*Topic
+	result := DB.Where("? < ?", query.OrderBy, query.StartTime).Order(query.OrderBy + "desc").Limit(query.PageSize)
+	if result.Error != nil {
+		return err
+	}
+	if query.DivisionID != nil {
+		result = result.Where("division_id = ", *query.DivisionID).Find(&topics)
+	} else {
+		result = result.Find(&topics)
+	}
+	if result.Error != nil {
+		return result.Error
+	}
+	var response TopicListResponse
+	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Success(c, response)
 }
 
 // GetATopic godoc
@@ -29,7 +63,27 @@ func ListTopics(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func GetATopic(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+
+	var topic Topic
+	result := DB.First(&topic, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var response TopicCommonResponse
+	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Success(c, response)
 }
 
 // CreateATopic godoc
@@ -43,7 +97,32 @@ func GetATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func CreateATopic(c *fiber.Ctx) (err error) {
-	return Created(c, nil)
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	var body TopicCreateRequest
+	err = ValidateBody(c, &body)
+	if err != nil {
+		return err
+	}
+
+	var topic Topic
+	if err = copier.CopyWithOption(&topic, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	result := DB.Create(&topic)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var response TopicCommonResponse
+	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Created(c, response)
 }
 
 // ModifyATopic godoc

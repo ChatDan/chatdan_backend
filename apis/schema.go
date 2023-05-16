@@ -317,8 +317,8 @@ func (d DivisionModifyRequest) IsEmpty() bool {
 
 type TopicCommonResponse struct {
 	ID          int                    `json:"id"`
-	CreatedAt   time.Time              `json:"time_created"`
-	UpdatedAt   time.Time              `json:"time_updated"`
+	CreatedAt   time.Time              `json:"created_at"`
+	UpdatedAt   time.Time              `json:"updated_at"`
 	Title       string                 `json:"title"`
 	Content     string                 `json:"content"`
 	IsHidden    bool                   `json:"is_hidden"`
@@ -345,7 +345,7 @@ type TopicCommonResponse struct {
 
 type TopicListRequest struct {
 	DivisionID     *int       `json:"division_id" query:"division_id" validate:"omitempty,min=1"`
-	OrderBy        string     `json:"order_by" query:"order_by" validate:"omitempty,oneof=time_created time_updated" default:"time_updated"`
+	OrderBy        string     `json:"order_by" query:"order_by" validate:"omitempty,oneof=created_at updated_at" default:"updated_at"`
 	CommentOrderBy string     `json:"comment_order_by" query:"comment_order_by" validate:"omitempty,oneof=id like" default:"id"`
 	PageSize       int        `json:"page_size" query:"page_size" validate:"omitempty,min=1,max=100" default:"10"`
 	StartTime      *time.Time `json:"start_time" query:"start_time" validate:"omitempty"`
@@ -379,8 +379,8 @@ func (t TopicModifyRequest) IsEmpty() bool {
 
 type CommentCommonResponse struct {
 	ID          int           `json:"id"`
-	CreatedAt   time.Time     `json:"time_created"`
-	UpdatedAt   time.Time     `json:"time_updated"`
+	CreatedAt   time.Time     `json:"created_at"`
+	UpdatedAt   time.Time     `json:"updated_at"`
 	Content     string        `json:"content"`
 	IsHidden    bool          `json:"is_hidden"`
 	TopicID     int           `json:"topic_id"`
@@ -459,8 +459,8 @@ func (t TagModifyRequest) IsEmpty() bool {
 
 type ChatCommonResponse struct {
 	ID            int       `json:"id"`
-	CreatedAt     time.Time `json:"time_created"`
-	UpdatedAt     time.Time `json:"time_updated"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 	OneUserID     int       `json:"one_user_id"`
 	AnotherUserID int       `json:"another_user_id"`
 	LastMessage   string    `json:"last_message"`
@@ -475,7 +475,7 @@ type ChatListResponse struct {
 
 type MessageCommonResponse struct {
 	ID         int       `json:"id"`
-	CreatedAt  time.Time `json:"time_created"`
+	CreatedAt  time.Time `json:"created_at"`
 	Content    string    `json:"content"`
 	FromUserID int       `json:"from_user_id"`
 	ToUserID   int       `json:"to_user_id"`

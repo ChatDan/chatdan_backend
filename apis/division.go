@@ -28,7 +28,7 @@ func ListDivisions(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	return Success(c, &response)
+	return Success(c, response)
 }
 
 // GetADivision godoc
@@ -46,8 +46,7 @@ func GetADivision(c *fiber.Ctx) (err error) {
 		return err
 	}
 	var division Division
-	division.ID = divisionID
-	result := DB.Find(&division)
+	result := DB.First(&division, divisionID)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -55,7 +54,7 @@ func GetADivision(c *fiber.Ctx) (err error) {
 	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
-	return Success(c, &response)
+	return Success(c, response)
 }
 
 // CreateADivision godoc
@@ -94,7 +93,7 @@ func CreateADivision(c *fiber.Ctx) (err error) {
 	if err = copier.CopyWithOption(&response, &division, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
-	return Created(c, &response)
+	return Created(c, response)
 }
 
 // ModifyADivision godoc
@@ -134,7 +133,7 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 		return BadRequest()
 	}
 	var division Division
-	result := DB.Find(&division, id)
+	result := DB.First(&division, id)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -184,7 +183,7 @@ func DeleteADivision(c *fiber.Ctx) (err error) {
 	}
 
 	var division Division
-	result := DB.Find(&division, id)
+	result := DB.First(&division, id)
 
 	if result.RowsAffected == 0 {
 		return NotFound()
