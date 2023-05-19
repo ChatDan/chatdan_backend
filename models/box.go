@@ -25,6 +25,14 @@ type Box struct {
 	ViewCount int `json:"view_count"` // 浏览数
 }
 
+func (Box) TableName() string {
+	return "box"
+}
+
+func (b Box) GetID() int {
+	return b.ID
+}
+
 // Post 提问、帖子
 // 一个提问箱可以有多个提问，一个提问包含一个回复 Thread，Thread 里的元素是追问追答的 Channel
 // 被提问者的回答和提问者的追问都是 Channel

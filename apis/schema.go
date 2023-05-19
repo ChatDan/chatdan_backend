@@ -60,6 +60,11 @@ type UserResponse struct {
 	FollowingUsersCount int     `json:"following_users_count"`                          // 关注数
 }
 
+type LoginResponse struct {
+	UserResponse
+	AccessToken string `json:"access_token"`
+}
+
 type ResetRequest struct {
 	OldPassword string `json:"old_password" validate:"min=8"`
 	NewPassword string `json:"new_password" validate:"min=8"`
@@ -107,8 +112,9 @@ type BoxCreateRequest struct {
 
 type BoxListRequest struct {
 	PageRequest
-	Title string `json:"title" query:"title"`
-	Owner int    `json:"owner" query:"owner" validate:"omitempty,min=0"`
+	Title   string `json:"title" query:"title"`
+	Owner   int    `json:"owner" query:"owner" validate:"omitempty,min=0"`
+	OrderBy string `json:"order_by" query:"order_by" validate:"oneof='id asc' 'updated_at desc'" default:"id asc"`
 }
 
 type BoxListResponse struct {

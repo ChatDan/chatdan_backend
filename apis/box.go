@@ -3,8 +3,12 @@ package apis
 import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
+	"strconv"
+	"strings"
 )
 
 // ListBoxes godoc
@@ -30,26 +34,42 @@ func ListBoxes(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	// construct querySet
+	// 从缓存或数据库中读取数据
+	var (
+		boxes   []Box
+		version int
+		total   int
+		key     = "boxes"
+	)
 	querySet := query.QuerySet(DB)
 	if query.Title != "" {
-		querySet = querySet.Where("title=?", query.Title) // TODO: fuzzy search
-	}
-	if query.Owner != 0 {
-		querySet = querySet.Where("owner_id=?", query.Owner)
+		// TODO: 使用 Elasticsearch 模糊搜索
+		querySet = querySet.Where("title=?", query.Title)
+		if query.Owner != 0 {
+			querySet = querySet.Where("owner_id=?", query.Owner)
+		}
+		if err = querySet.Find(&boxes).Error; err != nil {
+			return
+		}
+	} else {
+		tx := DB.Session(&gorm.Session{NewDB: true}).Model(&Box{}).Order(query.OrderBy)
+		if query.Owner != 0 {
+			tx = tx.Where("owner_id = ?", query.Owner)
+			key = "boxes:" + strconv.Itoa(query.Owner)
+		}
+		key = key + ":" + strings.Replace(query.OrderBy, " ", "_", -1)
+		if version, total, err = PageLoad(tx, &boxes, key, query.PageRequest); err != nil {
+			return
+		}
 	}
 
-	// load boxes from database
-	var boxes []Box
-	if err = querySet.Find(&boxes).Error; err != nil {
-		return
-	}
-
-	// construct response
+	// 构建响应
 	var response BoxListResponse
 	if err = copier.CopyWithOption(&response.MessageBoxes, &boxes, copier.Option{IgnoreEmpty: true}); err != nil {
 		return
 	}
+	response.Version = version
+	response.Total = total
 
 	return Success(c, response)
 }
@@ -77,9 +97,9 @@ func GetABox(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	// load box from database
-	var box Box
-	if err = DB.Take(&box, boxID).Error; err != nil {
+	// 从缓存说数据库中读取
+	var box = Box{ID: boxID}
+	if err = Load(DB, &box); err != nil {
 		return
 	}
 
@@ -128,6 +148,14 @@ func CreateABox(c *fiber.Ctx) (err error) {
 	if err = DB.Create(&box).Error; err != nil {
 		return err
 	}
+
+	// 删除缓存
+	go DeleteInBatch(
+		fmt.Sprintf("boxes:%d:id_asc:latest", user.ID),
+		fmt.Sprintf("boxes:%d:updated_at_desc:latest", user.ID),
+		"boxes:id_asc:latest",
+		"boxes:updated_at_desc:latest",
+	)
 
 	var response BoxCommonResponse
 	if err = copier.CopyWithOption(&response, &box, copier.Option{IgnoreEmpty: true}); err != nil {
@@ -186,6 +214,12 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 		return
 	}
 
+	// 删除缓存
+	go DeleteInBatch(
+		fmt.Sprintf("boxes:%d:updated_at_desc:latest", user.ID),
+		"boxes:updated_at_desc:latest",
+	)
+
 	var response BoxCommonResponse
 	if err = copier.CopyWithOption(&response, &box, copier.Option{IgnoreEmpty: true}); err != nil {
 		return
@@ -232,6 +266,15 @@ func DeleteABox(c *fiber.Ctx) (err error) {
 	if err = DB.Delete(&box).Error; err != nil {
 		return err
 	}
+
+	// 删除缓存
+	go DeleteInBatch(
+		fmt.Sprintf("boxes:%d:id_asc:latest", user.ID),
+		fmt.Sprintf("boxes:%d:updated_at_desc:latest", user.ID),
+		"boxes:id_asc:latest",
+		"boxes:updated_at_desc:latest",
+		CacheName(box),
+	)
 
 	return Success(c, EmptyStruct{})
 }

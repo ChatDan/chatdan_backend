@@ -7,12 +7,15 @@ import (
 	"github.com/goccy/go-json"
 	"github.com/juju/errors"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
 	"time"
 )
 
 var usingRedis = false
 var RedisClient *redis.Client
 var BigCacheClient *bigcache.BigCache
+
+var ErrCacheMiss = errors.New("cache miss")
 
 func InitCache() {
 	if config.Config.RedisUrl != "" {
@@ -36,6 +39,9 @@ func InitCache() {
 }
 
 func Get(key string, model any) (err error) {
+	if config.Config.Debug {
+		Logger.Info("get cache", zap.String("key", key))
+	}
 	var value []byte
 	if usingRedis {
 		value, err = RedisClient.Get(context.Background(), key).Bytes()
@@ -43,13 +49,18 @@ func Get(key string, model any) (err error) {
 		value, err = BigCacheClient.Get(key)
 	}
 	if err != nil {
-		return errors.Trace(err)
+		if err == redis.Nil || err == bigcache.ErrEntryNotFound {
+			return ErrCacheMiss
+		}
+		return
 	}
-	err = json.Unmarshal(value, model)
-	return errors.Trace(err)
+	return json.Unmarshal(value, model)
 }
 
-func Set(key string, model any) (err error) {
+func Set(key string, model any, expiration time.Duration) (err error) {
+	if config.Config.Debug {
+		Logger.Info("set cache", zap.String("key", key))
+	}
 	var value []byte
 	value, err = json.Marshal(model)
 	if err != nil {
@@ -57,7 +68,7 @@ func Set(key string, model any) (err error) {
 	}
 
 	if usingRedis {
-		return errors.Trace(RedisClient.Set(context.Background(), key, value, 0).Err())
+		return errors.Trace(RedisClient.Set(context.Background(), key, value, expiration).Err())
 	} else {
 		return errors.Trace(BigCacheClient.Set(key, value))
 	}
@@ -68,5 +79,21 @@ func Delete(key string) error {
 		return errors.Trace(RedisClient.Del(context.Background(), key).Err())
 	} else {
 		return errors.Trace(BigCacheClient.Delete(key))
+	}
+}
+
+func DeleteInBatch(keys ...string) {
+	if len(keys) == 0 {
+		return
+	}
+	if config.Config.Debug {
+		Logger.Debug("delete in batch", zap.Strings("keys", keys))
+	}
+	if usingRedis {
+		_ = RedisClient.Del(context.Background(), keys...)
+	} else {
+		for _, key := range keys {
+			_ = BigCacheClient.Delete(key)
+		}
 	}
 }
