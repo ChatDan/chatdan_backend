@@ -561,10 +561,15 @@ definitions:
     type: object
   apis.UserListResponse:
     properties:
+      total:
+        description: User 总数，便于前端分页
+        type: integer
       users:
         items:
           $ref: '#/definitions/apis.UserResponse'
         type: array
+      version:
+        type: integer
     type: object
   apis.UserModifyRequest:
     properties:
@@ -2245,7 +2250,7 @@ paths:
       tags:
       - Topic Module
   /topic/{id}/_view:
-    put:
+    post:
       parameters:
       - description: topic id
         in: path

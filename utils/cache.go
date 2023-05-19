@@ -74,11 +74,11 @@ func Set(key string, model any, expiration time.Duration) (err error) {
 	}
 }
 
-func Delete(key string) error {
+func Delete(key string) {
 	if usingRedis {
-		return errors.Trace(RedisClient.Del(context.Background(), key).Err())
+		_ = RedisClient.Del(context.Background(), key)
 	} else {
-		return errors.Trace(BigCacheClient.Delete(key))
+		_ = BigCacheClient.Delete(key)
 	}
 }
 

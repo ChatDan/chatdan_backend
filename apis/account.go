@@ -81,21 +81,14 @@ func Register(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	// create user
-	user := User{
-		Username:       body.Username,
-		HashedPassword: MakePassword(body.Password),
-	}
-
-	if err = DB.Transaction(func(tx *gorm.DB) error {
-		var exists User
-		if err = tx.Where("username = ?", user.Username).First(&exists).Error; err == nil {
-			return BadRequest("用户已存在")
-		}
-
-		return tx.Create(&user).Error
-	}); err != nil {
-		return
+	// create user or fail if username exists
+	var user User
+	result := DB.Where(User{Username: body.Username}).
+		Attrs(User{HashedPassword: MakePassword(body.Password)}).FirstOrCreate(&user)
+	if result.Error != nil {
+		return result.Error
+	} else if result.RowsAffected == 0 {
+		return BadRequest("用户名已存在")
 	}
 
 	// create jwt token

@@ -2576,7 +2576,7 @@ const docTemplate = `{
             }
         },
         "/topic/{id}/_view": {
-            "put": {
+            "post": {
                 "produces": [
                     "application/json"
                 ],
@@ -4579,11 +4579,18 @@ const docTemplate = `{
         "apis.UserListResponse": {
             "type": "object",
             "properties": {
+                "total": {
+                    "description": "User 总数，便于前端分页",
+                    "type": "integer"
+                },
                 "users": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/apis.UserResponse"
                     }
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         },

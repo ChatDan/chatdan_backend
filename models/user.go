@@ -16,8 +16,8 @@ type User struct {
 	Username       string         `json:"username" gorm:"index,size:100"`
 	Email          *string        `json:"email" gorm:"index"` // 邮箱，可选登录
 	HashedPassword string         `json:"-" gorm:"size:256"`
-	LoginTime      time.Time      `json:"-" gorm:"autoUpdateTime"`
-	RegisterTime   time.Time      `json:"-" gorm:"autoCreateTime"`
+	LoginTime      time.Time      `json:"login_time" gorm:"autoUpdateTime"`
+	RegisterTime   time.Time      `json:"register_time" gorm:"autoCreateTime"`
 	DeletedAt      gorm.DeletedAt `json:"-"`
 	Banned         bool           `json:"banned"`
 	IsAdmin        bool           `json:"is_admin"`
@@ -38,7 +38,15 @@ type User struct {
 	FollowingUsersCount int `json:"following_users_count" gorm:"not null;default:0"` // 关注数
 }
 
-func (user *User) DeletedUsername() string {
+func (user User) GetID() int {
+	return user.ID
+}
+
+func (User) TableName() string {
+	return "users"
+}
+
+func (user User) DeletedUsername() string {
 	if user.DeletedAt.Valid {
 		return user.Username
 	} else {
@@ -55,6 +63,14 @@ type UserFollows struct {
 type UserJwtSecret struct {
 	UserID int    `json:"id" gorm:"primaryKey"`
 	Secret string `json:"secret" gorm:"size:256"`
+}
+
+func (u UserJwtSecret) GetID() int {
+	return u.UserID
+}
+
+func (u UserJwtSecret) TableName() string {
+	return "user_jwt_secret"
 }
 
 func CreateJwtToken(user *User) (string, error) {

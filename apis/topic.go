@@ -304,7 +304,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 // @Summary 浏览一个话题，浏览数 +1
 // @Tags Topic Module
 // @Produce json
-// @Router /topic/{id}/_view [put]
+// @Router /topic/{id}/_view [post]
 // @Param id path int true "topic id"
 // @Success 200 {object} Response{data=EmptyStruct}
 // @Failure 400 {object} Response

@@ -75,7 +75,9 @@ type UserListRequest struct {
 }
 
 type UserListResponse struct {
-	Users []UserResponse `json:"users"`
+	Users   []UserResponse `json:"users"`
+	Version int            `json:"version"`
+	Total   int            `json:"total"` // User 总数，便于前端分页
 }
 
 type UserModifyRequest struct {

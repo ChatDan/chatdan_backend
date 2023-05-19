@@ -35,8 +35,11 @@ func ListUsers(c *fiber.Ctx) (err error) {
 	}
 
 	// load users from database
-	var users []User
-	if err = query.QuerySet(DB).Find(&users).Error; err != nil {
+	var (
+		users          []User
+		version, total int
+	)
+	if version, total, err = PageLoad(DB, &users, "users", query.PageRequest); err != nil {
 		return
 	}
 
@@ -45,6 +48,8 @@ func ListUsers(c *fiber.Ctx) (err error) {
 	if err = copier.Copy(&response, &users); err != nil {
 		return
 	}
+	response.Version = version
+	response.Total = total
 
 	return Success(c, response)
 }
@@ -65,7 +70,7 @@ func GetUserMe(c *fiber.Ctx) (err error) {
 	}
 
 	// load user from database
-	if err = DB.First(&user, user.ID).Error; err != nil {
+	if err = Load(DB, &user); err != nil {
 		return
 	}
 
@@ -100,8 +105,8 @@ func ModifyUserMe(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	// load user from database
-	if err = DB.First(&user, user.ID).Error; err != nil {
+	// load user from cache or database
+	if err = Load(DB, &user); err != nil {
 		return
 	}
 
@@ -150,6 +155,9 @@ func DeleteUserMe(c *fiber.Ctx) (err error) {
 		return
 	}
 
+	// 删除缓存
+	Delete(CacheName(user))
+
 	return Success(c, EmptyStruct{})
 }
 
@@ -176,8 +184,8 @@ func GetAUser(c *fiber.Ctx) (err error) {
 	}
 
 	// load user from database
-	var user User
-	if err = DB.First(&user, userID).Error; err != nil {
+	var user = User{ID: userID}
+	if err = Load(DB, &user); err != nil {
 		return
 	}
 
@@ -226,7 +234,7 @@ func ModifyAUser(c *fiber.Ctx) (err error) {
 
 	// load user from database
 	var user User
-	if err = DB.First(&user, userID).Error; err != nil {
+	if err = Load(DB, &user); err != nil {
 		return
 	}
 
@@ -273,9 +281,9 @@ func DeleteAUser(c *fiber.Ctx) (err error) {
 		return
 	}
 
+	var user User
 	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
 		// load user from database
-		var user User
 		if err = DB.Clauses(LockClause).First(&user, userID).Error; err != nil {
 			return
 		}
@@ -290,6 +298,9 @@ func DeleteAUser(c *fiber.Ctx) (err error) {
 	}); err != nil {
 		return err
 	}
+
+	// 删除缓存
+	Delete(CacheName(user))
 
 	return Success(c, EmptyStruct{})
 }
