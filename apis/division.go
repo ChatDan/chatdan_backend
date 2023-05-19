@@ -13,7 +13,6 @@ import (
 // @Tags Division Module
 // @Produce json
 // @Router /divisions [get]
-// @Param body query DivisionListRequest true "page"
 // @Success 200 {object} Response{data=DivisionListResponse}
 // @Failure 400 {object} Response{data=ErrorDetail}
 // @Failure 500 {object} Response

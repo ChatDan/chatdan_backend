@@ -60,6 +60,8 @@ import (
 // @in header
 // @name Authorization
 
+//go:generate go install github.com/swaggo/swag/cmd/swag@latest
+//go:generate swag init
 func main() {
 	app := bootstrap.InitFiberApp()
 

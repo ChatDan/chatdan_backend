@@ -1064,30 +1064,6 @@ const docTemplate = `{
                     "Division Module"
                 ],
                 "summary": "List all divisions",
-                "parameters": [
-                    {
-                        "minimum": 1,
-                        "type": "integer",
-                        "name": "page_num",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "maximum": 100,
-                        "minimum": 1,
-                        "type": "integer",
-                        "name": "page_size",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "minimum": 0,
-                        "type": "integer",
-                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
-                        "name": "version",
-                        "in": "query"
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1407,6 +1383,16 @@ const docTemplate = `{
                 ],
                 "summary": "查询提问箱",
                 "parameters": [
+                    {
+                        "enum": [
+                            "id asc",
+                            "updated_at desc"
+                        ],
+                        "type": "string",
+                        "default": "id asc",
+                        "name": "order_by",
+                        "in": "query"
+                    },
                     {
                         "minimum": 0,
                         "type": "integer",
@@ -2325,7 +2311,7 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "description": "管理员可修改标题、内容、标签、是否隐藏，用户可修改标题、内容、标签、是否匿名",
+                "description": "管理员可修改标题、内容、标签、是否隐藏，用户可修改标题、内容、标签",
                 "consumes": [
                     "application/json"
                 ],
@@ -2423,7 +2409,7 @@ const docTemplate = `{
             }
         },
         "/topic/{id}/_favor": {
-            "post": {
+            "put": {
                 "produces": [
                     "application/json"
                 ],
@@ -2590,7 +2576,7 @@ const docTemplate = `{
             }
         },
         "/topic/{id}/_view": {
-            "post": {
+            "put": {
                 "produces": [
                     "application/json"
                 ],
@@ -2669,11 +2655,11 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "time_created",
-                            "time_updated"
+                            "created_at",
+                            "updated_at"
                         ],
                         "type": "string",
-                        "default": "time_updated",
+                        "default": "updated_at",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2753,11 +2739,11 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "time_created",
-                            "time_updated"
+                            "created_at",
+                            "updated_at"
                         ],
                         "type": "string",
-                        "default": "time_updated",
+                        "default": "updated_at",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2844,11 +2830,11 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "time_created",
-                            "time_updated"
+                            "created_at",
+                            "updated_at"
                         ],
                         "type": "string",
-                        "default": "time_updated",
+                        "default": "updated_at",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2936,11 +2922,11 @@ const docTemplate = `{
                     },
                     {
                         "enum": [
-                            "time_created",
-                            "time_updated"
+                            "created_at",
+                            "updated_at"
                         ],
                         "type": "string",
-                        "default": "time_updated",
+                        "default": "updated_at",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -3027,7 +3013,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/apis.UserResponse"
+                                            "$ref": "#/definitions/apis.LoginResponse"
                                         }
                                     }
                                 }
@@ -3278,7 +3264,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/apis.UserResponse"
+                                            "$ref": "#/definitions/apis.LoginResponse"
                                         }
                                     }
                                 }
@@ -3938,6 +3924,9 @@ const docTemplate = `{
                 "another_user_id": {
                     "type": "integer"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3950,10 +3939,7 @@ const docTemplate = `{
                 "one_user_id": {
                     "type": "integer"
                 },
-                "time_created": {
-                    "type": "string"
-                },
-                "time_updated": {
+                "updated_at": {
                     "type": "string"
                 }
             }
@@ -3978,6 +3964,9 @@ const docTemplate = `{
                     "x-nullable": true
                 },
                 "content": {
+                    "type": "string"
+                },
+                "created_at": {
                     "type": "string"
                 },
                 "dislike_count": {
@@ -4020,14 +4009,11 @@ const docTemplate = `{
                     "type": "integer",
                     "x-nullable": true
                 },
-                "time_created": {
-                    "type": "string"
-                },
-                "time_updated": {
-                    "type": "string"
-                },
                 "topic_id": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -4106,12 +4092,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 1
-                },
-                "pinned_topic_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 }
             }
         },
@@ -4160,10 +4140,69 @@ const docTemplate = `{
                 }
             }
         },
+        "apis.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "avatar": {
+                    "description": "头像链接",
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "banned": {
+                    "description": "是否被封禁",
+                    "type": "boolean"
+                },
+                "comment_count": {
+                    "description": "发表的评论数",
+                    "type": "integer"
+                },
+                "email": {
+                    "description": "邮箱，可选登录",
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "favorite_topics_count": {
+                    "description": "收藏的话题数",
+                    "type": "integer"
+                },
+                "followers_count": {
+                    "description": "被关注数",
+                    "type": "integer"
+                },
+                "following_users_count": {
+                    "description": "关注数",
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "introduction": {
+                    "description": "个人简介/个性签名",
+                    "type": "string",
+                    "x-nullable": true
+                },
+                "is_admin": {
+                    "type": "boolean"
+                },
+                "topic_count": {
+                    "description": "发表的话题数",
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "apis.MessageCommonResponse": {
             "type": "object",
             "properties": {
                 "content": {
+                    "type": "string"
+                },
+                "created_at": {
                     "type": "string"
                 },
                 "from_user_id": {
@@ -4174,9 +4213,6 @@ const docTemplate = `{
                 },
                 "is_me": {
                     "type": "boolean"
-                },
-                "time_created": {
-                    "type": "string"
                 },
                 "to_user_id": {
                     "type": "integer"
@@ -4395,6 +4431,9 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "dislike_count": {
                     "description": "点踩数",
                     "type": "integer"
@@ -4450,13 +4489,10 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "time_created": {
-                    "type": "string"
-                },
-                "time_updated": {
-                    "type": "string"
-                },
                 "title": {
+                    "type": "string"
+                },
+                "updated_at": {
                     "type": "string"
                 },
                 "view_count": {

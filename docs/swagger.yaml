@@ -110,6 +110,8 @@ definitions:
     properties:
       another_user_id:
         type: integer
+      created_at:
+        type: string
       id:
         type: integer
       last_message:
@@ -118,9 +120,7 @@ definitions:
         type: integer
       one_user_id:
         type: integer
-      time_created:
-        type: string
-      time_updated:
+      updated_at:
         type: string
     type: object
   apis.ChatListResponse:
@@ -137,6 +137,8 @@ definitions:
         type: string
         x-nullable: true
       content:
+        type: string
+      created_at:
         type: string
       dislike_count:
         description: 点踩数
@@ -166,12 +168,10 @@ definitions:
       reply_to_id:
         type: integer
         x-nullable: true
-      time_created:
-        type: string
-      time_updated:
-        type: string
       topic_id:
         type: integer
+      updated_at:
+        type: string
     type: object
   apis.CommentCreateRequest:
     properties:
@@ -224,10 +224,6 @@ definitions:
         maxLength: 20
         minLength: 1
         type: string
-      pinned_topic_ids:
-        items:
-          type: integer
-        type: array
     required:
     - name
     type: object
@@ -262,9 +258,52 @@ definitions:
         minLength: 2
         type: string
     type: object
+  apis.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      avatar:
+        description: 头像链接
+        type: string
+        x-nullable: true
+      banned:
+        description: 是否被封禁
+        type: boolean
+      comment_count:
+        description: 发表的评论数
+        type: integer
+      email:
+        description: 邮箱，可选登录
+        type: string
+        x-nullable: true
+      favorite_topics_count:
+        description: 收藏的话题数
+        type: integer
+      followers_count:
+        description: 被关注数
+        type: integer
+      following_users_count:
+        description: 关注数
+        type: integer
+      id:
+        type: integer
+      introduction:
+        description: 个人简介/个性签名
+        type: string
+        x-nullable: true
+      is_admin:
+        type: boolean
+      topic_count:
+        description: 发表的话题数
+        type: integer
+      username:
+        type: string
+    type: object
   apis.MessageCommonResponse:
     properties:
       content:
+        type: string
+      created_at:
         type: string
       from_user_id:
         type: integer
@@ -272,8 +311,6 @@ definitions:
         type: integer
       is_me:
         type: boolean
-      time_created:
-        type: string
       to_user_id:
         type: integer
     type: object
@@ -421,6 +458,8 @@ definitions:
         type: integer
       content:
         type: string
+      created_at:
+        type: string
       dislike_count:
         description: 点踩数
         type: integer
@@ -458,11 +497,9 @@ definitions:
         items:
           type: string
         type: array
-      time_created:
-        type: string
-      time_updated:
-        type: string
       title:
+        type: string
+      updated_at:
         type: string
       view_count:
         description: 统计数据
@@ -1294,23 +1331,6 @@ paths:
       - Division Module
   /divisions:
     get:
-      parameters:
-      - in: query
-        minimum: 1
-        name: page_num
-        required: true
-        type: integer
-      - in: query
-        maximum: 100
-        minimum: 1
-        name: page_size
-        required: true
-        type: integer
-      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
-        in: query
-        minimum: 0
-        name: version
-        type: integer
       produces:
       - application/json
       responses:
@@ -1497,6 +1517,13 @@ paths:
       consumes:
       - application/json
       parameters:
+      - default: id asc
+        enum:
+        - id asc
+        - updated_at desc
+        in: query
+        name: order_by
+        type: string
       - in: query
         minimum: 0
         name: owner
@@ -2084,7 +2111,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: 管理员可修改标题、内容、标签、是否隐藏，用户可修改标题、内容、标签、是否匿名
+      description: 管理员可修改标题、内容、标签、是否隐藏，用户可修改标题、内容、标签
       parameters:
       - description: topic
         in: body
@@ -2146,7 +2173,7 @@ paths:
       summary: 取消收藏一个话题
       tags:
       - Topic Module
-    post:
+    put:
       parameters:
       - description: topic id
         in: path
@@ -2218,7 +2245,7 @@ paths:
       tags:
       - Topic Module
   /topic/{id}/_view:
-    post:
+    put:
       parameters:
       - description: topic id
         in: path
@@ -2262,10 +2289,10 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: time_updated
+      - default: updated_at
         enum:
-        - time_created
-        - time_updated
+        - created_at
+        - updated_at
         in: query
         name: order_by
         type: string
@@ -2315,10 +2342,10 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: time_updated
+      - default: updated_at
         enum:
-        - time_created
-        - time_updated
+        - created_at
+        - updated_at
         in: query
         name: order_by
         type: string
@@ -2373,10 +2400,10 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: time_updated
+      - default: updated_at
         enum:
-        - time_created
-        - time_updated
+        - created_at
+        - updated_at
         in: query
         name: order_by
         type: string
@@ -2432,10 +2459,10 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: time_updated
+      - default: updated_at
         enum:
-        - time_created
-        - time_updated
+        - created_at
+        - updated_at
         in: query
         name: order_by
         type: string
@@ -2590,7 +2617,7 @@ paths:
             - $ref: '#/definitions/utils.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/apis.UserResponse'
+                  $ref: '#/definitions/apis.LoginResponse'
               type: object
         "401":
           description: 用户名或密码错误
@@ -2737,7 +2764,7 @@ paths:
             - $ref: '#/definitions/utils.Response'
             - properties:
                 data:
-                  $ref: '#/definitions/apis.UserResponse'
+                  $ref: '#/definitions/apis.LoginResponse'
               type: object
         "400":
           description: Bad Request
@@ -2835,7 +2862,6 @@ paths:
       description: 获取今日表白墙，即昨日发送的表白墙
       parameters:
       - description: 日期，不填默认当天（即昨天发送的表白墙）
-        # noinspection YAMLSchemaValidation
         example: "2006-01-02"
         in: query
         name: date

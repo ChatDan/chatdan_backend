@@ -17,7 +17,7 @@ import (
 // @Produce json
 // @Router /user/login [post]
 // @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
-// @Success 200 {object} Response{data=UserResponse}
+// @Success 200 {object} Response{data=LoginResponse}
 // @Failure 401 {object} Response "用户名或密码错误"
 // @Failure 500 {object} Response "Internal Server Error"
 func Login(c *fiber.Ctx) (err error) {
@@ -55,10 +55,11 @@ func Login(c *fiber.Ctx) (err error) {
 	})
 
 	// construct response
-	var response UserResponse
+	var response LoginResponse
 	if err = copier.Copy(&response, &user); err != nil {
 		return
 	}
+	response.AccessToken = token
 
 	return Success(c, response)
 }
@@ -70,7 +71,7 @@ func Login(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /user/register [post]
 // @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
-// @Success 200 {object} Response{data=UserResponse}
+// @Success 200 {object} Response{data=LoginResponse}
 // @Failure 400 {object} Response "Bad Request"
 // @Failure 500 {object} Response "Internal Server Error"
 func Register(c *fiber.Ctx) (err error) {
@@ -112,10 +113,11 @@ func Register(c *fiber.Ctx) (err error) {
 	})
 
 	// construct response
-	var response UserResponse
+	var response LoginResponse
 	if err = copier.Copy(&response, &user); err != nil {
 		return
 	}
+	response.AccessToken = token
 
 	return Success(c, response)
 }

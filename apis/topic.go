@@ -304,7 +304,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 // @Summary 浏览一个话题，浏览数 +1
 // @Tags Topic Module
 // @Produce json
-// @Router /topic/{id}/_view [post]
+// @Router /topic/{id}/_view [put]
 // @Param id path int true "topic id"
 // @Success 200 {object} Response{data=EmptyStruct}
 // @Failure 400 {object} Response
@@ -317,7 +317,7 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 // @Summary 收藏一个话题，收藏数 +1
 // @Tags Topic Module
 // @Produce json
-// @Router /topic/{id}/_favor [post]
+// @Router /topic/{id}/_favor [put]
 // @Param id path int true "topic id"
 // @Success 200 {object} Response{data=TopicCommonResponse}
 // @Failure 400 {object} Response
