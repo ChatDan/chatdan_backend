@@ -15,25 +15,25 @@ func (q PageRequest) QuerySet(tx *gorm.DB) *gorm.DB {
 	return tx.Offset((q.PageNum - 1) * q.PageSize).Limit(q.PageSize)
 }
 
-type Response struct {
+type Response[T any] struct {
 	Code     int    `json:"code"`
 	ErrorMsg string `json:"error_msg"`
-	Data     any    `json:"data,omitempty"`
+	Data     T      `json:"data,omitempty"`
 }
 
-func (r Response) Error() string {
+func (r Response[T]) Error() string {
 	return r.ErrorMsg
 }
 
-func Success(c *fiber.Ctx, data any) error {
-	return c.Status(200).JSON(Response{
+func Success[T any](c *fiber.Ctx, data T) error {
+	return c.Status(200).JSON(Response[T]{
 		Code: 200,
 		Data: data,
 	})
 }
 
-func Created(c *fiber.Ctx, data any) error {
-	return c.Status(201).JSON(Response{
+func Created[T any](c *fiber.Ctx, data T) error {
+	return c.Status(201).JSON(Response[T]{
 		Code: 201,
 		Data: data,
 	})

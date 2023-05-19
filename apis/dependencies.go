@@ -14,11 +14,6 @@ import (
 )
 
 func GetCurrentUser(c *fiber.Ctx, user *User) (err error) {
-	if config.Config.Mode == "dev" {
-		user.ID = 1
-		user.IsAdmin = true
-		return nil
-	}
 
 	// get access token from cookie "jwt"
 	accessToken := c.Cookies("jwt")

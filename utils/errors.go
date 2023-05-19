@@ -6,56 +6,56 @@ import (
 	"gorm.io/gorm"
 )
 
-func BadRequest(messages ...string) *Response {
+func BadRequest(messages ...string) error {
 	message := "Bad Request"
 	if len(messages) > 0 {
 		message = messages[0]
 	}
-	return &Response{
+	return &Response[any]{
 		Code:     400,
 		ErrorMsg: message,
 	}
 }
 
-func Unauthorized(messages ...string) *Response {
+func Unauthorized(messages ...string) error {
 	message := "Invalid JWT Token"
 	if len(messages) > 0 {
 		message = messages[0]
 	}
-	return &Response{
+	return &Response[any]{
 		Code:     401,
 		ErrorMsg: message,
 	}
 }
 
-func Forbidden(messages ...string) *Response {
+func Forbidden(messages ...string) error {
 	message := "您没有权限进行此操作"
 	if len(messages) > 0 {
 		message = messages[0]
 	}
-	return &Response{
+	return &Response[any]{
 		Code:     403,
 		ErrorMsg: message,
 	}
 }
 
-func NotFound(messages ...string) *Response {
+func NotFound(messages ...string) error {
 	message := "Not Found"
 	if len(messages) > 0 {
 		message = messages[0]
 	}
-	return &Response{
+	return &Response[any]{
 		Code:     404,
 		ErrorMsg: message,
 	}
 }
 
-func InternalServerError(messages ...string) *Response {
+func InternalServerError(messages ...string) error {
 	message := "Unknown Error"
 	if len(messages) > 0 {
 		message = messages[0]
 	}
-	return &Response{
+	return &Response[any]{
 		Code:     500,
 		ErrorMsg: message,
 	}
@@ -66,7 +66,7 @@ func MyErrorHandler(c *fiber.Ctx, err error) error {
 		return nil
 	}
 
-	httpError := Response{
+	httpError := Response[any]{
 		Code:     500,
 		ErrorMsg: err.Error(),
 	}
@@ -75,7 +75,7 @@ func MyErrorHandler(c *fiber.Ctx, err error) error {
 		httpError.Code = 404
 	} else {
 		switch e := err.(type) {
-		case *Response:
+		case *Response[any]:
 			httpError = *e
 		case *fiber.Error:
 			httpError.Code = e.Code

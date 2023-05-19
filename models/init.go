@@ -45,7 +45,7 @@ func InitDB() {
 		}
 		DB, err = gorm.Open(sqlite.Open(config.Config.DbUrl), gormConfig)
 	case "memory":
-		DB, err = gorm.Open(mysql.Open(":memory:"), gormConfig)
+		DB, err = gorm.Open(sqlite.Open("file::memory:"), gormConfig)
 	default:
 		panic("unknown db type")
 	}

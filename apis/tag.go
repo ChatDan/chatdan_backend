@@ -16,7 +16,7 @@ import (
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListTags(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TagListResponse{})
 }
 
 // GetATag godoc
@@ -29,7 +29,7 @@ func ListTags(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func GetATag(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TagCommonResponse{})
 }
 
 // CreateATag godoc
@@ -43,7 +43,7 @@ func GetATag(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func CreateATag(c *fiber.Ctx) (err error) {
-	return Created(c, nil)
+	return Created(c, TagCommonResponse{})
 }
 
 // ModifyATag godoc
@@ -57,7 +57,7 @@ func CreateATag(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ModifyATag(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TagCommonResponse{})
 }
 
 // DeleteATag godoc

@@ -16,7 +16,7 @@ import (
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListComments(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, EmptyStruct{})
 }
 
 // GetAComment godoc
@@ -29,7 +29,7 @@ func ListComments(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func GetAComment(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, EmptyStruct{})
 }
 
 // CreateAComment godoc
@@ -43,7 +43,7 @@ func GetAComment(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func CreateAComment(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, EmptyStruct{})
 }
 
 // ModifyAComment godoc
@@ -57,7 +57,7 @@ func CreateAComment(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ModifyAComment(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, EmptyStruct{})
 }
 
 // DeleteAComment godoc
@@ -97,5 +97,5 @@ func LikeOrDislikeAComment(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListCommentsByUser(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, EmptyStruct{})
 }

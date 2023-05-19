@@ -323,7 +323,7 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func FavorATopic(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TopicCommonResponse{})
 }
 
 // ListFavoriteTopics godoc
@@ -336,7 +336,7 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListFavoriteTopics(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TopicListResponse{})
 }
 
 // UnfavorATopic godoc
@@ -349,7 +349,7 @@ func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func UnfavorATopic(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TopicCommonResponse{})
 }
 
 // ListTopicsByUser godoc
@@ -364,7 +364,7 @@ func UnfavorATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListTopicsByUser(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TopicListResponse{})
 }
 
 // ListTopicsByTag godoc
@@ -378,5 +378,5 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListTopicsByTag(c *fiber.Ctx) (err error) {
-	return Success(c, nil)
+	return Success(c, TopicListResponse{})
 }

@@ -107,7 +107,7 @@ func Register(c *fiber.Ctx) (err error) {
 
 	// construct response
 	var response LoginResponse
-	if err = copier.Copy(&response, &user); err != nil {
+	if err = copier.CopyWithOption(&response, &user, CopyOption); err != nil {
 		return
 	}
 	response.AccessToken = token
@@ -189,5 +189,5 @@ func Logout(c *fiber.Ctx) (err error) {
 		Expires: time.Now().Add(-time.Hour),
 	})
 
-	return Success(c, nil)
+	return Success(c, EmptyStruct{})
 }
