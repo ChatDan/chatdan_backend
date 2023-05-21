@@ -96,4 +96,6 @@ func InitDB() {
 	}
 
 	utils.Logger.Info("database connected")
+
+	InitSearch()
 }

@@ -41,14 +41,17 @@ func ListBoxes(c *fiber.Ctx) (err error) {
 		total   int
 		key     = "boxes"
 	)
-	querySet := query.QuerySet(DB)
+
 	if query.Title != "" {
-		// TODO: 使用 Elasticsearch 模糊搜索
-		querySet = querySet.Where("title=?", query.Title)
+		// 使用 Meilisearch 模糊搜索
+		var filter string
 		if query.Owner != 0 {
-			querySet = querySet.Where("owner_id=?", query.Owner)
+			filter = "owner_id = " + strconv.Itoa(query.Owner)
 		}
-		if err = querySet.Find(&boxes).Error; err != nil {
+		if total, err = Search(
+			DB, &boxes, query.Title,
+			filter, []string{query.OrderBy}, "title", query.PageRequest,
+		); err != nil {
 			return
 		}
 	} else {
@@ -145,8 +148,12 @@ func CreateABox(c *fiber.Ctx) (err error) {
 		Title:   body.Title,
 	}
 
+	// 创建提问箱
 	if err = DB.Create(&box).Error; err != nil {
 		return err
+	}
+	if err = SearchAddOrReplace(box.ToBoxSearchModel()); err != nil {
+		return
 	}
 
 	// 删除缓存
@@ -213,6 +220,9 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 	if err = DB.Model(&box).Select("title").Updates(&box).Error; err != nil {
 		return
 	}
+	if err = SearchAddOrReplace(box.ToBoxSearchModel()); err != nil {
+		return
+	}
 
 	// 删除缓存
 	go DeleteInBatch(
@@ -265,6 +275,9 @@ func DeleteABox(c *fiber.Ctx) (err error) {
 	// delete box
 	if err = DB.Delete(&box).Error; err != nil {
 		return err
+	}
+	if err = SearchDelete[BoxSearchModel](box.ID); err != nil {
+		return
 	}
 
 	// 删除缓存

@@ -5,17 +5,19 @@ import (
 )
 
 var Config struct {
-	Debug          bool   `env:"DEBUG" envDefault:"false"`
-	Mode           string `env:"MODE" envDefault:"dev"`
-	DbType         string `env:"DB_TYPE" envDefault:"sqlite"`
-	DbUrl          string `env:"DB_URL"`
-	RedisUrl       string `env:"REDIS_URL"`
-	AppName        string `env:"APP_NAME" envDefault:"ChatDan"`
-	Hostname       string `env:"HOSTNAME" envDefault:"localhost"`
-	Standalone     bool   `env:"STANDALONE" envDefault:"false"` // if true, go without gateway
-	GatewayType    string `env:"GATEWAY_TYPE" envDefault:"apisix"`
-	ApisixUrl      string `env:"APISIX_URL"`
-	ApisixAdminKey string `env:"APISIX_ADMIN_KEY"`
+	Debug             bool   `env:"DEBUG" envDefault:"false"`
+	Mode              string `env:"MODE" envDefault:"dev"`
+	DbType            string `env:"DB_TYPE" envDefault:"sqlite"`
+	DbUrl             string `env:"DB_URL"`
+	RedisUrl          string `env:"REDIS_URL"`
+	AppName           string `env:"APP_NAME" envDefault:"ChatDan"`
+	Hostname          string `env:"HOSTNAME" envDefault:"localhost"`
+	Standalone        bool   `env:"STANDALONE" envDefault:"false"` // if true, go without gateway
+	GatewayType       string `env:"GATEWAY_TYPE" envDefault:"apisix"`
+	ApisixUrl         string `env:"APISIX_URL"`
+	ApisixAdminKey    string `env:"APISIX_ADMIN_KEY"`
+	MeilisearchUrl    string `env:"MEILISEARCH_URL"`
+	MeilisearchApiKey string `env:"MEILISEARCH_API_KEY"`
 }
 
 func InitConfig() {

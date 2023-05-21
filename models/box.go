@@ -10,9 +10,9 @@ import (
 type Box struct {
 	// 元数据
 	ID        int            `json:"id"`
-	CreatedAt time.Time      `json:"time_created"`
-	UpdatedAt time.Time      `json:"time_updated"`
-	DeletedAt gorm.DeletedAt `json:"time_deleted"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 	Title     string         `json:"title"`
 
 	// 关联数据
@@ -33,15 +33,65 @@ func (b Box) GetID() int {
 	return b.ID
 }
 
+type BoxSearchModel struct {
+	ID        int    `json:"id"`
+	CreatedAt int    `json:"created_at"`
+	UpdatedAt int    `json:"updated_at"`
+	Title     string `json:"title"`
+	OwnerID   int    `json:"owner_id"`
+}
+
+func (BoxSearchModel) TableName() string {
+	return "box"
+}
+
+func (BoxSearchModel) IndexName() string {
+	return "box"
+}
+
+func (b BoxSearchModel) GetID() int {
+	return b.ID
+}
+
+func (BoxSearchModel) PrimaryKey() string {
+	return "id"
+}
+
+func (BoxSearchModel) FilterableAttributes() []string {
+	return []string{"owner_id"}
+}
+
+func (BoxSearchModel) SearchableAttributes() []string {
+	return []string{"title"}
+}
+
+func (BoxSearchModel) SortableAttributes() []string {
+	return []string{"id", "updated_at", "created_at"}
+}
+
+func (BoxSearchModel) RankingRules() []string {
+	return []string{"words", "attribute", "sort", "exactness"}
+}
+
+func (b Box) ToBoxSearchModel() BoxSearchModel {
+	return BoxSearchModel{
+		ID:        b.ID,
+		CreatedAt: int(b.CreatedAt.UnixMicro()),
+		UpdatedAt: int(b.UpdatedAt.UnixMicro()),
+		Title:     b.Title,
+		OwnerID:   b.OwnerID,
+	}
+}
+
 // Post 提问、帖子
 // 一个提问箱可以有多个提问，一个提问包含一个回复 Thread，Thread 里的元素是追问追答的 Channel
 // 被提问者的回答和提问者的追问都是 Channel
 type Post struct {
 	// 元数据
 	ID          int            `json:"id"`
-	CreatedAt   time.Time      `json:"time_created"`
-	UpdatedAt   time.Time      `json:"time_updated"`
-	DeletedAt   gorm.DeletedAt `json:"time_deleted"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `json:"deleted_at"`
 	Content     string         `json:"content"`
 	IsPublic    bool           `json:"is_public"`    // true if the post is public
 	IsAnonymous bool           `json:"is_anonymous"` // true if the post is anonymous
@@ -75,9 +125,9 @@ const (
 type Channel struct {
 	// 元数据
 	ID        int            `json:"id"`
-	CreatedAt time.Time      `json:"time_created"`
-	UpdatedAt time.Time      `json:"time_updated"`
-	DeletedAt gorm.DeletedAt `json:"time_deleted"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at"`
 	Content   string         `json:"content"`
 
 	// 关联数据

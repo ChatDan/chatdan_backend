@@ -15,7 +15,7 @@ type User struct {
 	ID             int            `json:"id"`
 	Username       string         `json:"username" gorm:"index,size:100"`
 	Email          *string        `json:"email" gorm:"index"` // 邮箱，可选登录
-	HashedPassword string         `json:"-" gorm:"size:256"`
+	HashedPassword string         `json:"hashed_password" gorm:"size:256"`
 	LoginTime      time.Time      `json:"login_time" gorm:"autoUpdateTime"`
 	RegisterTime   time.Time      `json:"register_time" gorm:"autoCreateTime"`
 	DeletedAt      gorm.DeletedAt `json:"-"`
@@ -43,7 +43,7 @@ func (user User) GetID() int {
 }
 
 func (User) TableName() string {
-	return "users"
+	return "user"
 }
 
 func (user User) DeletedUsername() string {

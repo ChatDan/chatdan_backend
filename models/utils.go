@@ -31,11 +31,7 @@ func CacheNameFromTableName(tableName string, id int) (name string) {
 // PageLoad 分页查询
 // tx 数据库包含表和查询条件
 func PageLoad[T IDTabler](tx *gorm.DB, models *[]T, key string, request utils.PageRequest) (version, total int, err error) {
-	var (
-		idArray   []int
-		_model    T
-		tableName = _model.TableName()
-	)
+	var idArray []int
 
 	// 设置版本号
 	if request.Version != 0 {
@@ -79,58 +75,7 @@ PROCESS:
 		size = total - offset
 	}
 
-	// 从缓存或数据库中加载 models
-	// 构建查询数据
-	needIdArray := idArray[offset : offset+size]
-	*models = make([]T, size)
-	notCachedModels := make([]T, 0, size)        // 未缓存的数据
-	notCachedIdArray := make([]int, 0, size)     // 未缓存的数据的 id
-	notCacheIdMapping := make(map[int]int, size) // 未缓存的数据的 id 与 models 的索引映射
-
-	// 从缓存中读取数据
-	for i, id := range needIdArray {
-		name := CacheNameFromTableName(tableName, id)
-		if err = utils.Get(name, &(*models)[i]); err != nil {
-			if err == utils.ErrCacheMiss {
-				notCachedIdArray = append(notCachedIdArray, id)
-				notCacheIdMapping[id] = i
-				continue
-			}
-			return
-		}
-	}
-
-	// 从数据库中读取没有缓存的数据
-	if len(notCachedIdArray) > 0 {
-		if err = singleTx.Where("id IN ?", notCachedIdArray).Find(&notCachedModels).Error; err != nil {
-			return
-		}
-
-		// 将数据放入缓存
-		for i := range notCachedModels {
-			name := CacheName(notCachedModels[i])
-			if err = utils.Set(name, notCachedModels[i], 10*time.Minute); err != nil {
-				return
-			}
-		}
-
-		// 根据 id 与 models 的索引映射，将数据放入 models 中
-		for i := range notCachedModels {
-			(*models)[notCacheIdMapping[notCachedModels[i].GetID()]] = notCachedModels[i]
-		}
-
-		// 检查是否所有数据都读取到了
-		loadedModels := make([]T, 0, size)
-		for _, model := range *models {
-			if model.GetID() != 0 {
-				loadedModels = append(loadedModels, model)
-			}
-		}
-
-		if len(loadedModels) != size {
-			*models = loadedModels
-		}
-	}
+	err = LoadModelByIDArray(singleTx, models, idArray[offset:offset+size])
 
 	return
 }
@@ -206,4 +151,70 @@ func Load[T IDTabler](tx *gorm.DB, model *T) (err error) {
 		}
 	}
 	return err
+}
+
+func LoadModelByIDArray[T IDTabler](tx *gorm.DB, models *[]T, idArray []int) (err error) {
+	var (
+		_model    T
+		tableName = _model.TableName()
+	)
+	// 设置总数
+	size := len(idArray)
+	if size == 0 {
+		return
+	}
+
+	// 从缓存或数据库中加载 models
+	// 构建查询数据
+	*models = make([]T, size)
+	notCachedModels := make([]T, 0, size)        // 未缓存的数据
+	notCachedIdArray := make([]int, 0, size)     // 未缓存的数据的 id
+	notCacheIdMapping := make(map[int]int, size) // 未缓存的数据的 id 与 models 的索引映射
+
+	// 从缓存中读取数据
+	for i, id := range idArray {
+		name := CacheNameFromTableName(tableName, id)
+		if err = utils.Get(name, &(*models)[i]); err != nil {
+			if err == utils.ErrCacheMiss {
+				notCachedIdArray = append(notCachedIdArray, id)
+				notCacheIdMapping[id] = i
+				continue
+			}
+			return
+		}
+	}
+
+	// 从数据库中读取没有缓存的数据
+	if len(notCachedIdArray) > 0 {
+		if err = tx.Where("id IN ?", notCachedIdArray).Find(&notCachedModels).Error; err != nil {
+			return
+		}
+
+		// 将数据放入缓存
+		for i := range notCachedModels {
+			name := CacheName(notCachedModels[i])
+			if err = utils.Set(name, notCachedModels[i], 10*time.Minute); err != nil {
+				return
+			}
+		}
+
+		// 根据 id 与 models 的索引映射，将数据放入 models 中
+		for i := range notCachedModels {
+			(*models)[notCacheIdMapping[notCachedModels[i].GetID()]] = notCachedModels[i]
+		}
+
+		// 检查是否所有数据都读取到了
+		loadedModels := make([]T, 0, size)
+		for _, model := range *models {
+			if model.GetID() != 0 {
+				loadedModels = append(loadedModels, model)
+			}
+		}
+
+		if len(loadedModels) != size {
+			*models = loadedModels
+		}
+	}
+
+	return
 }
