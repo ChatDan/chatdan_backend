@@ -4,6 +4,7 @@ import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/jinzhu/copier"
 )
 
 // ListComments godoc
@@ -16,7 +17,42 @@ import (
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListComments(c *fiber.Ctx) (err error) {
-	return Success(c, EmptyStruct{})
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+
+	var query CommentListRequest
+	err = ValidateQuery(c, &query)
+	if err != nil {
+		return err
+	}
+
+	tx := DB.Where("topic_id = ?", query.TopicID)
+	if query.OrderBy == "id" {
+		tx = tx.Order(query.OrderBy + "asc")
+	} else {
+		tx = tx.Order(query.OrderBy + "desc")
+	}
+
+	tx = tx.Limit(query.PageSize).Offset(query.PageNum * query.PageSize)
+
+	var comments []Comment
+
+	result := tx.Find(&comments)
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var response CommentListRequest
+
+	if err = copier.CopyWithOption(&response, &comments, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	return Success(c, response)
 }
 
 // GetAComment godoc
@@ -29,7 +65,29 @@ func ListComments(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func GetAComment(c *fiber.Ctx) (err error) {
-	return Success(c, EmptyStruct{})
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var comment Comment
+
+	result := DB.First(&comment, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var response CommentCommonResponse
+
+	if err = copier.CopyWithOption(&response, &comment, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	return Success(c, response)
 }
 
 // CreateAComment godoc
@@ -43,6 +101,18 @@ func GetAComment(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func CreateAComment(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+
+	var body CommentCreateRequest
+	err = ValidateBody(c, &body)
+	if err != nil {
+		return err
+	}
+
 	return Success(c, EmptyStruct{})
 }
 
