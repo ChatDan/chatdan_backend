@@ -25,13 +25,13 @@ func ListTopics(c *fiber.Ctx) (err error) {
 	}
 	var query TopicListRequest
 	err = ValidateQuery(c, &query)
+	if err != nil {
+		return err
+	}
 	nowTime := time.Now()
 	if query.StartTime == nil {
 
 		query.StartTime = &nowTime
-	}
-	if err != nil {
-		return err
 	}
 	var topics []*Topic
 	result := DB.Where("? < ?", query.OrderBy, query.StartTime).Order(query.OrderBy + "desc").Limit(query.PageSize)
@@ -155,7 +155,7 @@ func ModifyATopic(c *fiber.Ctx) (err error) {
 	var findTopic Topic
 
 	result := DB.First(&findTopic, id)
-	if result.RowsAffected == 0 {
+	if result.Error != nil {
 		return NotFound()
 	}
 
@@ -221,7 +221,7 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 	}
 	var topic Topic
 	result := DB.First(&topic, id)
-	if result.RowsAffected == 0 {
+	if result.Error != nil {
 		return NotFound()
 	}
 	result = DB.Where("id = ?", id).Delete(&topic)
@@ -272,7 +272,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 	if result.Error != nil {
 		topic.LikeCount = topic.LikeCount - topicUserLikes.LikeData + likeData
 		topicUserLikes.LikeData = likeData
-		result = DB.Updates(&topicUserLikes)
+		result = DB.Model(&topicUserLikes).Updates(topicUserLikes)
 		if result.Error != nil {
 			return result.Error
 		}
@@ -288,7 +288,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 		}
 	}
 
-	result = DB.Updates(&topic)
+	result = DB.Model(&topic).Updates(topic)
 	if result.RowsAffected == 0 {
 		return BadRequest()
 	}
@@ -310,6 +310,42 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ViewATopic(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var topic Topic
+	result := DB.First(&topic, id)
+	if result.Error != nil {
+		return NotFound()
+	}
+
+	var topicUser TopicUserViews
+	result = DB.Where("user_id = ? AND topic_id = ?", user.ID, topic.ID).First(&topicUser)
+	if result.Error != nil {
+		topicUser.TopicID = topic.ID
+		topicUser.UserID = user.ID
+		topicUser.CreatedAt = time.Now()
+		topicUser.UpdatedAt = time.Now()
+		topic.ViewCount++
+		result = DB.Model(&topic).Updates(topic)
+		if result.Error != nil {
+			return result.Error
+		}
+		result.Create(&topicUser)
+	} else {
+		topicUser.UpdatedAt = time.Now()
+		result = DB.Model(&topicUser).Updates(topicUser)
+		if result.Error != nil {
+			return result.Error
+		}
+	}
 	return Success(c, EmptyStruct{})
 }
 
@@ -323,6 +359,43 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func FavorATopic(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var topic Topic
+	result := DB.First(&topic, id)
+	if result.Error != nil {
+		return NotFound()
+	}
+	var topicUserFavorites TopicUserFavorites
+	result = DB.Where("user_id = ? AND topic_id = ?", user.ID, topic.ID).First(&topicUserFavorites)
+	if result.Error != nil {
+		topicUserFavorites.UserID = user.ID
+		topicUserFavorites.TopicID = topic.ID
+		topicUserFavorites.CreatedAt = time.Now()
+		result = DB.Model(&topicUserFavorites).Create(&topicUserFavorites)
+		if result.RowsAffected == 0 {
+			return BadRequest()
+		}
+		topic.FavorCount++
+		result = DB.Model(&topic).Updates(topic)
+		if result.RowsAffected == 0 {
+			return BadRequest()
+		}
+	}
+
+	var response TopicCommonResponse
+	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
 	return Success(c, TopicCommonResponse{})
 }
 
@@ -336,7 +409,41 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListFavoriteTopics(c *fiber.Ctx) (err error) {
-	return Success(c, TopicListResponse{})
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+
+	var query TopicListRequest
+	err = ValidateQuery(c, &query)
+	if err != nil {
+		return err
+	}
+	nowTime := time.Now()
+	if query.StartTime == nil {
+		query.StartTime = &nowTime
+	}
+	var topicUserFavorites []TopicUserFavorites
+	result := DB.Find(&topicUserFavorites, "user_id = ?", user.ID)
+	if result.Error != nil {
+		return NotFound()
+	}
+	var topics []Topic
+	tx := DB.Where("? < ?", query.OrderBy, query.StartTime).Order(query.OrderBy + "desc").Limit(query.PageSize)
+	if query.DivisionID != nil {
+		tx = tx.Where(&Topic{DivisionID: *query.DivisionID})
+	}
+	result = tx.Model(&Topic{}).Joins("inner join TopicUserFavorites on TopicUserFavorites.topic_id = topic.id").Scan(&topics)
+	if result.Error != nil {
+		return result.Error
+	}
+	var response TopicListResponse
+	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	return Success(c, response)
 }
 
 // UnfavorATopic godoc
@@ -349,7 +456,41 @@ func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func UnfavorATopic(c *fiber.Ctx) (err error) {
-	return Success(c, TopicCommonResponse{})
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	id, err := c.ParamsInt("id")
+	if err != nil {
+		return err
+	}
+	var topic Topic
+	result := DB.First(&topic, id)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var topicUserFavorites TopicUserFavorites
+	result = DB.Where("user_id = ? AND topic_id = ?", user.ID, id).First(&topicUserFavorites)
+	if result.Error == nil {
+		result = DB.Delete(&topicUserFavorites)
+		if result.RowsAffected == 0 {
+			return BadRequest()
+		}
+		topic.FavorCount--
+		result = DB.Model(&topic).Updates(topic)
+		if result.RowsAffected == 0 {
+			return BadRequest()
+		}
+	}
+
+	var response TopicCommonResponse
+	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	return Success(c, response)
 }
 
 // ListTopicsByUser godoc
@@ -364,7 +505,43 @@ func UnfavorATopic(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListTopicsByUser(c *fiber.Ctx) (err error) {
-	return Success(c, TopicListResponse{})
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+
+	uid, err := c.ParamsInt("user_id")
+	if err != nil {
+		return err
+	}
+
+	var query TopicListRequest
+	err = ValidateQuery(c, &query)
+	if err != nil {
+		return err
+	}
+
+	nowTime := time.Now()
+	if query.StartTime == nil {
+		query.StartTime = &nowTime
+	}
+	var topics []Topic
+	tx := DB.Where("? < ?", query.OrderBy, query.StartTime).Order(query.OrderBy + "desc").Limit(query.PageSize)
+	if query.DivisionID != nil {
+		tx = tx.Where("division_id = ?", *query.DivisionID)
+	}
+	result := tx.Where("poster_id = ?", uid).Find(&topics)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var response TopicListResponse
+	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	return Success(c, response)
 }
 
 // ListTopicsByTag godoc
@@ -378,5 +555,28 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} Response
 // @Failure 500 {object} Response
 func ListTopicsByTag(c *fiber.Ctx) (err error) {
-	return Success(c, TopicListResponse{})
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+	tagID, err := c.ParamsInt("tag_id")
+	if err != nil {
+		return err
+	}
+
+	tx := DB.Model(&Topic{}).Joins("inner join topic_tags on topic_tags.topic_id = topic.id")
+
+	var topics []Topic
+	result := tx.Where("tag_id = ?", tagID).Find(&topics)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var response TopicListResponse
+	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+
+	return Success(c, response)
 }
