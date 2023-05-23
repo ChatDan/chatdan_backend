@@ -269,7 +269,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	likeData, err := c.ParamsInt("like_data")
+	likeData, err := c.ParamsInt("data")
 	if err != nil {
 		return err
 	}
@@ -282,9 +282,6 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 
 	var topicUserLikes TopicUserLikes
 	result = DB.Model(&topicUserLikes).Where("user_id = ? and topic_id = ?", user.ID, id).First(&topicUserLikes)
-	if result.Error != nil {
-		return result.Error
-	}
 
 	if result.Error != nil {
 		topic.LikeCount = topic.LikeCount - topicUserLikes.LikeData + likeData
