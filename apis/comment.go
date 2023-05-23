@@ -122,7 +122,16 @@ func CreateAComment(c *fiber.Ctx) (err error) {
 		ReplyToID: body.ReplyToID,
 	}
 
-	return Success(c, EmptyStruct{})
+	result := DB.Create(&comment)
+	if result.RowsAffected == 0 {
+		return BadRequest()
+	}
+
+	var response CommentCommonResponse
+	if err = copier.CopyWithOption(&response, &comment, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
+	return Success(c, response})
 }
 
 // ModifyAComment godoc
