@@ -43,13 +43,13 @@ func ListTopics(c *fiber.Ctx) (err error) {
 	if query.DivisionID != nil {
 		result = result.Where("division_id = ?", *query.DivisionID).Find(&topics)
 	} else {
-		result = result.Find(&topics)
+		result = result.Preload("Poster").Find(&topics)
 	}
 	if result.Error != nil {
 		return result.Error
 	}
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true, DeepCopy: true}); err != nil {
 		return err
 	}
 	return Success(c, response)
@@ -76,7 +76,7 @@ func GetATopic(c *fiber.Ctx) (err error) {
 	}
 
 	var topic Topic
-	result := DB.First(&topic, id)
+	result := DB.Preload("Tags").First(&topic, id)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -114,31 +114,54 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 	if err = copier.CopyWithOption(&topic, &body, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
-
-	result := DB.Create(&topic)
-	if result.Error != nil {
-		return result.Error
+	topic.PosterID = user.ID
+	err = topic.FindOrCreateTags(DB, body.Tags)
+	if err != nil {
+		return err
 	}
 
-	var tags []Tag
-	for _, tag := range body.Tags {
-		tags = append(tags, Tag{
-			CreatedAt: time.Now(),
-			Name:      tag,
-		})
+	if topic.IsAnonymous {
+		newAnonyname := GenerateName([]string{})
+		topic.Anonyname = &newAnonyname
 	}
 
-	for _, tag := range tags {
-		result = DB.Where("Name = ?", tag.Name).FirstOrCreate(&tag)
-		if result.Error != nil {
-			return result.Error
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		// Create topic
+		err = tx.Omit(clause.Associations).Create(&topic).Error
+		if err != nil {
+			return err
 		}
-	}
+		// Create topic_tags association only
+		err = tx.Omit("Tags.*", "UpdatedAt").Select("Tags").Save(&topic).Error
+		if err != nil {
+			return err
+		}
+		// Update tag temperature
+		err = tx.Model(&topic.Tags).Update("temperature", gorm.Expr("temperature + 1")).Error
+		if err != nil {
+			return err
+		}
+
+		if topic.IsAnonymous {
+			// Create topic_anonyname_mapping
+			err = tx.Create(&TopicAnonynameMapping{
+				TopicID:   topic.ID,
+				UserID:    user.ID,
+				Anonyname: *topic.Anonyname,
+			}).Error
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
 	var response TopicCommonResponse
 	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
+	response.IsOwner = true
+
 	return Created(c, response)
 }
 
@@ -269,7 +292,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	likeData, err := c.ParamsInt("data")
+	likeData, err := c.ParamsInt("like_data")
 	if err != nil {
 		return err
 	}
@@ -282,6 +305,9 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 
 	var topicUserLikes TopicUserLikes
 	result = DB.Model(&topicUserLikes).Where("user_id = ? and topic_id = ?", user.ID, id).First(&topicUserLikes)
+	if result.Error != nil {
+		return result.Error
+	}
 
 	if result.Error != nil {
 		topic.LikeCount = topic.LikeCount - topicUserLikes.LikeData + likeData

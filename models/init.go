@@ -69,6 +69,9 @@ func InitDB() {
 	if err = DB.SetupJoinTable(Topic{}, "ViewedUsers", &TopicUserViews{}); err != nil {
 		panic(err)
 	}
+	if err = DB.SetupJoinTable(Topic{}, "AnonymousUsers", &TopicAnonynameMapping{}); err != nil {
+		panic(err)
+	}
 	if err = DB.SetupJoinTable(Comment{}, "LikedUsers", &CommentUserLikes{}); err != nil {
 		panic(err)
 	}

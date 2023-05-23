@@ -3,6 +3,7 @@ package utils
 import (
 	"github.com/gofiber/fiber/v2"
 	"gorm.io/gorm"
+	"reflect"
 )
 
 type PageRequest struct {
@@ -13,6 +14,10 @@ type PageRequest struct {
 
 func (q PageRequest) QuerySet(tx *gorm.DB) *gorm.DB {
 	return tx.Offset((q.PageNum - 1) * q.PageSize).Limit(q.PageSize)
+}
+
+type CanPostprocess interface {
+	Postprocess(c *fiber.Ctx) error
 }
 
 type Response[T any] struct {
@@ -26,6 +31,10 @@ func (r Response[T]) Error() string {
 }
 
 func Success[T any](c *fiber.Ctx, data T) error {
+	err := postprocess(c, &data)
+	if err != nil {
+		return err
+	}
 	return c.Status(200).JSON(Response[T]{
 		Code: 200,
 		Data: data,
@@ -33,8 +42,31 @@ func Success[T any](c *fiber.Ctx, data T) error {
 }
 
 func Created[T any](c *fiber.Ctx, data T) error {
+	err := postprocess(c, &data)
+	if err != nil {
+		return err
+	}
 	return c.Status(201).JSON(Response[T]{
 		Code: 201,
 		Data: data,
 	})
+}
+
+func postprocess[T any](c *fiber.Ctx, data *T) error {
+	modelType := reflect.TypeOf(data)
+
+	modelValue := reflect.ValueOf(data)
+
+	method, ok := modelType.MethodByName("Postprocess")
+	if !ok {
+		return nil
+	}
+
+	returns := method.Func.Call([]reflect.Value{modelValue, reflect.ValueOf(c)})
+
+	if len(returns) == 0 || returns[0].IsNil() {
+		return nil
+	}
+
+	return returns[0].Interface().(error)
 }

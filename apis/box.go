@@ -102,7 +102,7 @@ func GetABox(c *fiber.Ctx) (err error) {
 
 	// 从缓存说数据库中读取
 	var box = Box{ID: boxID}
-	if err = Load(DB, &box); err != nil {
+	if err = LoadModel(DB, &box); err != nil {
 		return
 	}
 
