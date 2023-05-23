@@ -118,6 +118,21 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 		return result.Error
 	}
 
+	var tags []Tag
+	for _, tag := range body.Tags {
+		tags = append(tags, Tag{
+			CreatedAt: time.Now(),
+			Name:      tag,
+		})
+	}
+
+	for _, tag := range tags {
+		result = DB.Where("Name = ?", tag.Name).FirstOrCreate(&tag)
+		if result.Error != nil {
+			return result.Error
+		}
+	}
+
 	var response TopicCommonResponse
 	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
