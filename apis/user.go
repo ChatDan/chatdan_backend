@@ -14,9 +14,9 @@ import (
 // @Produce json
 // @Router /users [get]
 // @Param body query UserListRequest true "page"
-// @Success 200 {object} Response{data=UserListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=UserListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListUsers(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -51,7 +51,7 @@ func ListUsers(c *fiber.Ctx) (err error) {
 	response.Version = version
 	response.Total = total
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetUserMe godoc
@@ -59,9 +59,9 @@ func ListUsers(c *fiber.Ctx) (err error) {
 // @Tags User Module
 // @Produce json
 // @Router /user/me [get]
-// @Success 200 {object} Response{data=UserResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=UserResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetUserMe(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -80,7 +80,7 @@ func GetUserMe(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // ModifyUserMe	godoc
@@ -89,9 +89,9 @@ func GetUserMe(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /user/me [put]
 // @Param json body UserModifyRequest true "user"
-// @Success 200 {object} Response{data=UserResponse}
-// @Failure 400 {object} Response{data=ErrorDetail} "Invalid request body"
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=UserResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail} "Invalid request body"
+// @Failure 500 {object} RespForSwagger
 func ModifyUserMe(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -124,7 +124,7 @@ func ModifyUserMe(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteUserMe godoc
@@ -132,9 +132,9 @@ func ModifyUserMe(c *fiber.Ctx) (err error) {
 // @Tags User Module
 // @Produce json
 // @Router /user/me [delete]
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func DeleteUserMe(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -158,7 +158,7 @@ func DeleteUserMe(c *fiber.Ctx) (err error) {
 	// 删除缓存
 	Delete(CacheName(user))
 
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }
 
 // GetAUser godoc
@@ -167,9 +167,9 @@ func DeleteUserMe(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /user/{id} [get]
 // @Param id path int true "user id"
-// @Success 200 {object} Response{data=UserResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=UserResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetAUser(c *fiber.Ctx) (err error) {
 	// get current user
 	var currentUser User
@@ -195,7 +195,7 @@ func GetAUser(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // ModifyAUser godoc
@@ -205,9 +205,9 @@ func GetAUser(c *fiber.Ctx) (err error) {
 // @Router /user/{id} [put]
 // @Param id path int true "user id"
 // @Param json body UserModifyRequest true "user"
-// @Success 200 {object} Response{data=UserResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=UserResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ModifyAUser(c *fiber.Ctx) (err error) {
 	// get current user
 	var currentUser User
@@ -252,7 +252,7 @@ func ModifyAUser(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteAUser godoc
@@ -261,9 +261,9 @@ func ModifyAUser(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /user/{id} [delete]
 // @Param id path int true "user id"
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func DeleteAUser(c *fiber.Ctx) (err error) {
 	// get current user
 	var currentUser User
@@ -302,5 +302,5 @@ func DeleteAUser(c *fiber.Ctx) (err error) {
 	// 删除缓存
 	Delete(CacheName(user))
 
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }

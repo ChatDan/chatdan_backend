@@ -16,9 +16,9 @@ import (
 // @Produce json
 // @Router /topics [get]
 // @Param json query TopicListRequest true "page"
-// @Success 200 {object} Response{data=TopicListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListTopics(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -49,10 +49,10 @@ func ListTopics(c *fiber.Ctx) (err error) {
 		return result.Error
 	}
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true, DeepCopy: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
 		return err
 	}
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetATopic godoc
@@ -61,9 +61,9 @@ func ListTopics(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /topic/{id} [get]
 // @Param id path int true "topic id"
-// @Success 200 {object} Response{data=TopicCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -82,10 +82,10 @@ func GetATopic(c *fiber.Ctx) (err error) {
 	}
 
 	var response TopicCommonResponse
-	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
 	}
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateATopic godoc
@@ -95,9 +95,9 @@ func GetATopic(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /topic [post]
 // @Param json body TopicCreateRequest true "topic"
-// @Success 201 {object} Response{data=TopicCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 201 {object} RespForSwagger{data=TopicCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func CreateATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -111,7 +111,7 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 	}
 
 	var topic Topic
-	if err = copier.CopyWithOption(&topic, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&topic, &body, CopyOption); err != nil {
 		return err
 	}
 	topic.PosterID = user.ID
@@ -153,16 +153,26 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 				return err
 			}
 		}
+
+		// save to meilisearch
+		err = SearchAddOrReplace(topic.ToSearchModel())
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
+	if err != nil {
+		return err
+	}
 
 	var response TopicCommonResponse
-	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
 	}
 	response.IsOwner = true
 
-	return Created(c, response)
+	return Created(c, &response)
 }
 
 // ModifyATopic godoc
@@ -173,69 +183,81 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /topic/{id} [put]
 // @Param json body TopicModifyRequest true "topic"
-// @Success 200 {object} Response{data=TopicCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ModifyATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
 	if err != nil {
 		return err
 	}
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return err
 	}
+
 	var body TopicModifyRequest
 	err = ValidateBody(c, &body)
 	if err != nil {
 		return err
 	}
 
-	var findTopic Topic
-
-	result := DB.First(&findTopic, id)
-	if result.Error != nil {
-		return NotFound()
-	}
-
-	if !user.IsAdmin && user.ID != findTopic.PosterID {
-		return Forbidden()
-	}
-
-	if body.IsHidden != nil {
+	if body.IsHidden != nil || body.DivisionID != nil {
 		if !user.IsAdmin {
 			return Forbidden()
 		}
-		var newTopic Topic
-		if err = copier.CopyWithOption(&newTopic, &body, copier.Option{IgnoreEmpty: true}); err != nil {
-			return err
-		}
-		newTopic.UpdatedAt = time.Now()
-		result = DB.Model(&newTopic).Where("id = ?", id).Updates(newTopic)
+	}
+
+	var topic Topic
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		result := tx.Clauses(LockClause).First(&topic, id)
 		if result.Error != nil {
-			return result.Error
+			return NotFound()
 		}
-		var response TopicCommonResponse
-		if err = copier.CopyWithOption(&response, &newTopic, copier.Option{IgnoreEmpty: true}); err != nil {
+
+		if !user.IsAdmin && user.ID != topic.PosterID {
+			return Forbidden()
+		}
+
+		err = copier.CopyWithOption(&topic, &body, CopyOption)
+		if err != nil {
 			return err
 		}
-		return Success(c, response)
-	}
-	var newTopic Topic
-	if err = copier.CopyWithOption(&newTopic, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+
+		err = tx.Model(&topic).Select(body.Fields()).UpdateColumns(&topic).Error
+		if err != nil {
+			return err
+		}
+
+		if body.Tags != nil {
+			// clear associations
+			err = tx.Model(&topic).Association("Tags").Clear()
+
+			err = topic.FindOrCreateTags(tx, body.Tags)
+			if err != nil {
+				return err
+			}
+
+			// Create topic_tags association only
+			err = tx.Omit("Tags.*", "UpdatedAt").Select("Tags").Save(&topic).Error
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
 		return err
 	}
-	newTopic.UpdatedAt = time.Now()
-	result = DB.Model(&newTopic).Where("id = ?", id).Updates(newTopic)
-	if result.Error != nil {
-		return result.Error
-	}
+
 	var response TopicCommonResponse
-	if err = copier.CopyWithOption(&response, &newTopic, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
 	}
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteATopic godoc
@@ -243,9 +265,9 @@ func ModifyATopic(c *fiber.Ctx) (err error) {
 // @Tags Topic Module
 // @Produce json
 // @Router /topic/{id} [delete]
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func DeleteATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -268,7 +290,7 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 	if result.Error != nil {
 		return result.Error
 	}
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }
 
 // LikeOrDislikeATopic godoc
@@ -279,9 +301,9 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 // @Router /topic/{id}/_like/{like_data} [put]
 // @Param id path int true "topic id"
 // @Param like_data path int true "1: like, -1: dislike, 0: reset" Enums(1, -1, 0)
-// @Success 200 {object} Response{data=TopicCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -334,10 +356,10 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 	}
 
 	var response TopicCommonResponse
-	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
 	}
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // ViewATopic godoc
@@ -346,9 +368,9 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /topic/{id}/_view [put]
 // @Param id path int true "topic id"
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ViewATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -388,7 +410,7 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }
 
 // FavorATopic godoc
@@ -397,9 +419,9 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /topic/{id}/_favor [put]
 // @Param id path int true "topic id"
-// @Success 200 {object} Response{data=TopicCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func FavorATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -421,24 +443,23 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 	if result.Error != nil {
 		topicUserFavorites.UserID = user.ID
 		topicUserFavorites.TopicID = topic.ID
-		topicUserFavorites.CreatedAt = time.Now()
 		result = DB.Model(&topicUserFavorites).Create(&topicUserFavorites)
 		if result.RowsAffected == 0 {
 			return BadRequest()
 		}
 		topic.FavorCount++
-		result = DB.Model(&topic).Updates(topic)
+		result = DB.Model(&topic).UpdateColumn("favor_count", gorm.Expr("favor_count + 1"))
 		if result.RowsAffected == 0 {
 			return BadRequest()
 		}
 	}
 
 	var response TopicCommonResponse
-	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, TopicCommonResponse{})
+	return Success(c, &TopicCommonResponse{})
 }
 
 // ListFavoriteTopics godoc
@@ -447,9 +468,9 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /topics/_favor [get]
 // @Param json query TopicListRequest true "page"
-// @Success 200 {object} Response{data=TopicListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -495,11 +516,11 @@ func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 		return result.Error
 	}
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response.Topics, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response.Topics, &topics, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // UnfavorATopic godoc
@@ -508,9 +529,9 @@ func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /topic/{id}/_favor [delete]
 // @Param id path int true "topic id"
-// @Success 200 {object} Response{data=TopicCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func UnfavorATopic(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -540,11 +561,11 @@ func UnfavorATopic(c *fiber.Ctx) (err error) {
 	}
 
 	var response TopicCommonResponse
-	if err = copier.CopyWithOption(&response, &topic, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // ListTopicsByUser godoc
@@ -555,9 +576,9 @@ func UnfavorATopic(c *fiber.Ctx) (err error) {
 // @Router /topics/_user/{user_id} [get]
 // @Param user_id path int true "user id"
 // @Param json query TopicListRequest true "page"
-// @Success 200 {object} Response{data=TopicListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListTopicsByUser(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -591,11 +612,11 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 	}
 
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // ListTopicsByTag godoc
@@ -605,9 +626,9 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 // @Router /topics/_tag/{tag_id} [get]
 // @Param tag_id path int true "tag id"
 // @Param json query TopicListRequest true "page"
-// @Success 200 {object} Response{data=TopicListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TopicListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListTopicsByTag(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -628,9 +649,45 @@ func ListTopicsByTag(c *fiber.Ctx) (err error) {
 	}
 
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
+}
+
+// SearchTopics godoc
+// @Summary 搜索话题
+// @Tags Topic Module
+// @Produce json
+// @Router /topics/_search [get]
+// @Param json query TopicSearchRequest true "page"
+// @Success 200 {object} RespForSwagger{data=TopicListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
+func SearchTopics(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
+
+	var query TopicSearchRequest
+	err = ValidateQuery(c, &query)
+	if err != nil {
+		return err
+	}
+
+	var topics []Topic
+	_, err = Search(DB, &topics, query.Search, "", []string{"id desc"}, "title", query.PageRequest)
+	if err != nil {
+		return
+	}
+
+	var response TopicListResponse
+	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
+		return err
+	}
+
+	return Success(c, &response)
 }

@@ -17,9 +17,9 @@ import (
 // @Produce json
 // @Router /user/login [post]
 // @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
-// @Success 200 {object} Response{data=LoginResponse}
-// @Failure 401 {object} Response "用户名或密码错误"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 200 {object} RespForSwagger{data=LoginResponse}
+// @Failure 401 {object} RespForSwagger "用户名或密码错误"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 func Login(c *fiber.Ctx) (err error) {
 	// parse and validate body
 	var body LoginRequest
@@ -61,7 +61,7 @@ func Login(c *fiber.Ctx) (err error) {
 	}
 	response.AccessToken = token
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // Register godoc
@@ -71,9 +71,9 @@ func Login(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /user/register [post]
 // @Param json body LoginRequest true "The two fields are required, you can also add other fields(e.g. email)."
-// @Success 200 {object} Response{data=LoginResponse}
-// @Failure 400 {object} Response "Bad Request"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 200 {object} RespForSwagger{data=LoginResponse}
+// @Failure 400 {object} RespForSwagger "Bad Request"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 func Register(c *fiber.Ctx) (err error) {
 	// parse and validate body
 	var body LoginRequest
@@ -112,7 +112,7 @@ func Register(c *fiber.Ctx) (err error) {
 	}
 	response.AccessToken = token
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // Reset godoc
@@ -122,10 +122,10 @@ func Register(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /user/reset [post]
 // @Param json body ResetRequest true "json"
-// @Success 200 {object} Response{data=UserResponse}
-// @Failure 400 {object} Response "Bad Request"
-// @Failure 401 {object} Response "Invalid JWT Token"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 200 {object} RespForSwagger{data=UserResponse}
+// @Failure 400 {object} RespForSwagger "Bad Request"
+// @Failure 401 {object} RespForSwagger "Invalid JWT Token"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 func Reset(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -158,7 +158,7 @@ func Reset(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // Logout godoc
@@ -166,9 +166,9 @@ func Reset(c *fiber.Ctx) (err error) {
 // @Tags User Module
 // @Produce json
 // @Router /user/logout [post]
-// @Success 200 {object} Response{data=UserResponse}
-// @Failure 401 {object} Response "Invalid JWT Token"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 200 {object} RespForSwagger{data=UserResponse}
+// @Failure 401 {object} RespForSwagger "Invalid JWT Token"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 func Logout(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -189,5 +189,5 @@ func Logout(c *fiber.Ctx) (err error) {
 		Expires: time.Now().Add(-time.Hour),
 	})
 
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }

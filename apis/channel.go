@@ -13,9 +13,9 @@ import (
 // @Produce json
 // @Router /channels [get]
 // @Param json query ChannelListRequest true "page"
-// @Success 200 {object} Response{data=ChannelListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=ChannelListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListChannels(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -50,7 +50,7 @@ func ListChannels(c *fiber.Ctx) (err error) {
 		response.Channels[i].IsOwner = channels[i].OwnerID == user.ID
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetAChannel
@@ -59,9 +59,9 @@ func ListChannels(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /channel/{id} [get]
 // @Param id path int true "channel id"
-// @Success 200 {object} Response{data=ChannelCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=ChannelCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetAChannel(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -88,7 +88,7 @@ func GetAChannel(c *fiber.Ctx) (err error) {
 	}
 	response.IsOwner = channel.OwnerID == user.ID
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateAChannel
@@ -98,9 +98,9 @@ func GetAChannel(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /channel [post]
 // @Param json body ChannelCreateRequest true "channel"
-// @Success 200 {object} Response{data=ChannelCommonResponse}
-// @Failure 400 {object} Response{data=ErrorDetail} "Bad Request"
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=ChannelCommonResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail} "Bad Request"
+// @Failure 500 {object} RespForSwagger
 func CreateAChannel(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -142,7 +142,7 @@ func CreateAChannel(c *fiber.Ctx) (err error) {
 	}
 	response.IsOwner = true
 
-	return Created(c, response)
+	return Created(c, &response)
 }
 
 // ModifyAChannel
@@ -153,9 +153,9 @@ func CreateAChannel(c *fiber.Ctx) (err error) {
 // @Router /channel/{id} [put]
 // @Param id path int true "channel id"
 // @Param json body ChannelModifyRequest true "channel"
-// @Success 200 {object} Response{data=ChannelCommonResponse}
-// @Failure 400 {object} Response{data=ErrorDetail}
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=ChannelCommonResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail}
+// @Failure 500 {object} RespForSwagger
 func ModifyAChannel(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -198,7 +198,7 @@ func ModifyAChannel(c *fiber.Ctx) (err error) {
 	}
 	response.IsOwner = true
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteAChannel
@@ -207,9 +207,9 @@ func ModifyAChannel(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /channel/{id} [delete]
 // @Param id path int true "channel id"
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func DeleteAChannel(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -245,5 +245,5 @@ func DeleteAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }

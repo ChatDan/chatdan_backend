@@ -23,15 +23,21 @@ type CanPostprocess interface {
 type Response[T any] struct {
 	Code     int    `json:"code"`
 	ErrorMsg string `json:"error_msg"`
-	Data     T      `json:"data,omitempty"`
+	Data     *T     `json:"data,omitempty"`
+}
+
+type RespForSwagger struct {
+	Code     int    `json:"code"`
+	ErrorMsg string `json:"error_msg"`
+	Data     any    `json:"data,omitempty"`
 }
 
 func (r Response[T]) Error() string {
 	return r.ErrorMsg
 }
 
-func Success[T any](c *fiber.Ctx, data T) error {
-	err := postprocess(c, &data)
+func Success[T any](c *fiber.Ctx, data *T) error {
+	err := postprocess(c, data)
 	if err != nil {
 		return err
 	}
@@ -41,8 +47,8 @@ func Success[T any](c *fiber.Ctx, data T) error {
 	})
 }
 
-func Created[T any](c *fiber.Ctx, data T) error {
-	err := postprocess(c, &data)
+func Created[T any](c *fiber.Ctx, data *T) error {
+	err := postprocess(c, data)
 	if err != nil {
 		return err
 	}

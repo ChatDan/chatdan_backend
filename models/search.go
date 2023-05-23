@@ -24,7 +24,7 @@ func InitSearch() {
 	utils.Logger.Info("Meilisearch initialized")
 
 	// create or update indexes
-	var searchModels = []SearchModel{BoxSearchModel{}, TagSearchModel{}}
+	var searchModels = []SearchModel{BoxSearchModel{}, TagSearchModel{}, TopicSearchModel{}, CommentSearchModel{}}
 
 	for _, model := range searchModels {
 		indexName := model.IndexName()
@@ -83,28 +83,28 @@ type SearchModel interface {
 	RankingRules() []string
 }
 
-func SearchAddOrReplace[T IDTabler](model T) (err error) {
+func SearchAddOrReplace[T SearchModel](model T) (err error) {
 	if config.Config.MeilisearchUrl == "" {
 		return
 	}
-	_, err = meilisearchClient.Index(model.TableName()).AddDocuments([]T{model}, "id")
+	_, err = meilisearchClient.Index(model.IndexName()).AddDocuments([]T{model}, "id")
 	return err
 }
 
-func SearchAddOrReplaceInBatch[T IDTabler](models []T) (err error) {
+func SearchAddOrReplaceInBatch[T SearchModel](models []T) (err error) {
 	if config.Config.MeilisearchUrl == "" {
 		return
 	}
-	_, err = meilisearchClient.Index(models[0].TableName()).AddDocuments(models, "id")
+	_, err = meilisearchClient.Index(models[0].IndexName()).AddDocuments(models, "id")
 	return err
 }
 
-func SearchDelete[T IDTabler](id int) (err error) {
+func SearchDelete[T SearchModel](id int) (err error) {
 	var model T
 	if config.Config.MeilisearchUrl == "" {
 		return
 	}
-	_, err = meilisearchClient.Index(model.TableName()).DeleteDocument(strconv.Itoa(id))
+	_, err = meilisearchClient.Index(model.IndexName()).DeleteDocument(strconv.Itoa(id))
 	return err
 }
 

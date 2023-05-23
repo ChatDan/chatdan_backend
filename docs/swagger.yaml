@@ -179,8 +179,17 @@ definitions:
         maxLength: 2000
         minLength: 1
         type: string
+      is_anonymous:
+        description: 默认实名
+        type: boolean
+      reply_to_id:
+        type: integer
+      topic_id:
+        minimum: 1
+        type: integer
     required:
     - content
+    - topic_id
     type: object
   apis.CommentListResponse:
     properties:
@@ -337,6 +346,8 @@ definitions:
     type: object
   apis.PostCommonResponse:
     properties:
+      anonyname:
+        type: string
       channel_count:
         type: integer
       content:
@@ -347,17 +358,42 @@ definitions:
         type: boolean
       is_owner:
         type: boolean
+      poster:
+        $ref: '#/definitions/apis.UserResponse'
       poster_id:
         type: integer
       view_count:
         type: integer
       visibility:
+        description: public private
         type: string
     type: object
   apis.PostCreateRequest:
+    properties:
+      content:
+        description: 限制长度
+        maxLength: 2000
+        minLength: 1
+        type: string
+      is_anonymous:
+        type: boolean
+      message_box_id:
+        minimum: 1
+        type: integer
+      visibility:
+        default: public
+        enum:
+        - public
+        - private
+        type: string
+    required:
+    - content
+    - message_box_id
     type: object
   apis.PostGetResponse:
     properties:
+      anonyname:
+        type: string
       channel_count:
         type: integer
       channels:
@@ -372,11 +408,14 @@ definitions:
         type: boolean
       is_owner:
         type: boolean
+      poster:
+        $ref: '#/definitions/apis.UserResponse'
       poster_id:
         type: integer
       view_count:
         type: integer
       visibility:
+        description: public private
         type: string
     type: object
   apis.PostListResponse:
@@ -436,6 +475,10 @@ definitions:
         items:
           $ref: '#/definitions/apis.TagCommonResponse'
         type: array
+      total:
+        type: integer
+      version:
+        type: integer
     type: object
   apis.TagModifyRequest:
     properties:
@@ -467,6 +510,8 @@ definitions:
         type: boolean
       division_id:
         type: integer
+      favored:
+        type: boolean
       favorite_count:
         description: 收藏数
         type: integer
@@ -515,6 +560,7 @@ definitions:
         minimum: 1
         type: integer
       is_anonymous:
+        description: 默认不传为 false
         type: boolean
       tags:
         items:
@@ -687,7 +733,7 @@ definitions:
       value:
         type: string
     type: object
-  utils.Response:
+  utils.RespForSwagger:
     properties:
       code:
         type: integer
@@ -727,7 +773,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.ChannelCommonResponse'
@@ -736,7 +782,7 @@ paths:
           description: Bad Request
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -746,7 +792,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 创建一条回复 thread, only owner of the post or owner of the message box can
         create channel
       tags:
@@ -766,7 +812,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -774,11 +820,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 删除一条回复 thread
       tags:
       - Channel Module
@@ -796,7 +842,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.ChannelCommonResponse'
@@ -804,11 +850,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取一条回复 thread 信息
       tags:
       - Channel Module
@@ -834,7 +880,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.ChannelCommonResponse'
@@ -843,7 +889,7 @@ paths:
           description: Bad Request
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -853,7 +899,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 修改一条回复 thread
       tags:
       - Channel Module
@@ -888,7 +934,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.ChannelListResponse'
@@ -896,11 +942,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询帖子的所有回复 thread
       tags:
       - Channel Module
@@ -913,7 +959,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.ChatListResponse'
@@ -921,11 +967,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询所有聊天记录，按照 updated_at 倒序排序
       tags:
       - Chat Module
@@ -947,7 +993,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.CommentCommonResponse'
@@ -955,11 +1001,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 创建一个评论
       tags:
       - Comment Module
@@ -978,7 +1024,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -986,11 +1032,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 删除一个评论，仅作者或管理员可删除
       tags:
       - Comment Module
@@ -1008,7 +1054,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.CommentCommonResponse'
@@ -1016,11 +1062,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取一个评论
       tags:
       - Comment Module
@@ -1028,6 +1074,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: comment id
+        in: path
+        name: id
+        required: true
+        type: integer
       - description: comment
         in: body
         name: json
@@ -1041,7 +1092,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.CommentCommonResponse'
@@ -1049,20 +1100,29 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 修改一个评论
       tags:
       - Comment Module
-  /comment/{id}/like:
+  /comment/{id}/like/{like_data}:
     post:
       parameters:
       - description: comment id
         in: path
         name: id
+        required: true
+        type: integer
+      - description: '1: like, -1: dislike, 0: reset'
+        enum:
+        - 1
+        - -1
+        - 0
+        in: path
+        name: like_data
         required: true
         type: integer
       produces:
@@ -1072,7 +1132,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -1080,11 +1140,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 点赞或点踩一个评论，或者取消点赞或点踩
       tags:
       - Comment Module
@@ -1126,7 +1186,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.CommentListResponse'
@@ -1134,12 +1194,59 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询评论，按照 id 升序 或 点赞数倒序 排序
+      tags:
+      - Comment Module
+  /comments/_search:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        minLength: 1
+        name: search
+        required: true
+        type: string
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.RespForSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.CommentListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+      summary: 搜索评论
       tags:
       - Comment Module
   /comments/_user/{user_id}:
@@ -1168,11 +1275,6 @@ paths:
         name: page_size
         required: true
         type: integer
-      - in: query
-        minimum: 1
-        name: topic_id
-        required: true
-        type: integer
       - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
         in: query
         minimum: 0
@@ -1185,7 +1287,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.CommentListResponse'
@@ -1193,11 +1295,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询某个用户的评论，按照 id 升序 或 点赞数倒序 排序
       tags:
       - Comment Module
@@ -1219,7 +1321,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.DivisionCommonResponse'
@@ -1227,11 +1329,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Create a division, admin only
       tags:
       - Division Module
@@ -1250,7 +1352,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -1258,11 +1360,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Delete a division, admin only
       tags:
       - Division Module
@@ -1280,7 +1382,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.DivisionCommonResponse'
@@ -1288,11 +1390,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Get a division
       tags:
       - Division Module
@@ -1318,7 +1420,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.DivisionCommonResponse'
@@ -1326,11 +1428,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Modify a division, admin only
       tags:
       - Division Module
@@ -1343,7 +1445,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.DivisionListResponse'
@@ -1352,7 +1454,7 @@ paths:
           description: Bad Request
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -1362,7 +1464,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: List all divisions
       tags:
       - Division Module
@@ -1384,7 +1486,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.BoxCommonResponse'
@@ -1393,7 +1495,7 @@ paths:
           description: Bad Request
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -1403,7 +1505,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 创建提问箱
       tags:
       - MessageBox Module
@@ -1424,7 +1526,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -1432,11 +1534,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 删除提问箱
       tags:
       - MessageBox Module
@@ -1456,7 +1558,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.BoxGetResponse'
@@ -1464,11 +1566,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取提问箱信息
       tags:
       - MessageBox Module
@@ -1494,7 +1596,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.BoxCommonResponse'
@@ -1503,7 +1605,7 @@ paths:
           description: Bad Request
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -1513,7 +1615,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 修改提问箱信息
       tags:
       - MessageBox Module
@@ -1559,7 +1661,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.BoxListResponse'
@@ -1567,11 +1669,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询提问箱
       tags:
       - MessageBox Module
@@ -1600,7 +1702,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.MessageListResponse'
@@ -1608,11 +1710,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询所有聊天记录，按照 created_at 或 id 倒序排序
       tags:
       - Chat Module
@@ -1631,7 +1733,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.MessageCommonResponse'
@@ -1639,11 +1741,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 发送消息
       tags:
       - Chat Module
@@ -1666,7 +1768,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.PostCommonResponse'
@@ -1675,7 +1777,7 @@ paths:
           description: Bad Request
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -1685,7 +1787,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 创建帖子、提问
       tags:
       - Post Module
@@ -1705,7 +1807,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -1713,11 +1815,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 删除帖子
       tags:
       - Post Module
@@ -1735,7 +1837,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.PostGetResponse'
@@ -1743,11 +1845,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取帖子信息
       tags:
       - Post Module
@@ -1772,7 +1874,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.PostCommonResponse'
@@ -1781,7 +1883,7 @@ paths:
           description: Bad Request
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -1791,7 +1893,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 删除帖子
       tags:
       - Post Module
@@ -1825,7 +1927,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.PostListResponse'
@@ -1833,11 +1935,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询所有帖子
       tags:
       - Post Module
@@ -1859,7 +1961,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TagCommonResponse'
@@ -1867,11 +1969,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 创建一个标签
       tags:
       - Tag Module
@@ -1890,7 +1992,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -1898,11 +2000,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 删除一个标签，仅管理员可删除
       tags:
       - Tag Module
@@ -1920,7 +2022,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TagCommonResponse'
@@ -1928,11 +2030,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取一个标签
       tags:
       - Tag Module
@@ -1953,7 +2055,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TagCommonResponse'
@@ -1961,21 +2063,21 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 修改一个标签，仅管理员可修改
       tags:
       - Tag Module
   /tags:
     get:
       parameters:
-      - default: id
+      - default: id asc
         enum:
-        - id
-        - temperature
+        - id asc
+        - temperature desc
         in: query
         name: order_by
         type: string
@@ -2008,7 +2110,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TagListResponse'
@@ -2016,11 +2118,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询标签，按照 热度 倒序 排序
       tags:
       - Tag Module
@@ -2042,7 +2144,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicCommonResponse'
@@ -2050,11 +2152,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 创建一个话题
       tags:
       - Topic Module
@@ -2067,7 +2169,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -2075,11 +2177,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 删除一个话题，仅管理员
       tags:
       - Topic Module
@@ -2097,7 +2199,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicCommonResponse'
@@ -2105,11 +2207,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取一个话题
       tags:
       - Topic Module
@@ -2131,7 +2233,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicCommonResponse'
@@ -2139,11 +2241,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 修改一个话题
       tags:
       - Topic Module
@@ -2162,7 +2264,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicCommonResponse'
@@ -2170,11 +2272,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 取消收藏一个话题
       tags:
       - Topic Module
@@ -2192,7 +2294,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicCommonResponse'
@@ -2200,11 +2302,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 收藏一个话题，收藏数 +1
       tags:
       - Topic Module
@@ -2233,7 +2335,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicCommonResponse'
@@ -2241,16 +2343,16 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 点赞或点踩一个话题，或者重置点赞点踩数据
       tags:
       - Topic Module
   /topic/{id}/_view:
-    post:
+    put:
       parameters:
       - description: topic id
         in: path
@@ -2264,7 +2366,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -2272,11 +2374,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 浏览一个话题，浏览数 +1
       tags:
       - Topic Module
@@ -2294,7 +2396,8 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: updated_at
+      - default: created_at
+        description: 排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序
         enum:
         - created_at
         - updated_at
@@ -2317,7 +2420,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicListResponse'
@@ -2325,11 +2428,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询话题，按照最近创建或最近回复排序
       tags:
       - Topic Module
@@ -2347,7 +2450,8 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: updated_at
+      - default: created_at
+        description: 排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序
         enum:
         - created_at
         - updated_at
@@ -2370,7 +2474,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicListResponse'
@@ -2378,12 +2482,59 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询收藏的话题
+      tags:
+      - Topic Module
+  /topics/_search:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        maxLength: 100
+        minLength: 1
+        name: search
+        type: string
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.RespForSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.TopicListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+      summary: 搜索话题
       tags:
       - Topic Module
   /topics/_tag/{tag_id}:
@@ -2405,7 +2556,8 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: updated_at
+      - default: created_at
+        description: 排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序
         enum:
         - created_at
         - updated_at
@@ -2428,7 +2580,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicListResponse'
@@ -2436,11 +2588,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询标签下的话题
       tags:
       - Topic Module
@@ -2464,7 +2616,8 @@ paths:
         minimum: 1
         name: division_id
         type: integer
-      - default: updated_at
+      - default: created_at
+        description: 排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序
         enum:
         - created_at
         - updated_at
@@ -2487,7 +2640,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.TopicListResponse'
@@ -2495,11 +2648,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询用户发布的话题
       tags:
       - Topic Module
@@ -2518,7 +2671,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -2526,11 +2679,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 注销用户, admin only
       tags:
       - User Module
@@ -2548,7 +2701,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.UserResponse'
@@ -2556,11 +2709,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取用户信息
       tags:
       - User Module
@@ -2584,7 +2737,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.UserResponse'
@@ -2592,11 +2745,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 修改用户信息, admin only
       tags:
       - User Module
@@ -2619,7 +2772,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.LoginResponse'
@@ -2627,11 +2780,11 @@ paths:
         "401":
           description: 用户名或密码错误
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Login
       tags:
       - User Module
@@ -2644,7 +2797,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.UserResponse'
@@ -2652,11 +2805,11 @@ paths:
         "401":
           description: Invalid JWT Token
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Logout
       tags:
       - User Module
@@ -2669,7 +2822,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/models.EmptyStruct'
@@ -2677,11 +2830,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 注销当前用户
       tags:
       - User Module
@@ -2693,7 +2846,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.UserResponse'
@@ -2701,11 +2854,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取当前用户信息
       tags:
       - User Module
@@ -2724,7 +2877,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.UserResponse'
@@ -2733,7 +2886,7 @@ paths:
           description: Invalid request body
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   items:
@@ -2743,7 +2896,7 @@ paths:
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 修改当前用户信息
       tags:
       - User Module
@@ -2766,7 +2919,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.LoginResponse'
@@ -2774,11 +2927,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Register
       tags:
       - User Module
@@ -2800,7 +2953,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.UserResponse'
@@ -2808,15 +2961,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "401":
           description: Invalid JWT Token
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: Reset Password
       tags:
       - User Module
@@ -2846,7 +2999,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.UserListResponse'
@@ -2854,11 +3007,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询所有用户, admin only
       tags:
       - User Module
@@ -2894,7 +3047,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.WallListResponse'
@@ -2902,11 +3055,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取今日表白墙
       tags:
       - Wall Module
@@ -2925,7 +3078,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.WallCommonResponse'
@@ -2933,11 +3086,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 创建表白墙
       tags:
       - Wall Module
@@ -2956,7 +3109,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/utils.Response'
+            - $ref: '#/definitions/utils.RespForSwagger'
             - properties:
                 data:
                   $ref: '#/definitions/apis.WallCommonResponse'
@@ -2964,11 +3117,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
         "500":
           description: 服务器错误
           schema:
-            $ref: '#/definitions/utils.Response'
+            $ref: '#/definitions/utils.RespForSwagger'
       summary: 获取表白墙信息
       tags:
       - Wall Module

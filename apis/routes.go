@@ -77,6 +77,7 @@ func RegisterRoutes(app *fiber.App) {
 	group.Get("/topics/_favor", ListFavoriteTopics)
 	group.Get("/topics/_user/:id", ListTopicsByUser)
 	group.Get("/topics/_tag/:tag", ListTopicsByTag)
+	group.Get("/topics/_search", SearchTopics)
 
 	// Comment
 	group.Get("/comments", ListComments)
@@ -86,6 +87,7 @@ func RegisterRoutes(app *fiber.App) {
 	group.Delete("/comment/:id", DeleteAComment)
 	group.Put("/comment/:id/like/:data", LikeOrDislikeAComment)
 	group.Get("/comments/_user/:id", ListCommentsByUser)
+	group.Get("/comments/_search", SearchComments)
 
 	// Tag
 	group.Get("/tags", ListTags)

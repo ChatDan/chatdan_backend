@@ -13,9 +13,9 @@ import (
 // @Produce json
 // @Router /posts [get]
 // @Param body query PostListRequest true "page"
-// @Success 200 {object} Response{data=PostListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=PostListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListPosts(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -53,7 +53,7 @@ func ListPosts(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetAPost godoc
@@ -62,9 +62,9 @@ func ListPosts(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /post/{id} [get]
 // @Param id path string true "id"
-// @Success 200 {object} Response{data=PostGetResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=PostGetResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetAPost(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -102,7 +102,7 @@ func GetAPost(c *fiber.Ctx) (err error) {
 	}
 	response.Channels = channelsContent
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateAPost godoc
@@ -112,9 +112,9 @@ func GetAPost(c *fiber.Ctx) (err error) {
 // @Accept json
 // @Produce json
 // @Param post body PostCreateRequest true "post"
-// @Success 201 {object} Response{data=PostCommonResponse}
-// @Failure 400 {object} Response{data=ErrorDetail}
-// @Failure 500 {object} Response
+// @Success 201 {object} RespForSwagger{data=PostCommonResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail}
+// @Failure 500 {object} RespForSwagger
 // @Router /post [post]
 func CreateAPost(c *fiber.Ctx) (err error) {
 	// get current user
@@ -153,7 +153,7 @@ func CreateAPost(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Created(c, response)
+	return Created(c, &response)
 }
 
 // ModifyAPost godoc
@@ -164,9 +164,9 @@ func CreateAPost(c *fiber.Ctx) (err error) {
 // @Router /post/{id} [put]
 // @Param id path string true "id"
 // @Param json body PostModifyRequest true "post"
-// @Success 200 {object} Response{data=PostCommonResponse}
-// @Failure 400 {object} Response{data=ErrorDetail}
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=PostCommonResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail}
+// @Failure 500 {object} RespForSwagger
 func ModifyAPost(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -184,9 +184,6 @@ func ModifyAPost(c *fiber.Ctx) (err error) {
 	var body PostModifyRequest
 	if err = ValidateBody(c, &body); err != nil {
 		return
-	}
-	if body.IsEmpty() {
-		return BadRequest("empty body")
 	}
 
 	// load post from database
@@ -214,7 +211,7 @@ func ModifyAPost(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteAPost godoc
@@ -223,9 +220,9 @@ func ModifyAPost(c *fiber.Ctx) (err error) {
 // @Tags Post Module
 // @Produce json
 // @Param id path string true "Only the owner of library can delete it."
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 // @Router /post/{id} [delete]
 func DeleteAPost(c *fiber.Ctx) (err error) {
 	// get current user
@@ -256,5 +253,5 @@ func DeleteAPost(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }

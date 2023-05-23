@@ -15,9 +15,9 @@ import (
 // @Produce json
 // @Router /tags [get]
 // @Param json query TagListRequest true "page"
-// @Success 200 {object} Response{data=TagListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TagListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListTags(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -64,7 +64,7 @@ func ListTags(c *fiber.Ctx) (err error) {
 	response.Total = total
 	response.Version = version
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetATag godoc
@@ -73,9 +73,9 @@ func ListTags(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /tag/{id} [get]
 // @Param id path int true "tag id"
-// @Success 200 {object} Response{data=TagCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TagCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetATag(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -99,7 +99,7 @@ func GetATag(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return
 	}
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateATag godoc
@@ -109,9 +109,9 @@ func GetATag(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /tag [post]
 // @Param json body TagCreateRequest true "tag"
-// @Success 201 {object} Response{data=TagCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 201 {object} RespForSwagger{data=TagCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func CreateATag(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -138,7 +138,7 @@ func CreateATag(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Created(c, response)
+	return Created(c, &response)
 }
 
 // ModifyATag godoc
@@ -148,9 +148,9 @@ func CreateATag(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /tag/{id} [put]
 // @Param json body TagModifyRequest true "tag"
-// @Success 200 {object} Response{data=TagCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=TagCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ModifyATag(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -190,7 +190,7 @@ func ModifyATag(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteATag godoc
@@ -199,9 +199,9 @@ func ModifyATag(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /tag/{id} [delete]
 // @Param id path int true "tag id"
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func DeleteATag(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -228,5 +228,5 @@ func DeleteATag(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return
 	}
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }

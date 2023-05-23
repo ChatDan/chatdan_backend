@@ -177,7 +177,7 @@ type PostCreateRequest struct {
 	BoxID       int    `json:"message_box_id" validate:"required,min=1"`
 	Content     string `json:"content" validate:"required,min=1,max=2000"` // 限制长度
 	Visibility  string `json:"visibility" validate:"omitempty,oneof=public private" default:"public"`
-	IsAnonymous *bool  `json:"is_anonymous" validate:"omitempty" default:"-"`
+	IsAnonymous *bool  `json:"is_anonymous" validate:"omitempty"`
 }
 
 func (p *PostCreateRequest) IsPublic() bool {
@@ -363,6 +363,7 @@ func (t *TopicCommonResponse) Postprocess(c *fiber.Ctx) (err error) {
 		t.IsOwner = true
 	}
 
+	// load last comment
 	var comment Comment
 	err = DB.Last(&comment, "topic_id = ?", t.ID).Error
 	if err != nil {
@@ -423,26 +424,109 @@ type TopicListRequest struct {
 	StartTime      *time.Time `json:"start_time" query:"start_time" validate:"omitempty"`
 }
 
+type TopicSearchRequest struct {
+	PageRequest
+	Search string `json:"search" query:"search" validate:"omitempty,min=1,max=100"`
+}
+
 type TopicListResponse struct {
 	Topics []TopicCommonResponse `json:"topics"`
 }
 
 func (t *TopicListResponse) Postprocess(c *fiber.Ctx) (err error) {
+	userID := c.Locals("user_id").(int)
 	for i := range t.Topics {
-		err = t.Topics[i].Postprocess(c)
-		if err != nil {
-			return
+		if userID == t.Topics[i].PosterID {
+			t.Topics[i].IsOwner = true
 		}
 	}
 
-	return nil
+	// batch load last comment
+	var comments []Comment
+	var topicIDs []int
+	for _, topic := range t.Topics {
+		topicIDs = append(topicIDs, topic.ID)
+	}
+	err = DB.Raw(
+		`select * from comments 
+			where topic_id in (?) and id in (
+				select max(id) from comments group by topic_id
+			)`, topicIDs).Scan(&comments).Error
+	if err != nil {
+		return err
+	}
+	var commentResponses []CommentCommonResponse
+	err = copier.Copy(&commentResponses, &comments)
+	if err != nil {
+		return
+	}
+
+	for i := range t.Topics {
+		for j := range commentResponses {
+			if t.Topics[i].ID == commentResponses[j].TopicID {
+				t.Topics[i].LastComment = &commentResponses[j]
+				err = commentResponses[j].Postprocess(c)
+				if err != nil {
+					return
+				}
+				break
+			}
+		}
+	}
+
+	// batch load like
+	var likes []TopicUserLikes
+	err = DB.Where("topic_id in (?) AND user_id = ?", topicIDs, userID).Find(&likes).Error
+	if err != nil {
+		return
+	}
+
+	for i := range t.Topics {
+		for j := range likes {
+			if t.Topics[i].ID == likes[j].TopicID {
+				switch likes[j].LikeData {
+				case 1:
+					t.Topics[i].Liked = true
+				case -1:
+					t.Topics[i].Disliked = true
+				}
+				break
+			}
+		}
+	}
+
+	// batch load favorite
+	var favorites []TopicUserFavorites
+	err = DB.Where("topic_id in (?) AND user_id = ?", topicIDs, userID).Find(&favorites).Error
+	if err != nil {
+		return
+	}
+
+	for i := range t.Topics {
+		for j := range favorites {
+			if t.Topics[i].ID == favorites[j].TopicID {
+				t.Topics[i].Favored = true
+				break
+			}
+		}
+	}
+
+	// clear user info
+	for i := range t.Topics {
+		if t.Topics[i].IsAnonymous {
+			t.Topics[i].Poster = nil
+			t.Topics[i].PosterID = 0
+		}
+	}
+
+	return
 }
 
 type TopicCreateRequest struct {
 	Title       string   `json:"title" validate:"required,min=1,max=50"`
 	Content     string   `json:"content" validate:"required,min=1,max=2000"`
 	DivisionID  int      `json:"division_id" validate:"required,min=1"`
-	IsAnonymous bool     `json:"is_anonymous"`
+	IsAnonymous bool     `json:"is_anonymous"` // 默认不传为 false
 	Tags        []string `json:"tags"`
 }
 
@@ -456,6 +540,23 @@ type TopicModifyRequest struct {
 
 func (t TopicModifyRequest) IsEmpty() bool {
 	return t.Title == nil && t.Content == nil && t.DivisionID == nil && t.IsHidden == nil && len(t.Tags) == 0
+}
+
+func (t *TopicModifyRequest) Fields() []string {
+	var fields []string
+	if t.Title != nil {
+		fields = append(fields, "Title")
+	}
+	if t.Content != nil {
+		fields = append(fields, "Content")
+	}
+	if t.DivisionID != nil {
+		fields = append(fields, "DivisionID")
+	}
+	if t.IsHidden != nil {
+		fields = append(fields, "IsHidden")
+	}
+	return fields
 }
 
 /* Comment */
@@ -484,19 +585,110 @@ type CommentCommonResponse struct {
 	Disliked bool `json:"disliked"`
 }
 
+func (comment *CommentCommonResponse) Postprocess(c *fiber.Ctx) (err error) {
+	userID := c.Locals("user_id").(int)
+	// set owner
+	if comment.PosterID == userID {
+		comment.IsOwner = true
+	}
+
+	// load like
+	var like CommentUserLikes
+	err = DB.Where("comment_id = ? AND user_id = ?", comment.ID, userID).First(&like).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return
+		}
+	} else {
+		switch like.LikeData {
+		case 1:
+			comment.Liked = true
+		case -1:
+			comment.Disliked = true
+		}
+	}
+
+	// clear user info
+	if comment.IsAnonymous {
+		comment.Poster = nil
+		comment.PosterID = 0
+	}
+	return
+}
+
 type CommentListRequest struct {
 	PageRequest
 	TopicID int    `json:"topic_id" query:"topic_id" validate:"required,min=1"`
 	OrderBy string `json:"order_by" query:"order_by" validate:"omitempty,oneof=id like" default:"id"`
 }
 
+type CommentListByUserRequest struct {
+	PageRequest
+	OrderBy string `json:"order_by" query:"order_by" validate:"omitempty,oneof=id like" default:"id"`
+}
+
+type CommentSearchRequest struct {
+	PageRequest
+	Search string `json:"search" query:"search" validate:"required,min=1"`
+}
+
 type CommentListResponse struct {
 	Comments []CommentCommonResponse `json:"comments"`
 }
 
+func (comments *CommentListResponse) Postprocess(c *fiber.Ctx) (err error) {
+	if len(comments.Comments) == 0 {
+		return
+	}
+	userID := c.Locals("user_id").(int)
+
+	// set owner
+	for i := range comments.Comments {
+		if comments.Comments[i].PosterID == userID {
+			comments.Comments[i].IsOwner = true
+		}
+	}
+
+	// batch load like
+	var likes []CommentUserLikes
+	commentIDs := make([]int, len(comments.Comments))
+	for i := range comments.Comments {
+		commentIDs[i] = comments.Comments[i].ID
+	}
+	err = DB.Where("comment_id in (?) AND user_id = ?", commentIDs, userID).Find(&likes).Error
+	if err != nil {
+		return
+	}
+	for i := range comments.Comments {
+		for j := range likes {
+			if comments.Comments[i].ID == likes[j].CommentID {
+				switch likes[j].LikeData {
+				case 1:
+					comments.Comments[i].Liked = true
+				case -1:
+					comments.Comments[i].Disliked = true
+				}
+				break
+			}
+		}
+	}
+
+	// clear user info
+	for i := range comments.Comments {
+		if comments.Comments[i].IsAnonymous {
+			comments.Comments[i].Poster = nil
+			comments.Comments[i].PosterID = 0
+		}
+	}
+
+	return
+}
+
 type CommentCreateRequest struct {
-	ReplyToID *int   `json:"reply_to_id"`
-	Content   string `json:"content" validate:"required,min=1,max=2000"`
+	TopicID     int    `json:"topic_id" validate:"required,min=1"`
+	ReplyToID   *int   `json:"reply_to_id"`
+	Content     string `json:"content" validate:"required,min=1,max=2000"`
+	IsAnonymous bool   `json:"is_anonymous"` // 默认实名
 }
 
 type CommentModifyRequest struct {

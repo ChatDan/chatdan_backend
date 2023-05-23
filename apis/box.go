@@ -17,9 +17,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param body query BoxListRequest true "page"
-// @Success 200 {object} Response{data=BoxListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=BoxListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 // @Router /messageBoxes [get]
 func ListBoxes(c *fiber.Ctx) (err error) {
 	// get current user
@@ -74,7 +74,7 @@ func ListBoxes(c *fiber.Ctx) (err error) {
 	response.Version = version
 	response.Total = total
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetABox godoc
@@ -83,9 +83,9 @@ func ListBoxes(c *fiber.Ctx) (err error) {
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
-// @Success 200 {object} Response{data=BoxGetResponse}
-// @Failure 400 {object} Response "Bad Request"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 200 {object} RespForSwagger{data=BoxGetResponse}
+// @Failure 400 {object} RespForSwagger "Bad Request"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 // @Router /messageBox/{id} [get]
 func GetABox(c *fiber.Ctx) (err error) {
 	// get current user
@@ -119,7 +119,7 @@ func GetABox(c *fiber.Ctx) (err error) {
 	}
 	response.PostsContent = postsContent
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateABox godoc
@@ -128,9 +128,9 @@ func GetABox(c *fiber.Ctx) (err error) {
 // @Accept json
 // @Produce json
 // @Param box body BoxCreateRequest true "box"
-// @Success 201 {object} Response{data=BoxCommonResponse}
-// @Failure 400 {object} Response{data=ErrorDetail} "Bad Request"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 201 {object} RespForSwagger{data=BoxCommonResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail} "Bad Request"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 // @Router /messageBox [post]
 func CreateABox(c *fiber.Ctx) (err error) {
 	var user User
@@ -169,7 +169,7 @@ func CreateABox(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Created(c, response)
+	return Created(c, &response)
 }
 
 // ModifyABox godoc
@@ -179,9 +179,9 @@ func CreateABox(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Param id path string true "id"
 // @Param json body BoxModifyRequest true "box"
-// @Success 200 {object} Response{data=BoxCommonResponse}
-// @Failure 400 {object} Response{data=ErrorDetail} "Bad Request"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 200 {object} RespForSwagger{data=BoxCommonResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail} "Bad Request"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 // @Router /messageBox/{id} [put]
 func ModifyABox(c *fiber.Ctx) (err error) {
 	// get current user
@@ -200,9 +200,6 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 	var body BoxModifyRequest
 	if err = ValidateBody(c, &body); err != nil {
 		return
-	}
-	if body.IsEmpty() {
-		return BadRequest("empty body")
 	}
 
 	// load box from database
@@ -235,7 +232,7 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteABox godoc
@@ -244,9 +241,9 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 // @Accept json
 // @Produce json
 // @Param id path string true "id"
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response "Bad Request"
-// @Failure 500 {object} Response "Internal Server Error"
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger "Bad Request"
+// @Failure 500 {object} RespForSwagger "Internal Server Error"
 // @Router /messageBox/{id} [delete]
 func DeleteABox(c *fiber.Ctx) (err error) {
 	// get current user
@@ -289,5 +286,5 @@ func DeleteABox(c *fiber.Ctx) (err error) {
 		CacheName(box),
 	)
 
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }

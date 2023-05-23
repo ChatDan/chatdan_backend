@@ -13,9 +13,9 @@ import (
 // @Tags Division Module
 // @Produce json
 // @Router /divisions [get]
-// @Success 200 {object} Response{data=DivisionListResponse}
-// @Failure 400 {object} Response{data=ErrorDetail}
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=DivisionListResponse}
+// @Failure 400 {object} RespForSwagger{data=ErrorDetail}
+// @Failure 500 {object} RespForSwagger
 func ListDivisions(c *fiber.Ctx) (err error) {
 	var divisions []Division
 	result := DB.Find(&divisions)
@@ -28,7 +28,7 @@ func ListDivisions(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetADivision godoc
@@ -37,9 +37,9 @@ func ListDivisions(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /division/{id} [get]
 // @Param id path int true "division id"
-// @Success 200 {object} Response{data=DivisionCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=DivisionCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetADivision(c *fiber.Ctx) (err error) {
 	divisionID, err := c.ParamsInt("id")
 	if err != nil {
@@ -56,7 +56,7 @@ func GetADivision(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateADivision godoc
@@ -66,9 +66,9 @@ func GetADivision(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /division [post]
 // @Param json body DivisionCreateRequest true "division"
-// @Success 201 {object} Response{data=DivisionCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 201 {object} RespForSwagger{data=DivisionCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func CreateADivision(c *fiber.Ctx) (err error) {
 	var user User
 	if err = GetCurrentUser(c, &user); err != nil {
@@ -96,7 +96,7 @@ func CreateADivision(c *fiber.Ctx) (err error) {
 	if err = copier.Copy(&response, &division); err != nil {
 		return err
 	}
-	return Created(c, response)
+	return Created(c, &response)
 }
 
 // ModifyADivision godoc
@@ -107,9 +107,9 @@ func CreateADivision(c *fiber.Ctx) (err error) {
 // @Router /division/{id} [put]
 // @Param id path int true "division id"
 // @Param json body DivisionModifyRequest true "division"
-// @Success 200 {object} Response{data=DivisionCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=DivisionCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ModifyADivision(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -152,7 +152,7 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 	if err = copier.Copy(&response, &division); err != nil {
 		return err
 	}
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteADivision godoc
@@ -161,9 +161,9 @@ func ModifyADivision(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /division/{id} [delete]
 // @Param id path int true "division id"
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func DeleteADivision(c *fiber.Ctx) (err error) {
 	var user User
 	if err = GetCurrentUser(c, &user); err != nil {
@@ -199,5 +199,5 @@ func DeleteADivision(c *fiber.Ctx) (err error) {
 	}); err != nil {
 		return err
 	}
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }

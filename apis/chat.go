@@ -14,9 +14,9 @@ import (
 // @Tags Chat Module
 // @Produce json
 // @Router /chats [get]
-// @Success 200 {object} Response{data=ChatListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=ChatListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListChats(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -37,7 +37,7 @@ func ListChats(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // ListMessages godoc
@@ -46,9 +46,9 @@ func ListChats(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /messages [get]
 // @Param body query MessageListRequest true "page"
-// @Success 200 {object} Response{data=MessageListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=MessageListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListMessages(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -89,7 +89,7 @@ func ListMessages(c *fiber.Ctx) (err error) {
 		response.Messages[i].IsOwner = response.Messages[i].FromUserID == user.ID
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateMessage godoc
@@ -98,9 +98,9 @@ func ListMessages(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /messages [post]
 // @Param json body MessageCreateRequest true "message"
-// @Success 201 {object} Response{data=MessageCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 201 {object} RespForSwagger{data=MessageCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func CreateMessage(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -183,5 +183,5 @@ func CreateMessage(c *fiber.Ctx) (err error) {
 	}
 	response.IsOwner = true
 
-	return Created(c, response)
+	return Created(c, &response)
 }

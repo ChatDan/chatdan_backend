@@ -15,9 +15,9 @@ import (
 // @Router /wall [get]
 // @Produce json
 // @Param json query WallListRequest true "query"
-// @Success 200 {object} Response{data=WallListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response "服务器错误"
+// @Success 200 {object} RespForSwagger{data=WallListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger "服务器错误"
 func ListWalls(c *fiber.Ctx) (err error) {
 	// get and validate query
 	var query WallListRequest
@@ -50,7 +50,7 @@ func ListWalls(c *fiber.Ctx) (err error) {
 	}
 	response.Date = queryDate
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetAWall
@@ -59,9 +59,9 @@ func ListWalls(c *fiber.Ctx) (err error) {
 // @Router /wall/{id} [get]
 // @Produce json
 // @Param id path int true "wall id"
-// @Success 200 {object} Response{data=WallCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response "服务器错误"
+// @Success 200 {object} RespForSwagger{data=WallCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger "服务器错误"
 func GetAWall(c *fiber.Ctx) (err error) {
 	// get wall id
 	var wallID int
@@ -81,7 +81,7 @@ func GetAWall(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateAWall
@@ -90,9 +90,9 @@ func GetAWall(c *fiber.Ctx) (err error) {
 // @Router /wall [post]
 // @Produce json
 // @Param json body WallCreateRequest true "json"
-// @Success 201 {object} Response{data=WallCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response "服务器错误"
+// @Success 201 {object} RespForSwagger{data=WallCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger "服务器错误"
 func CreateAWall(c *fiber.Ctx) (err error) {
 	// get current user
 	var user User
@@ -123,5 +123,5 @@ func CreateAWall(c *fiber.Ctx) (err error) {
 	}
 	response.IsShown = carbon.FromStdTime(wall.CreatedAt).Lte(carbon.Yesterday().EndOfDay()) // 创建时间在昨天结束之前的才会显示
 
-	return Created(c, response)
+	return Created(c, &response)
 }

@@ -54,7 +54,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -72,7 +72,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -91,7 +91,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -121,7 +121,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -137,13 +137,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -183,7 +183,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -201,7 +201,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -220,7 +220,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -248,7 +248,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -264,13 +264,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -322,7 +322,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -338,13 +338,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -365,7 +365,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -381,13 +381,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -422,7 +422,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -438,13 +438,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -474,7 +474,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -490,13 +490,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -514,6 +514,13 @@ const docTemplate = `{
                 "summary": "修改一个评论",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "comment id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "description": "comment",
                         "name": "json",
                         "in": "body",
@@ -529,7 +536,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -545,13 +552,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -579,7 +586,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -595,19 +602,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
             }
         },
-        "/comment/{id}/like": {
+        "/comment/{id}/like/{like_data}": {
             "post": {
                 "produces": [
                     "application/json"
@@ -623,6 +630,18 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "enum": [
+                            1,
+                            -1,
+                            0
+                        ],
+                        "type": "integer",
+                        "description": "1: like, -1: dislike, 0: reset",
+                        "name": "like_data",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -631,7 +650,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -647,13 +666,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -715,7 +734,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -731,13 +750,87 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/comments/_search": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Comment Module"
+                ],
+                "summary": "搜索评论",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_num",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minLength": 1,
+                        "type": "string",
+                        "name": "search",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
+                        "name": "version",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.RespForSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.CommentListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.RespForSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -786,13 +879,6 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "minimum": 1,
-                        "type": "integer",
-                        "name": "topic_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
                         "minimum": 0,
                         "type": "integer",
                         "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
@@ -806,7 +892,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -822,13 +908,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -863,7 +949,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -879,13 +965,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -915,7 +1001,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -931,13 +1017,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -977,7 +1063,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -993,13 +1079,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1027,7 +1113,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1043,13 +1129,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1070,7 +1156,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1088,7 +1174,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1107,7 +1193,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1142,7 +1228,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1160,7 +1246,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1179,7 +1265,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1212,7 +1298,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1228,13 +1314,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1274,7 +1360,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1292,7 +1378,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1311,7 +1397,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1342,7 +1428,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1358,13 +1444,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1433,7 +1519,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1449,13 +1535,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1499,7 +1585,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1515,13 +1601,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1551,7 +1637,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1567,13 +1653,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1609,7 +1695,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1627,7 +1713,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1646,7 +1732,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1676,7 +1762,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1692,13 +1778,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1736,7 +1822,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1754,7 +1840,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1773,7 +1859,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1802,7 +1888,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1818,13 +1904,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1875,7 +1961,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1891,13 +1977,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1932,7 +2018,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -1948,13 +2034,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -1984,7 +2070,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2000,13 +2086,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2039,7 +2125,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2055,13 +2141,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2089,7 +2175,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2105,13 +2191,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2129,11 +2215,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "enum": [
-                            "id",
-                            "temperature"
+                            "id asc",
+                            "temperature desc"
                         ],
                         "type": "string",
-                        "default": "id",
+                        "default": "id asc",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2174,7 +2260,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2190,13 +2276,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2231,7 +2317,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2247,13 +2333,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2283,7 +2369,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2299,13 +2385,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2339,7 +2425,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2355,13 +2441,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2380,7 +2466,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2396,13 +2482,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2432,7 +2518,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2448,13 +2534,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2482,7 +2568,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2498,13 +2584,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2547,7 +2633,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2563,20 +2649,20 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
             }
         },
         "/topic/{id}/_view": {
-            "post": {
+            "put": {
                 "produces": [
                     "application/json"
                 ],
@@ -2599,7 +2685,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2615,13 +2701,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2659,7 +2745,8 @@ const docTemplate = `{
                             "updated_at"
                         ],
                         "type": "string",
-                        "default": "updated_at",
+                        "default": "created_at",
+                        "description": "排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2683,7 +2770,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2699,13 +2786,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2743,7 +2830,8 @@ const docTemplate = `{
                             "updated_at"
                         ],
                         "type": "string",
-                        "default": "updated_at",
+                        "default": "created_at",
+                        "description": "排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2767,7 +2855,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2783,13 +2871,87 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
+                        }
+                    }
+                }
+            }
+        },
+        "/topics/_search": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Topic Module"
+                ],
+                "summary": "搜索话题",
+                "parameters": [
+                    {
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_num",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maximum": 100,
+                        "minimum": 1,
+                        "type": "integer",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "maxLength": 100,
+                        "minLength": 1,
+                        "type": "string",
+                        "name": "search",
+                        "in": "query"
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳",
+                        "name": "version",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/utils.RespForSwagger"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/apis.TopicListResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/utils.RespForSwagger"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2834,7 +2996,8 @@ const docTemplate = `{
                             "updated_at"
                         ],
                         "type": "string",
-                        "default": "updated_at",
+                        "default": "created_at",
+                        "description": "排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2858,7 +3021,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2874,13 +3037,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -2926,7 +3089,8 @@ const docTemplate = `{
                             "updated_at"
                         ],
                         "type": "string",
-                        "default": "updated_at",
+                        "default": "created_at",
+                        "description": "排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序",
                         "name": "order_by",
                         "in": "query"
                     },
@@ -2950,7 +3114,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -2966,13 +3130,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3007,7 +3171,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3023,13 +3187,13 @@ const docTemplate = `{
                     "401": {
                         "description": "用户名或密码错误",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3050,7 +3214,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3066,13 +3230,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Invalid JWT Token",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3093,7 +3257,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3109,13 +3273,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3145,7 +3309,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3163,7 +3327,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3182,7 +3346,7 @@ const docTemplate = `{
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3201,7 +3365,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3217,13 +3381,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3258,7 +3422,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3274,13 +3438,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3315,7 +3479,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3331,19 +3495,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "401": {
                         "description": "Invalid JWT Token",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3373,7 +3537,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3389,13 +3553,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3432,7 +3596,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3448,13 +3612,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3482,7 +3646,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3498,13 +3662,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3549,7 +3713,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3565,13 +3729,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3624,7 +3788,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3640,13 +3804,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3676,7 +3840,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3692,13 +3856,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -3728,7 +3892,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/utils.Response"
+                                    "$ref": "#/definitions/utils.RespForSwagger"
                                 },
                                 {
                                     "type": "object",
@@ -3744,13 +3908,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     },
                     "500": {
                         "description": "服务器错误",
                         "schema": {
-                            "$ref": "#/definitions/utils.Response"
+                            "$ref": "#/definitions/utils.RespForSwagger"
                         }
                     }
                 }
@@ -4020,13 +4184,25 @@ const docTemplate = `{
         "apis.CommentCreateRequest": {
             "type": "object",
             "required": [
-                "content"
+                "content",
+                "topic_id"
             ],
             "properties": {
                 "content": {
                     "type": "string",
                     "maxLength": 2000,
                     "minLength": 1
+                },
+                "is_anonymous": {
+                    "description": "默认实名",
+                    "type": "boolean"
+                },
+                "reply_to_id": {
+                    "type": "integer"
+                },
+                "topic_id": {
+                    "type": "integer",
+                    "minimum": 1
                 }
             }
         },
@@ -4252,6 +4428,9 @@ const docTemplate = `{
         "apis.PostCommonResponse": {
             "type": "object",
             "properties": {
+                "anonyname": {
+                    "type": "string"
+                },
                 "channel_count": {
                     "type": "integer"
                 },
@@ -4267,6 +4446,9 @@ const docTemplate = `{
                 "is_owner": {
                     "type": "boolean"
                 },
+                "poster": {
+                    "$ref": "#/definitions/apis.UserResponse"
+                },
                 "poster_id": {
                     "type": "integer"
                 },
@@ -4274,16 +4456,47 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "visibility": {
+                    "description": "public private",
                     "type": "string"
                 }
             }
         },
         "apis.PostCreateRequest": {
-            "type": "object"
+            "type": "object",
+            "required": [
+                "content",
+                "message_box_id"
+            ],
+            "properties": {
+                "content": {
+                    "description": "限制长度",
+                    "type": "string",
+                    "maxLength": 2000,
+                    "minLength": 1
+                },
+                "is_anonymous": {
+                    "type": "boolean"
+                },
+                "message_box_id": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "visibility": {
+                    "type": "string",
+                    "default": "public",
+                    "enum": [
+                        "public",
+                        "private"
+                    ]
+                }
+            }
         },
         "apis.PostGetResponse": {
             "type": "object",
             "properties": {
+                "anonyname": {
+                    "type": "string"
+                },
                 "channel_count": {
                     "type": "integer"
                 },
@@ -4305,6 +4518,9 @@ const docTemplate = `{
                 "is_owner": {
                     "type": "boolean"
                 },
+                "poster": {
+                    "$ref": "#/definitions/apis.UserResponse"
+                },
                 "poster_id": {
                     "type": "integer"
                 },
@@ -4312,6 +4528,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "visibility": {
+                    "description": "public private",
                     "type": "string"
                 }
             }
@@ -4399,6 +4616,12 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/apis.TagCommonResponse"
                     }
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "version": {
+                    "type": "integer"
                 }
             }
         },
@@ -4443,6 +4666,9 @@ const docTemplate = `{
                 },
                 "division_id": {
                     "type": "integer"
+                },
+                "favored": {
+                    "type": "boolean"
                 },
                 "favorite_count": {
                     "description": "收藏数",
@@ -4519,6 +4745,7 @@ const docTemplate = `{
                     "minimum": 1
                 },
                 "is_anonymous": {
+                    "description": "默认不传为 false",
                     "type": "boolean"
                 },
                 "tags": {
@@ -4762,7 +4989,7 @@ const docTemplate = `{
                 }
             }
         },
-        "utils.Response": {
+        "utils.RespForSwagger": {
             "type": "object",
             "properties": {
                 "code": {

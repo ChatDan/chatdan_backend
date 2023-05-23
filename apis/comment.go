@@ -15,9 +15,9 @@ import (
 // @Produce json
 // @Router /comments [get]
 // @Param json query CommentListRequest true "page"
-// @Success 200 {object} Response{data=CommentListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=CommentListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListComments(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -50,11 +50,11 @@ func ListComments(c *fiber.Ctx) (err error) {
 
 	var response CommentListRequest
 
-	if err = copier.CopyWithOption(&response, &comments, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &comments, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // GetAComment godoc
@@ -63,9 +63,9 @@ func ListComments(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /comment/{id} [get]
 // @Param id path int true "comment id"
-// @Success 200 {object} Response{data=CommentCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=CommentCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func GetAComment(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -85,11 +85,11 @@ func GetAComment(c *fiber.Ctx) (err error) {
 
 	var response CommentCommonResponse
 
-	if err = copier.CopyWithOption(&response, &comment, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &comment, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // CreateAComment godoc
@@ -99,9 +99,9 @@ func GetAComment(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /comment [post]
 // @Param json body CommentCreateRequest true "comment"
-// @Success 201 {object} Response{data=CommentCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 201 {object} RespForSwagger{data=CommentCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func CreateAComment(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -115,23 +115,56 @@ func CreateAComment(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	comment := Comment{
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-		Content:   body.Content,
-		ReplyToID: body.ReplyToID,
+	var topic Topic
+	err = DB.First(&topic, body.TopicID).Error
+	if err != nil {
+		return NotFound()
 	}
 
-	result := DB.Create(&comment)
-	if result.RowsAffected == 0 {
-		return BadRequest()
+	var comment Comment
+	err = DB.Transaction(func(tx *gorm.DB) error {
+
+		comment = Comment{
+			Content:     body.Content,
+			ReplyToID:   body.ReplyToID,
+			PosterID:    user.ID,
+			TopicID:     body.TopicID,
+			IsAnonymous: body.IsAnonymous,
+		}
+
+		if body.IsAnonymous {
+			var anonyname string
+			anonyname, err = FindOrGenerateAnonyname(tx, body.TopicID, user.ID)
+			if err != nil {
+				return err
+			}
+			comment.Anonyname = &anonyname
+		}
+
+		result := tx.Create(&comment)
+		if result.Error != nil {
+			return result.Error
+		}
+		if result.RowsAffected == 0 {
+			return BadRequest()
+		}
+
+		// update topic
+		result = tx.Model(&topic).Update("comment_count", gorm.Expr("comment_count + ?", 1))
+		if result.Error != nil {
+			return result.Error
+		}
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 
 	var response CommentCommonResponse
-	if err = copier.CopyWithOption(&response, &comment, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &comment, CopyOption); err != nil {
 		return err
 	}
-	return Success(c, response)
+	return Created(c, &response)
 }
 
 // ModifyAComment godoc
@@ -140,10 +173,11 @@ func CreateAComment(c *fiber.Ctx) (err error) {
 // @Accept json
 // @Produce json
 // @Router /comment/{id} [put]
+// @Param id path int true "comment id"
 // @Param json body CommentModifyRequest true "comment"
-// @Success 200 {object} Response{data=CommentCommonResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=CommentCommonResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ModifyAComment(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -161,9 +195,6 @@ func ModifyAComment(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	if body.IsEmpty() {
-		return BadRequest()
-	}
 
 	var comment Comment
 	result := DB.First(&comment, id)
@@ -179,28 +210,28 @@ func ModifyAComment(c *fiber.Ctx) (err error) {
 		}
 	}
 	if err = DB.Transaction(func(tx *gorm.DB) error {
-		// load division with lock
+		// load comment with lock
 		if err = tx.Clauses(LockClause).First(&comment, id).Error; err != nil {
 			return err
 		}
 
-		// copy body to division
-		if err = copier.CopyWithOption(&comment, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		// copy body to comment
+		if err = copier.CopyWithOption(&comment, &body, CopyOption); err != nil {
 			return err
 		}
 
-		// update division
-		return tx.Model(&comment).Updates(&comment).Error
+		// update comment
+		return tx.Model(&comment).Select("Content", "IsHidden").Updates(&comment).Error
 	}); err != nil {
 		return err
 	}
 
 	var response CommentCommonResponse
-	if err = copier.CopyWithOption(&response, &comment, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &comment, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // DeleteAComment godoc
@@ -209,9 +240,9 @@ func ModifyAComment(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /comment/{id} [delete]
 // @Param id path int true "comment id"
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func DeleteAComment(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -239,7 +270,7 @@ func DeleteAComment(c *fiber.Ctx) (err error) {
 		return BadRequest()
 	}
 
-	return Success(c, EmptyStruct{})
+	return Success(c, &EmptyStruct{})
 }
 
 // LikeOrDislikeAComment godoc
@@ -249,9 +280,9 @@ func DeleteAComment(c *fiber.Ctx) (err error) {
 // @Router /comment/{id}/like/{like_data} [post]
 // @Param id path int true "comment id"
 // @Param like_data path int true "1: like, -1: dislike, 0: reset" Enums(1, -1, 0)
-// @Success 200 {object} Response{data=EmptyStruct}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func LikeOrDislikeAComment(c *fiber.Ctx) (err error) {
 
 	var user User
@@ -305,10 +336,10 @@ func LikeOrDislikeAComment(c *fiber.Ctx) (err error) {
 	}
 
 	var response CommentCommonResponse
-	if err = copier.CopyWithOption(&response, &comment, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &comment, CopyOption); err != nil {
 		return err
 	}
-	return Success(c, response)
+	return Success(c, &response)
 }
 
 // ListCommentsByUser godoc
@@ -317,10 +348,10 @@ func LikeOrDislikeAComment(c *fiber.Ctx) (err error) {
 // @Produce json
 // @Router /comments/_user/{user_id} [get]
 // @Param user_id path int true "user id"
-// @Param json query CommentListRequest true "page"
-// @Success 200 {object} Response{data=CommentListResponse}
-// @Failure 400 {object} Response
-// @Failure 500 {object} Response
+// @Param json query CommentListByUserRequest true "page"
+// @Success 200 {object} RespForSwagger{data=CommentListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
 func ListCommentsByUser(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
@@ -330,34 +361,67 @@ func ListCommentsByUser(c *fiber.Ctx) (err error) {
 
 	uid, err := c.ParamsInt("id")
 
-	var query CommentListRequest
+	var query CommentListByUserRequest
 	err = ValidateQuery(c, &query)
 	if err != nil {
 		return err
 	}
 
-	tx := DB.Where("topic_id = ? AND poster_id = ?", query.TopicID, uid)
+	tx := DB.Where("poster_id = ? and is_anonymous", uid, false)
 	if query.OrderBy == "id" {
 		tx = tx.Order(query.OrderBy + "asc")
 	} else {
 		tx = tx.Order(query.OrderBy + "desc")
 	}
 
-	tx = tx.Limit(query.PageSize).Offset(query.PageNum * query.PageSize)
+	tx = query.QuerySet(tx)
 
 	var comments []Comment
-
 	result := tx.Find(&comments)
-
 	if result.Error != nil {
 		return result.Error
 	}
 
 	var response CommentListRequest
-
-	if err = copier.CopyWithOption(&response, &comments, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response, &comments, CopyOption); err != nil {
 		return err
 	}
 
-	return Success(c, response)
+	return Success(c, &response)
+}
+
+// SearchComments godoc
+// @Summary 搜索评论
+// @Tags Comment Module
+// @Produce json
+// @Router /comments/_search [get]
+// @Param json query CommentSearchRequest true "page"
+// @Success 200 {object} RespForSwagger{data=CommentListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
+func SearchComments(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return
+	}
+
+	var query CommentSearchRequest
+	err = ValidateQuery(c, &query)
+	if err != nil {
+		return
+	}
+
+	var comments []Comment
+	_, err = Search(DB, &comments, query.Search, "", []string{"id desc"}, "", query.PageRequest)
+	if err != nil {
+		return
+	}
+
+	var response CommentListResponse
+	if err = copier.CopyWithOption(&response, &comments, CopyOption); err != nil {
+		return err
+	}
+
+	return Success(c, &response)
 }

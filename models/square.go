@@ -53,14 +53,45 @@ type Topic struct {
 	FavorCount   int `json:"favorite_count" gorm:"not null;default:0"` // 收藏数
 }
 
+func (t Topic) GetID() int {
+	return t.ID
+}
+
+func (t Topic) TableName() string {
+	return "topic"
+}
+
 func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
+	// batch find and create if not exists
+	var tags []*Tag
+	err = tx.Where("name IN ?", tagNames).Find(&tags).Error
+	if err != nil {
+		return
+	}
+
+	var newTagNames []string
 	for _, tagName := range tagNames {
-		tag := &Tag{Name: tagName}
-		err = tx.Where(tag).FirstOrCreate(tag).Error
-		if err != nil {
-			return errors.Trace(err)
+		var found bool
+		for _, tag := range tags {
+			if tag.Name == tagName {
+				found = true
+				break
+			}
 		}
-		t.Tags = append(t.Tags, tag)
+		if !found {
+			newTagNames = append(newTagNames, tagName)
+		}
+	}
+
+	var newTags []*Tag
+	for _, tagName := range newTagNames {
+		newTags = append(newTags, &Tag{
+			Name: tagName,
+		})
+	}
+	err = tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&newTags).Error
+	if err != nil {
+		return
 	}
 	return nil
 }
@@ -72,6 +103,72 @@ func (t *Topic) TagContents() []string {
 	}
 	return contents
 }
+
+func (t *Topic) AfterCreate(tx *gorm.DB) (err error) {
+	if !t.IsAnonymous {
+		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
+	}
+	return
+}
+
+func (t *Topic) AfterFind(tx *gorm.DB) (err error) {
+	if !t.IsAnonymous {
+		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
+	}
+	return
+}
+
+func (t Topic) ToSearchModel() TopicSearchModel {
+	return TopicSearchModel{
+		ID:         t.ID,
+		Title:      t.Title,
+		Content:    t.Content,
+		CreatedAt:  int(t.CreatedAt.UnixMicro()),
+		UpdatedAt:  int(t.UpdatedAt.UnixMicro()),
+		PosterID:   t.PosterID,
+		DivisionID: t.DivisionID,
+	}
+}
+
+type TopicSearchModel struct {
+	ID         int    `json:"id"`
+	Title      string `json:"title"`
+	Content    string `json:"content"`
+	CreatedAt  int    `json:"created_at"`
+	UpdatedAt  int    `json:"updated_at"`
+	PosterID   int    `json:"poster_id"`
+	DivisionID int    `json:"division_id"`
+}
+
+func (t TopicSearchModel) GetID() int {
+	return t.ID
+}
+
+func (TopicSearchModel) IndexName() string {
+	return "topic"
+}
+
+func (TopicSearchModel) PrimaryKey() string {
+	return "id"
+}
+
+func (TopicSearchModel) FilterableAttributes() []string {
+	return []string{"poster_id", "division_id"}
+}
+
+func (t TopicSearchModel) SearchableAttributes() []string {
+	return []string{"title", "content"}
+}
+
+func (t TopicSearchModel) SortableAttributes() []string {
+	return []string{"id", "created_at", "updated_at"}
+}
+
+func (t TopicSearchModel) RankingRules() []string {
+	return []string{"words", "attribute", "sort", "exactness"}
+}
+
+var _ SearchModel = TopicSearchModel{}
 
 // Comment 评论
 type Comment struct {
@@ -98,6 +195,68 @@ type Comment struct {
 	LikeCount    int `json:"like_count" gorm:"not null;default:0"`    // 点赞数
 	DislikeCount int `json:"dislike_count" gorm:"not null;default:0"` // 点踩数
 }
+
+func (c Comment) GetID() int {
+	return c.ID
+}
+
+func (Comment) TableName() string {
+	return "comment"
+}
+
+func (c *Comment) AfterFind(tx *gorm.DB) (err error) {
+	if !c.IsAnonymous {
+		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
+	}
+	return nil
+}
+
+func (c *Comment) AfterCreate(tx *gorm.DB) (err error) {
+	if !c.IsAnonymous {
+		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
+	}
+	return nil
+}
+
+// CommentSearchModel 评论搜索模型
+type CommentSearchModel struct {
+	ID        int    `json:"id"`
+	CreatedAt int    `json:"created_at"`
+	UpdatedAt int    `json:"updated_at"`
+	TopicID   int    `json:"topic_id"`
+	Content   string `json:"content"`
+	PosterID  int    `json:"poster_id"`
+}
+
+func (c CommentSearchModel) GetID() int {
+	return c.ID
+}
+
+func (c CommentSearchModel) IndexName() string {
+	return "comment"
+}
+
+func (c CommentSearchModel) PrimaryKey() string {
+	return "id"
+}
+
+func (c CommentSearchModel) FilterableAttributes() []string {
+	return []string{"topic_id", "poster_id"}
+}
+
+func (c CommentSearchModel) SearchableAttributes() []string {
+	return []string{"content"}
+}
+
+func (c CommentSearchModel) SortableAttributes() []string {
+	return []string{"id", "created_at", "updated_at"}
+}
+
+func (c CommentSearchModel) RankingRules() []string {
+	return []string{"words", "attribute", "sort", "exactness"}
+}
+
+var _ SearchModel = CommentSearchModel{}
 
 // Tag 标签
 type Tag struct {
@@ -130,27 +289,27 @@ func (t TagSearchModel) GetID() int {
 	return t.ID
 }
 
-func (t TagSearchModel) IndexName() string {
+func (TagSearchModel) IndexName() string {
 	return "tag"
 }
 
-func (t TagSearchModel) PrimaryKey() string {
+func (TagSearchModel) PrimaryKey() string {
 	return "id"
 }
 
-func (t TagSearchModel) FilterableAttributes() []string {
+func (TagSearchModel) FilterableAttributes() []string {
 	return []string{}
 }
 
-func (t TagSearchModel) SearchableAttributes() []string {
+func (TagSearchModel) SearchableAttributes() []string {
 	return []string{"name"}
 }
 
-func (t TagSearchModel) SortableAttributes() []string {
+func (TagSearchModel) SortableAttributes() []string {
 	return []string{"temperature"}
 }
 
-func (t TagSearchModel) RankingRules() []string {
+func (TagSearchModel) RankingRules() []string {
 	return []string{"words", "attribute", "sort", "exactness"}
 }
 
