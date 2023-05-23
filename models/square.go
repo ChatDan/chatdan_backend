@@ -1,7 +1,7 @@
 package models
 
 import (
-	"ChatDanBackend/utils"
+	"chatdan_backend/utils"
 	"github.com/juju/errors"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -106,6 +106,7 @@ func (t *Topic) TagContents() []string {
 
 func (t *Topic) AfterCreate(tx *gorm.DB) (err error) {
 	if !t.IsAnonymous {
+		t.Poster = new(User)
 		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
 	}
 	return
@@ -113,6 +114,7 @@ func (t *Topic) AfterCreate(tx *gorm.DB) (err error) {
 
 func (t *Topic) AfterFind(tx *gorm.DB) (err error) {
 	if !t.IsAnonymous {
+		t.Poster = new(User)
 		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
 	}
 	return
@@ -206,6 +208,7 @@ func (Comment) TableName() string {
 
 func (c *Comment) AfterFind(tx *gorm.DB) (err error) {
 	if !c.IsAnonymous {
+		c.Poster = new(User)
 		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
 	}
 	return nil
@@ -213,6 +216,7 @@ func (c *Comment) AfterFind(tx *gorm.DB) (err error) {
 
 func (c *Comment) AfterCreate(tx *gorm.DB) (err error) {
 	if !c.IsAnonymous {
+		c.Poster = new(User)
 		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
 	}
 	return nil

@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"ChatDanBackend/data"
+	"chatdan_backend/data"
 	"encoding/base64"
 	"encoding/binary"
 	"github.com/goccy/go-json"

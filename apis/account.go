@@ -1,9 +1,9 @@
 package apis
 
 import (
-	. "ChatDanBackend/config"
-	. "ChatDanBackend/models"
-	. "ChatDanBackend/utils"
+	. "chatdan_backend/config"
+	. "chatdan_backend/models"
+	. "chatdan_backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"

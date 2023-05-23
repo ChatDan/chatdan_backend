@@ -19,7 +19,7 @@
 <br />
 <div align="center">
 
-[//]: # (  <a href="https://github.com/ChatDan/ChatDanBackend">)
+[//]: # (  <a href="https://github.com/ChatDan/chatdan_backend">)
 
 [//]: # (    <img src="images/logo.png" alt="Logo" width="80" height="80">)
 
@@ -30,14 +30,14 @@
   <p align="center">
     a message box and 'biaobai' platform for Fudaners
     <br />
-    <a href="https://github.com/ChatDan/ChatDanBackend"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/ChatDan/chatdan_backend"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/ChatDan/ChatDanBackend">View Demo</a>
+    <a href="https://github.com/ChatDan/chatdan_backend">View Demo</a>
     ·
-    <a href="https://github.com/ChatDan/ChatDanBackend/issues">Report Bug</a>
+    <a href="https://github.com/ChatDan/chatdan_backend/issues">Report Bug</a>
     ·
-    <a href="https://github.com/ChatDan/ChatDanBackend/issues">Request Feature</a>
+    <a href="https://github.com/ChatDan/chatdan_backend/issues">Request Feature</a>
   </p>
 </div>
 
@@ -58,8 +58,8 @@ a message box and 'biaobai' platform for Fudaners
 #### run
 
 ```shell
-git clone https://github.com/ChatDan/ChatDanBackend.git
-cd ChatDanBackend
+git clone https://github.com/ChatDan/chatdan_backend.git
+cd chatdan_backend
 # install swag and generate docs
 go install github.com/swaggo/swag/cmd/swag@latest
 swag init --parseInternal --parseDepth 1 # to generate the latest docs, this should be run before compiling
@@ -126,15 +126,15 @@ _For more examples, please refer to the [Documentation](https://chatdan-test.jin
 - [ ] hole and floor
 - [ ] wall
 
-See the [open issues](https://github.com/ChatDan/ChatDanBackend/issues) for a full list of proposed features (and known
+See the [open issues](https://github.com/ChatDan/chatdan_backend/issues) for a full list of proposed features (and known
 issues).
 
 ## Contributors
 
 This project exists thanks to all the people who contribute.
 
-<a href="https://github.com/ChatDan/ChatDanBackend/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=ChatDan/ChatDanBackend"  alt="contributors"/>
+<a href="https://github.com/ChatDan/chatdan_backend/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=ChatDan/chatdan_backend"  alt="contributors"/>
 </a>
 
 ## Contributing
@@ -160,29 +160,29 @@ Distributed under the Apache 2.0 License. See `LICENSE.txt` for more information
 
 JingYiJun - JingYiJun3104@outlook.com
 
-Project Link: [https://github.com/ChatDan/ChatDanBackend](https://github.com/ChatDan/ChatDanBackend)
+Project Link: [https://github.com/ChatDan/chatdan_backend](https://github.com/ChatDan/chatdan_backend)
 
 [//]: # (https://www.markdownguide.org/basic-syntax/#reference-style-links)
 
-[contributors-shield]: https://img.shields.io/github/contributors/ChatDan/ChatDanBackend.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/ChatDan/chatdan_backend.svg?style=for-the-badge
 
-[contributors-url]: https://github.com/ChatDan/ChatDanBackend/graphs/contributors
+[contributors-url]: https://github.com/ChatDan/chatdan_backend/graphs/contributors
 
-[forks-shield]: https://img.shields.io/github/forks/ChatDan/ChatDanBackend.svg?style=for-the-badge
+[forks-shield]: https://img.shields.io/github/forks/ChatDan/chatdan_backend.svg?style=for-the-badge
 
-[forks-url]: https://github.com/ChatDan/ChatDanBackend/network/members
+[forks-url]: https://github.com/ChatDan/chatdan_backend/network/members
 
-[stars-shield]: https://img.shields.io/github/stars/ChatDan/ChatDanBackend.svg?style=for-the-badge
+[stars-shield]: https://img.shields.io/github/stars/ChatDan/chatdan_backend.svg?style=for-the-badge
 
-[stars-url]: https://github.com/ChatDan/ChatDanBackend/stargazers
+[stars-url]: https://github.com/ChatDan/chatdan_backend/stargazers
 
-[issues-shield]: https://img.shields.io/github/issues/ChatDan/ChatDanBackend.svg?style=for-the-badge
+[issues-shield]: https://img.shields.io/github/issues/ChatDan/chatdan_backend.svg?style=for-the-badge
 
-[issues-url]: https://github.com/ChatDan/ChatDanBackend/issues
+[issues-url]: https://github.com/ChatDan/chatdan_backend/issues
 
-[license-shield]: https://img.shields.io/github/license/ChatDan/ChatDanBackend.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/ChatDan/chatdan_backend.svg?style=for-the-badge
 
-[license-url]: https://github.com/ChatDan/ChatDanBackend/blob/main/LICENSE
+[license-url]: https://github.com/ChatDan/chatdan_backend/blob/main/LICENSE
 
 [go.dev]: https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white
 

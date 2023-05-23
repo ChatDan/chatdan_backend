@@ -1,10 +1,10 @@
 package bootstrap
 
 import (
-	"ChatDanBackend/apis"
-	"ChatDanBackend/config"
-	"ChatDanBackend/models"
-	"ChatDanBackend/utils"
+	"chatdan_backend/apis"
+	"chatdan_backend/config"
+	"chatdan_backend/models"
+	"chatdan_backend/utils"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/compress"

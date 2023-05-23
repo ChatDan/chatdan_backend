@@ -1,9 +1,9 @@
 package apis
 
 import (
-	"ChatDanBackend/config"
-	. "ChatDanBackend/models"
-	. "ChatDanBackend/utils"
+	"chatdan_backend/config"
+	. "chatdan_backend/models"
+	. "chatdan_backend/utils"
 	"encoding/base64"
 	"github.com/goccy/go-json"
 	"github.com/gofiber/fiber/v2"
@@ -49,6 +49,7 @@ func GetCurrentUser(c *fiber.Ctx, user *User) (err error) {
 			user.ID = userClaims.UserID
 			user.IsAdmin = userClaims.IsAdmin
 			c.Locals("user_id", user.ID)
+
 			return nil
 		} else {
 			Logger.Error("invalid jwt token", zap.String("token", accessToken))

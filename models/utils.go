@@ -1,7 +1,7 @@
 package models
 
 import (
-	"ChatDanBackend/utils"
+	"chatdan_backend/utils"
 	"gorm.io/gorm"
 	"strconv"
 	"time"
@@ -20,8 +20,8 @@ type IDTabler interface {
 	Tabler
 }
 
-func CacheName[T IDTabler](model T) (name string) {
-	return model.TableName() + ":" + strconv.Itoa(model.GetID())
+func CacheName[T IDTabler](model *T) (name string) {
+	return (*model).TableName() + ":" + strconv.Itoa((*model).GetID())
 }
 
 func CacheNameFromTableName(tableName string, id int) (name string) {
@@ -133,7 +133,7 @@ func SetLatestVersion(tx *gorm.DB, key string) (version int, idArray []int, err 
 // LoadModel 从数据库或缓存加载数据
 func LoadModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
 	// 先从缓存中加载
-	if err = utils.Get(CacheName(*model), model); err != nil {
+	if err = utils.Get(CacheName(model), model); err != nil {
 		if err != nil {
 			if err != utils.ErrCacheMiss {
 				return
@@ -145,7 +145,7 @@ func LoadModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
 			}
 
 			// 设置缓存
-			if err = utils.Set(CacheName(*model), model, 10*time.Minute); err != nil {
+			if err = utils.Set(CacheName(model), model, 10*time.Minute); err != nil {
 				return
 			}
 		}
@@ -192,7 +192,7 @@ func LoadModelByIDArray[T IDTabler](tx *gorm.DB, models *[]T, idArray []int) (er
 
 		// 将数据放入缓存
 		for i := range notCachedModels {
-			name := CacheName(notCachedModels[i])
+			name := CacheName(&notCachedModels[i])
 			if err = utils.Set(name, notCachedModels[i], 10*time.Minute); err != nil {
 				return
 			}
@@ -250,7 +250,7 @@ func CreateModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
 	}
 
 	// 设置缓存
-	if err = utils.Set(CacheName(*model), model, 10*time.Minute); err != nil {
+	if err = utils.Set(CacheName(model), model, 10*time.Minute); err != nil {
 		return
 	}
 
@@ -263,7 +263,7 @@ func UpdateModel[T IDTabler](tx *gorm.DB, model *T, columns any) (err error) {
 	}
 
 	// 设置缓存
-	if err = utils.Set(CacheName(*model), model, 10*time.Minute); err != nil {
+	if err = utils.Set(CacheName(model), model, 10*time.Minute); err != nil {
 		return
 	}
 
@@ -276,7 +276,7 @@ func DeleteModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
 	}
 
 	// 删除缓存
-	utils.Delete(CacheName(*model))
+	utils.Delete(CacheName(model))
 
 	return
 }

@@ -1,8 +1,8 @@
 package models
 
 import (
-	"ChatDanBackend/config"
-	"ChatDanBackend/utils"
+	"chatdan_backend/config"
+	"chatdan_backend/utils"
 	"fmt"
 	"github.com/juju/errors"
 	"github.com/thanhpk/randstr"

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"ChatDanBackend/bootstrap"
-	_ "ChatDanBackend/docs"
-	"ChatDanBackend/utils"
+	"chatdan_backend/bootstrap"
+	_ "chatdan_backend/docs"
+	"chatdan_backend/utils"
 	"go.uber.org/zap"
 	"log"
 	"os"

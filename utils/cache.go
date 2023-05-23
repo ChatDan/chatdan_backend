@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"ChatDanBackend/config"
+	"chatdan_backend/config"
 	"context"
 	"github.com/allegro/bigcache/v3"
 	"github.com/goccy/go-json"
@@ -59,7 +59,7 @@ func Get(key string, model any) (err error) {
 
 func Set(key string, model any, expiration time.Duration) (err error) {
 	if config.Config.Debug {
-		Logger.Info("set cache", zap.String("key", key))
+		defer Logger.Info("set cache", zap.String("key", key), zap.Error(err))
 	}
 	var value []byte
 	value, err = json.Marshal(model)

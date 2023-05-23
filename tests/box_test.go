@@ -1,9 +1,9 @@
 package tests
 
 import (
-	"ChatDanBackend/apis"
-	. "ChatDanBackend/models"
-	"ChatDanBackend/utils"
+	"chatdan_backend/apis"
+	. "chatdan_backend/models"
+	"chatdan_backend/utils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

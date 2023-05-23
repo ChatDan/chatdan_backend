@@ -1,8 +1,8 @@
 package apis
 
 import (
-	. "ChatDanBackend/models"
-	. "ChatDanBackend/utils"
+	. "chatdan_backend/models"
+	. "chatdan_backend/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-module/carbon/v2"

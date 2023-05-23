@@ -1,8 +1,8 @@
 package apis
 
 import (
-	. "ChatDanBackend/models"
-	. "ChatDanBackend/utils"
+	. "chatdan_backend/models"
+	. "chatdan_backend/utils"
 	"database/sql"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"

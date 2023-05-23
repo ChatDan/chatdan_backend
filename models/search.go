@@ -1,8 +1,8 @@
 package models
 
 import (
-	"ChatDanBackend/config"
-	"ChatDanBackend/utils"
+	"chatdan_backend/config"
+	"chatdan_backend/utils"
 	"github.com/meilisearch/meilisearch-go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

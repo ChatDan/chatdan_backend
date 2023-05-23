@@ -75,7 +75,6 @@ func ValidateStruct(model any) error {
 				TypeKind: err.Type().Kind(),
 				Value:    err.Param(),
 			}
-			_ = detail.Error()
 			errorDetail = append(errorDetail, &detail)
 		}
 		return &errorDetail

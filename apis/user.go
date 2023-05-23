@@ -1,8 +1,8 @@
 package apis
 
 import (
-	. "ChatDanBackend/models"
-	. "ChatDanBackend/utils"
+	. "chatdan_backend/models"
+	. "chatdan_backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
@@ -156,7 +156,7 @@ func DeleteUserMe(c *fiber.Ctx) (err error) {
 	}
 
 	// 删除缓存
-	Delete(CacheName(user))
+	Delete(CacheName(&user))
 
 	return Success(c, &EmptyStruct{})
 }
@@ -300,7 +300,7 @@ func DeleteAUser(c *fiber.Ctx) (err error) {
 	}
 
 	// 删除缓存
-	Delete(CacheName(user))
+	Delete(CacheName(&user))
 
 	return Success(c, &EmptyStruct{})
 }

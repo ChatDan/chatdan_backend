@@ -1,8 +1,8 @@
 package models
 
 import (
-	"ChatDanBackend/config"
-	"ChatDanBackend/utils"
+	"chatdan_backend/config"
+	"chatdan_backend/utils"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

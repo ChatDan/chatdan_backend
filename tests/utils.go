@@ -1,10 +1,10 @@
 package tests
 
 import (
-	"ChatDanBackend/bootstrap"
-	. "ChatDanBackend/models"
-	"ChatDanBackend/utils"
 	"bytes"
+	"chatdan_backend/bootstrap"
+	. "chatdan_backend/models"
+	"chatdan_backend/utils"
 	"github.com/goccy/go-json"
 	"github.com/hetiansu5/urlquery"
 	"github.com/stretchr/testify/assert"

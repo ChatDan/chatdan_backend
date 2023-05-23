@@ -1,8 +1,8 @@
 package apis
 
 import (
-	. "ChatDanBackend/models"
-	. "ChatDanBackend/utils"
+	. "chatdan_backend/models"
+	. "chatdan_backend/utils"
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
@@ -283,7 +283,7 @@ func DeleteABox(c *fiber.Ctx) (err error) {
 		fmt.Sprintf("boxes:%d:updated_at_desc:latest", user.ID),
 		"boxes:id_asc:latest",
 		"boxes:updated_at_desc:latest",
-		CacheName(box),
+		CacheName(&box),
 	)
 
 	return Success(c, &EmptyStruct{})

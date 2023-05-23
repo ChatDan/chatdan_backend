@@ -1,7 +1,7 @@
 package models
 
 import (
-	"ChatDanBackend/config"
+	"chatdan_backend/config"
 	"gorm.io/gorm"
 	"testing"
 )
