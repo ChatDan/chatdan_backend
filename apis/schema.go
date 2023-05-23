@@ -4,8 +4,12 @@ import (
 	. "ChatDanBackend/models"
 	. "ChatDanBackend/utils"
 	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2"
 	"github.com/golang-module/carbon/v2"
+	"github.com/jinzhu/copier"
+	"github.com/juju/errors"
 	"github.com/oleiade/reflections"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -336,7 +340,7 @@ type TopicCommonResponse struct {
 	PosterID    int                    `json:"poster_id,omitempty"`
 	Poster      *UserResponse          `json:"poster,omitempty"`
 	DivisionID  int                    `json:"division_id"`
-	Tags        []string               `json:"tags"`
+	Tags        []string               `json:"tags" copier:"TagContents"`
 	LastComment *CommentCommonResponse `json:"last_comment,omitempty" extensions:"x-nullable"` // 按照时间排序最后一条评论或者按照点赞数排序最高赞的评论，创建之后为空
 
 	// 统计数据
@@ -350,6 +354,65 @@ type TopicCommonResponse struct {
 	IsOwner  bool `json:"is_owner"`
 	Liked    bool `json:"liked"`
 	Disliked bool `json:"disliked"`
+	Favored  bool `json:"favored"`
+}
+
+func (t *TopicCommonResponse) Postprocess(c *fiber.Ctx) (err error) {
+	userID := c.Locals("user_id").(int)
+	if userID == t.PosterID {
+		t.IsOwner = true
+	}
+
+	var comment Comment
+	err = DB.Last(&comment, "topic_id = ?", t.ID).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return
+		}
+	} else {
+		var commentResponse CommentCommonResponse
+		err = copier.Copy(&commentResponse, &comment)
+		if err != nil {
+			return
+		}
+
+		t.LastComment = &commentResponse
+	}
+
+	// load like
+	var like TopicUserLikes
+	err = DB.Where("topic_id = ? AND user_id = ?", t.ID, userID).First(&like).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return
+		}
+	} else {
+		switch like.LikeData {
+		case 1:
+			t.Liked = true
+		case -1:
+			t.Disliked = true
+		}
+	}
+
+	// load favorite
+	var favorite TopicUserFavorites
+	err = DB.Where("topic_id = ? AND user_id = ?", t.ID, userID).First(&favorite).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return
+		}
+	} else {
+		t.Favored = true
+	}
+
+	// clear user info
+	if t.IsAnonymous {
+		t.Poster = nil
+		t.PosterID = 0
+	}
+
+	return nil
 }
 
 type TopicListRequest struct {
@@ -362,6 +425,17 @@ type TopicListRequest struct {
 
 type TopicListResponse struct {
 	Topics []TopicCommonResponse `json:"topics"`
+}
+
+func (t *TopicListResponse) Postprocess(c *fiber.Ctx) (err error) {
+	for i := range t.Topics {
+		err = t.Topics[i].Postprocess(c)
+		if err != nil {
+			return
+		}
+	}
+
+	return nil
 }
 
 type TopicCreateRequest struct {
