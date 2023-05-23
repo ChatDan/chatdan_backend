@@ -70,7 +70,7 @@ func GetUserMe(c *fiber.Ctx) (err error) {
 	}
 
 	// load user from database
-	if err = Load(DB, &user); err != nil {
+	if err = LoadModel(DB, &user); err != nil {
 		return
 	}
 
@@ -106,7 +106,7 @@ func ModifyUserMe(c *fiber.Ctx) (err error) {
 	}
 
 	// load user from cache or database
-	if err = Load(DB, &user); err != nil {
+	if err = LoadModel(DB, &user); err != nil {
 		return
 	}
 
@@ -185,7 +185,7 @@ func GetAUser(c *fiber.Ctx) (err error) {
 
 	// load user from database
 	var user = User{ID: userID}
-	if err = Load(DB, &user); err != nil {
+	if err = LoadModel(DB, &user); err != nil {
 		return
 	}
 
@@ -234,7 +234,7 @@ func ModifyAUser(c *fiber.Ctx) (err error) {
 
 	// load user from database
 	var user User
-	if err = Load(DB, &user); err != nil {
+	if err = LoadModel(DB, &user); err != nil {
 		return
 	}
 

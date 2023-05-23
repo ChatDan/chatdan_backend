@@ -24,7 +24,7 @@ func InitSearch() {
 	utils.Logger.Info("Meilisearch initialized")
 
 	// create or update indexes
-	var searchModels = []SearchModel{BoxSearchModel{}}
+	var searchModels = []SearchModel{BoxSearchModel{}, TagSearchModel{}}
 
 	for _, model := range searchModels {
 		indexName := model.IndexName()

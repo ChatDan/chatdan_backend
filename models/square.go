@@ -88,6 +88,50 @@ type Tag struct {
 	Topics []*Topic `json:"topics" gorm:"many2many:topic_tags"`
 }
 
+func (t Tag) GetID() int {
+	return t.ID
+}
+
+func (t Tag) TableName() string {
+	return "tag"
+}
+
+type TagSearchModel struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Temperature int    `json:"temperature"`
+}
+
+func (t TagSearchModel) GetID() int {
+	return t.ID
+}
+
+func (t TagSearchModel) IndexName() string {
+	return "tag"
+}
+
+func (t TagSearchModel) PrimaryKey() string {
+	return "id"
+}
+
+func (t TagSearchModel) FilterableAttributes() []string {
+	return []string{}
+}
+
+func (t TagSearchModel) SearchableAttributes() []string {
+	return []string{"name"}
+}
+
+func (t TagSearchModel) SortableAttributes() []string {
+	return []string{"temperature"}
+}
+
+func (t TagSearchModel) RankingRules() []string {
+	return []string{"words", "attribute", "sort", "exactness"}
+}
+
+var _ SearchModel = TagSearchModel{}
+
 // TopicUserLikes 用户点赞或点踩帖子
 type TopicUserLikes struct {
 	UserID    int       `json:"user_id" gorm:"primaryKey"`

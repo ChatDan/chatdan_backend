@@ -444,12 +444,14 @@ type TagCommonResponse struct {
 
 type TagListRequest struct {
 	PageRequest
-	OrderBy string `json:"order_by" query:"order_by" validate:"omitempty,oneof=id temperature" default:"id"`
+	OrderBy string `json:"order_by" query:"order_by" validate:"omitempty,oneof='id asc' 'temperature desc'" default:"id asc"`
 	Search  string `json:"search" query:"search" validate:"omitempty,min=1,max=20"` // 搜索标签名
 }
 
 type TagListResponse struct {
-	Tags []TagCommonResponse `json:"tags"`
+	Tags    []TagCommonResponse `json:"tags"`
+	Version int                 `json:"version"`
+	Total   int                 `json:"total"`
 }
 
 type TagCreateRequest struct {

@@ -130,8 +130,8 @@ func SetLatestVersion(tx *gorm.DB, key string) (version int, idArray []int, err 
 	return
 }
 
-// Load 从数据库或缓存加载数据
-func Load[T IDTabler](tx *gorm.DB, model *T) (err error) {
+// LoadModel 从数据库或缓存加载数据
+func LoadModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
 	// 先从缓存中加载
 	if err = utils.Get(CacheName(*model), model); err != nil {
 		if err != nil {
@@ -215,6 +215,68 @@ func LoadModelByIDArray[T IDTabler](tx *gorm.DB, models *[]T, idArray []int) (er
 			*models = loadedModels
 		}
 	}
+
+	return
+}
+
+func LoadModelAll[T IDTabler](tx *gorm.DB, model *[]T) (err error) {
+	var (
+		_model    T
+		tableName = _model.TableName()
+	)
+
+	// 从缓存中读取数据
+	if err = utils.Get(tableName, model); err != nil {
+		if err != utils.ErrCacheMiss {
+			return
+		}
+
+		// 从数据库中读取数据
+		if err = tx.Find(model).Error; err != nil {
+			return
+		}
+
+		// 将数据放入缓存
+		if err = utils.Set(tableName, model, 10*time.Minute); err != nil {
+			return
+		}
+	}
+	return
+}
+
+func CreateModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
+	if err = tx.FirstOrCreate(model).Error; err != nil {
+		return
+	}
+
+	// 设置缓存
+	if err = utils.Set(CacheName(*model), model, 10*time.Minute); err != nil {
+		return
+	}
+
+	return
+}
+
+func UpdateModel[T IDTabler](tx *gorm.DB, model *T, columns any) (err error) {
+	if err = tx.Model(model).Updates(columns).Error; err != nil {
+		return
+	}
+
+	// 设置缓存
+	if err = utils.Set(CacheName(*model), model, 10*time.Minute); err != nil {
+		return
+	}
+
+	return
+}
+
+func DeleteModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
+	if err = tx.Delete(model).Error; err != nil {
+		return
+	}
+
+	// 删除缓存
+	utils.Delete(CacheName(*model))
 
 	return
 }

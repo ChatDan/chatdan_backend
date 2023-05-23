@@ -34,7 +34,7 @@ func GetCurrentUser(c *fiber.Ctx, user *User) (err error) {
 				return nil, errors.New("invalid jwt token")
 			} else {
 				var userJwtSecret = UserJwtSecret{UserID: userClaims.UserID}
-				if err = Load(DB, &userJwtSecret); err != nil {
+				if err = LoadModel(DB, &userJwtSecret); err != nil {
 					return nil, err
 				}
 				return []byte(userJwtSecret.Secret), nil
