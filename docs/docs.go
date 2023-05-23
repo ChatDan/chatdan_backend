@@ -358,7 +358,7 @@ const docTemplate = `{
                 "tags": [
                     "Chat Module"
                 ],
-                "summary": "查询所有聊天记录，按照 time_updated 倒序排序",
+                "summary": "查询所有聊天记录，按照 updated_at 倒序排序",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -1469,7 +1469,7 @@ const docTemplate = `{
                 "tags": [
                     "Chat Module"
                 ],
-                "summary": "查询所有聊天记录，按照 time_created 或 id 倒序排序",
+                "summary": "查询所有聊天记录，按照 created_at 或 id 倒序排序",
                 "parameters": [
                     {
                         "maximum": 100,
