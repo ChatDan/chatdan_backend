@@ -328,7 +328,7 @@ func ListCommentsByUser(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	uid, err := c.ParamsInt("user_id")
+	uid, err := c.ParamsInt("id")
 
 	var query CommentListRequest
 	err = ValidateQuery(c, &query)

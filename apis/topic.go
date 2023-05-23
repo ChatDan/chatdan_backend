@@ -565,7 +565,7 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	uid, err := c.ParamsInt("user_id")
+	uid, err := c.ParamsInt("id")
 	if err != nil {
 		return err
 	}
