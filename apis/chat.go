@@ -10,7 +10,7 @@ import (
 )
 
 // ListChats godoc
-// @Summary 查询所有聊天记录，按照 time_updated 倒序排序
+// @Summary 查询所有聊天记录，按照 updated_at 倒序排序
 // @Tags Chat Module
 // @Produce json
 // @Router /chats [get]
@@ -41,7 +41,7 @@ func ListChats(c *fiber.Ctx) (err error) {
 }
 
 // ListMessages godoc
-// @Summary 查询所有聊天记录，按照 time_created 或 id 倒序排序
+// @Summary 查询所有聊天记录，按照 created_at 或 id 倒序排序
 // @Tags Chat Module
 // @Produce json
 // @Router /messages [get]

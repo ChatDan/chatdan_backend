@@ -5,6 +5,8 @@ import (
 	. "ChatDanBackend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"time"
 )
 
@@ -319,7 +321,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 // @Summary 浏览一个话题，浏览数 +1
 // @Tags Topic Module
 // @Produce json
-// @Router /topic/{id}/_view [post]
+// @Router /topic/{id}/_view [put]
 // @Param id path int true "topic id"
 // @Success 200 {object} Response{data=EmptyStruct}
 // @Failure 400 {object} Response
@@ -341,25 +343,27 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 		return NotFound()
 	}
 
-	var topicUser TopicUserViews
-	result = DB.Where("user_id = ? AND topic_id = ?", user.ID, topic.ID).First(&topicUser)
-	if result.Error != nil {
-		topicUser.TopicID = topic.ID
-		topicUser.UserID = user.ID
-		topicUser.CreatedAt = time.Now()
-		topicUser.UpdatedAt = time.Now()
-		topic.ViewCount++
-		result = DB.Model(&topic).Updates(topic)
-		if result.Error != nil {
-			return result.Error
+	var topicUser = TopicUserViews{
+		TopicID: id,
+		UserID:  user.ID,
+		Count:   1,
+	}
+	err = DB.Transaction(func(tx *gorm.DB) (err error) {
+		err = tx.Clauses(clause.OnConflict{
+			Columns: []clause.Column{{Name: "user_id"}, {Name: "topic_id"}},
+			DoUpdates: clause.Assignments(Map{
+				"updated_at": time.Now(),
+				"count":      gorm.Expr("count + 1"),
+			}),
+		}).Create(&topicUser).Error
+		if err != nil {
+			return err
 		}
-		result.Create(&topicUser)
-	} else {
-		topicUser.UpdatedAt = time.Now()
-		result = DB.Model(&topicUser).Updates(topicUser)
-		if result.Error != nil {
-			return result.Error
-		}
+
+		return tx.Model(&topic).UpdateColumn("view_count", gorm.Expr("view_count + 1")).Error
+	})
+	if err != nil {
+		return err
 	}
 	return Success(c, EmptyStruct{})
 }
@@ -444,17 +448,31 @@ func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 	if result.Error != nil {
 		return NotFound()
 	}
+
+	var orderColumn = clause.Column{
+		Name:  query.OrderBy,
+		Table: "topic_user_favorites",
+	}
+	if query.OrderBy == "updated_at" {
+		orderColumn.Table = "topic"
+	}
+
 	var topics []Topic
-	tx := DB.Where("? < ?", query.OrderBy, query.StartTime).Order(query.OrderBy + "desc").Limit(query.PageSize)
+	tx := DB.
+		Where("? < ?", orderColumn, query.StartTime).
+		Order(
+			clause.OrderByColumn{
+				Column: orderColumn,
+			}).Limit(query.PageSize)
 	if query.DivisionID != nil {
 		tx = tx.Where(&Topic{DivisionID: *query.DivisionID})
 	}
-	result = tx.Model(&Topic{}).Joins("inner join TopicUserFavorites on TopicUserFavorites.topic_id = topic.id").Scan(&topics)
+	result = tx.Joins("inner join topic_user_favorites on topic_user_favorites.topic_id = topic.id and topic_user_favorites.user_id = ?", user.ID).Find(&topics)
 	if result.Error != nil {
 		return result.Error
 	}
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
+	if err = copier.CopyWithOption(&response.Topics, &topics, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
 
@@ -486,17 +504,15 @@ func UnfavorATopic(c *fiber.Ctx) (err error) {
 		return result.Error
 	}
 
-	var topicUserFavorites TopicUserFavorites
-	result = DB.Where("user_id = ? AND topic_id = ?", user.ID, id).First(&topicUserFavorites)
-	if result.Error == nil {
-		result = DB.Delete(&topicUserFavorites)
-		if result.RowsAffected == 0 {
-			return BadRequest()
-		}
+	var topicUserFavorites = TopicUserFavorites{UserID: user.ID, TopicID: topic.ID}
+	result = DB.Delete(&topicUserFavorites)
+	if result.Error != nil {
+		return result.Error
+	} else if result.RowsAffected == 1 {
 		topic.FavorCount--
-		result = DB.Model(&topic).Updates(topic)
-		if result.RowsAffected == 0 {
-			return BadRequest()
+		result = DB.Model(&topic).UpdateColumn("favor_count", gorm.Expr("favor_count - 1"))
+		if result.Error != nil {
+			return result.Error
 		}
 	}
 

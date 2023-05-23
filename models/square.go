@@ -10,9 +10,9 @@ import (
 // Division 分区
 type Division struct {
 	ID             int            `json:"id"`
-	CreatedAt      time.Time      `json:"time_created"`
-	UpdatedAt      time.Time      `json:"time_updated"`
-	DeletedAt      gorm.DeletedAt `json:"time_deleted" gorm:"index"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	DeletedAt      gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	Name           string         `json:"name" gorm:"not null;unique"`
 	Description    *string        `json:"description"`
 	PinnedTopicIDs []int          `json:"pinned_topic_ids" gorm:"serializer:json;not null;default:\"[]\""`
@@ -22,9 +22,9 @@ type Division struct {
 type Topic struct {
 	// 元数据
 	ID          int            `json:"id"`
-	CreatedAt   time.Time      `json:"time_created"`
-	UpdatedAt   time.Time      `json:"time_updated"`
-	DeletedAt   gorm.DeletedAt `json:"time_deleted" gorm:"index"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	Title       string         `json:"title" gorm:"not null"`                      // 帖子标题，必须有
 	Content     string         `json:"content" gorm:"not null"`                    // 帖子内容，必须有
 	IsAnonymous bool           `json:"is_anonymous" gorm:"not null;default:false"` // 是否匿名
@@ -53,9 +53,9 @@ type Topic struct {
 type Comment struct {
 	// 元数据
 	ID          int            `json:"id"`
-	CreatedAt   time.Time      `json:"time_created"`
-	UpdatedAt   time.Time      `json:"time_updated"`
-	DeletedAt   gorm.DeletedAt `json:"time_deleted" gorm:"index"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	Content     string         `json:"content" gorm:"not null"`                    // 评论内容
 	IsAnonymous bool           `json:"is_anonymous" gorm:"not null;default:false"` // 是否匿名
 	Anonyname   *string        `json:"anonyname"`                                  // 匿名时的昵称，可选
@@ -78,9 +78,9 @@ type Comment struct {
 // Tag 标签
 type Tag struct {
 	ID          int            `json:"id"`
-	CreatedAt   time.Time      `json:"time_created"`
-	UpdatedAt   time.Time      `json:"time_updated"`
-	DeletedAt   gorm.DeletedAt `json:"time_deleted" gorm:"index"`
+	CreatedAt   time.Time      `json:"created_at"`
+	UpdatedAt   time.Time      `json:"updated_at"`
+	DeletedAt   gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 	Name        string         `json:"name" gorm:"not null;unique"`                 // 标签名，大小写不敏感
 	Temperature int            `json:"temperature" gorm:"not null;default:0;index"` // 热度，表示有多少帖子使用了这个标签，越高表示越热门，用于排序
 
@@ -92,7 +92,7 @@ type Tag struct {
 type TopicUserLikes struct {
 	UserID    int       `json:"user_id" gorm:"primaryKey"`
 	TopicID   int       `json:"topic_id" gorm:"primaryKey"`
-	CreatedAt time.Time `json:"time_created"`
+	CreatedAt time.Time `json:"created_at"`
 	LikeData  int       `json:"like_data" gorm:"not null;default:0"` // 1表示点赞，-1表示点踩
 }
 
@@ -101,7 +101,7 @@ type TopicUserLikes struct {
 type TopicUserFavorites struct {
 	UserID    int       `json:"user_id" gorm:"primaryKey"`
 	TopicID   int       `json:"topic_id" gorm:"primaryKey"`
-	CreatedAt time.Time `json:"time_created"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 // TopicUserViews 用户浏览过的帖子
@@ -109,13 +109,14 @@ type TopicUserFavorites struct {
 type TopicUserViews struct {
 	UserID    int       `json:"user_id" gorm:"primaryKey"`
 	TopicID   int       `json:"topic_id" gorm:"primaryKey"`
-	CreatedAt time.Time `json:"time_created"`
-	UpdatedAt time.Time `json:"time_updated"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Count     int       `json:"count" gorm:"not null;default:0"` // 浏览次数
 }
 
 type CommentUserLikes struct {
 	UserID    int       `json:"user_id" gorm:"primaryKey"`
 	CommentID int       `json:"comment_id" gorm:"primaryKey"`
-	CreatedAt time.Time `json:"time_created"`
+	CreatedAt time.Time `json:"created_at"`
 	LikeData  int       `json:"like_data" gorm:"not null;default:0"` // 1表示点赞，-1表示点踩
 }

@@ -141,14 +141,16 @@ func (b BoxModifyRequest) IsEmpty() bool {
 /* Post 帖子、提问 */
 
 type PostCommonResponse struct {
-	ID           int    `json:"id"`
-	PosterID     int    `json:"poster_id"`
-	Content      string `json:"content"`
-	Visibility   string `json:"visibility"`
-	IsOwner      bool   `json:"is_owner"`
-	IsAnonymous  bool   `json:"is_anonymous"`
-	ChannelCount int    `json:"channel_count"`
-	ViewCount    int    `json:"view_count"`
+	ID           int           `json:"id"`
+	PosterID     int           `json:"poster_id"`
+	Poster       *UserResponse `json:"poster,omitempty"`
+	Content      string        `json:"content"`
+	Visibility   string        `json:"visibility"` // public private
+	IsOwner      bool          `json:"is_owner"`
+	IsAnonymous  bool          `json:"is_anonymous"`
+	Anonyname    string        `json:"anonyname"`
+	ChannelCount int           `json:"channel_count"`
+	ViewCount    int           `json:"view_count"`
 }
 
 type PostListRequest struct {
@@ -352,7 +354,7 @@ type TopicCommonResponse struct {
 
 type TopicListRequest struct {
 	DivisionID     *int       `json:"division_id" query:"division_id" validate:"omitempty,min=1"`
-	OrderBy        string     `json:"order_by" query:"order_by" validate:"omitempty,oneof=created_at updated_at" default:"updated_at"`
+	OrderBy        string     `json:"order_by" query:"order_by" validate:"omitempty,oneof=created_at updated_at" default:"created_at"` // 排序方式，created_at 按照收藏的时间排序，updated_at 按照主题帖更新的时间排序
 	CommentOrderBy string     `json:"comment_order_by" query:"comment_order_by" validate:"omitempty,oneof=id like" default:"id"`
 	PageSize       int        `json:"page_size" query:"page_size" validate:"omitempty,min=1,max=100" default:"10"`
 	StartTime      *time.Time `json:"start_time" query:"start_time" validate:"omitempty"`
@@ -419,7 +421,8 @@ type CommentListResponse struct {
 }
 
 type CommentCreateRequest struct {
-	Content string `json:"content" validate:"required,min=1,max=2000"`
+	ReplyToID *int   `json:"reply_to_id"`
+	Content   string `json:"content" validate:"required,min=1,max=2000"`
 }
 
 type CommentModifyRequest struct {
