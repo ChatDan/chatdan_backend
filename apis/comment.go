@@ -131,7 +131,7 @@ func CreateAComment(c *fiber.Ctx) (err error) {
 	if err = copier.CopyWithOption(&response, &comment, copier.Option{IgnoreEmpty: true}); err != nil {
 		return err
 	}
-	return Success(c, response})
+	return Success(c, response)
 }
 
 // ModifyAComment godoc
