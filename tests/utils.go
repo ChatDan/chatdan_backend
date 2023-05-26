@@ -17,13 +17,14 @@ var App = bootstrap.InitFiberApp()
 
 type tester struct {
 	Token string
+	ID    int
 }
 
 var (
 	defaultTester tester
 	userTester    tester
 	adminTester   tester
-	otherTester   map[int]tester
+	otherTester   = map[int]tester{}
 )
 
 func (tester *tester) testCommon(t *testing.T, method string, route string, statusCode int, isQuery bool, data Map, model any) {

@@ -86,6 +86,8 @@ func InitDB() {
 		Topic{},
 		Comment{},
 		Tag{},
+		Chat{},
+		ChatMessage{},
 	)
 	if err != nil {
 		panic(err)

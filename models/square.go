@@ -96,14 +96,6 @@ func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
 	return nil
 }
 
-func (t *Topic) TagContents() []string {
-	var contents []string
-	for _, tag := range t.Tags {
-		contents = append(contents, tag.Name)
-	}
-	return contents
-}
-
 func (t *Topic) AfterCreate(tx *gorm.DB) (err error) {
 	if !t.IsAnonymous {
 		t.Poster = new(User)

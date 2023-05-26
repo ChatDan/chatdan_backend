@@ -340,7 +340,7 @@ type TopicCommonResponse struct {
 	PosterID    int                    `json:"poster_id,omitempty"`
 	Poster      *UserResponse          `json:"poster,omitempty"`
 	DivisionID  int                    `json:"division_id"`
-	Tags        []string               `json:"tags" copier:"TagContents"`
+	Tags        []TagCommonResponse    `json:"tags"`
 	LastComment *CommentCommonResponse `json:"last_comment,omitempty" extensions:"x-nullable"` // 按照时间排序最后一条评论或者按照点赞数排序最高赞的评论，创建之后为空
 
 	// 统计数据
@@ -523,19 +523,19 @@ func (t *TopicListResponse) Postprocess(c *fiber.Ctx) (err error) {
 }
 
 type TopicCreateRequest struct {
-	Title       string   `json:"title" validate:"required,min=1,max=50"`
-	Content     string   `json:"content" validate:"required,min=1,max=2000"`
-	DivisionID  int      `json:"division_id" validate:"required,min=1"`
-	IsAnonymous bool     `json:"is_anonymous"` // 默认不传为 false
-	Tags        []string `json:"tags"`
+	Title       string             `json:"title" validate:"required,min=1,max=50"`
+	Content     string             `json:"content" validate:"required,min=1,max=2000"`
+	DivisionID  int                `json:"division_id" validate:"required,min=1"`
+	IsAnonymous bool               `json:"is_anonymous"` // 默认不传为 false
+	Tags        []TagCreateRequest `json:"tags" validate:"omitempty,dive,min=1,max=10,dive"`
 }
 
 type TopicModifyRequest struct {
-	Title      *string  `json:"title" validate:"omitempty,min=1,max=50"`
-	Content    *string  `json:"content" validate:"omitempty,min=1,max=2000"`
-	DivisionID *int     `json:"division_id" validate:"omitempty,min=1"` // admin only
-	IsHidden   *bool    `json:"is_hidden"`                              // admin only
-	Tags       []string `json:"tags"`                                   // owner or admin
+	Title      *string            `json:"title" validate:"omitempty,min=1,max=50"`
+	Content    *string            `json:"content" validate:"omitempty,min=1,max=2000"`
+	DivisionID *int               `json:"division_id" validate:"omitempty,min=1"`           // admin only
+	IsHidden   *bool              `json:"is_hidden"`                                        // admin only
+	Tags       []TagCreateRequest `json:"tags" validate:"omitempty,dive,min=1,max=10,dive"` // owner or admin
 }
 
 func (t TopicModifyRequest) IsEmpty() bool {
@@ -708,6 +708,10 @@ type TagCommonResponse struct {
 	Temperature int    `json:"temperature"`
 }
 
+func (t TagCommonResponse) GetName() string {
+	return t.Name
+}
+
 type TagListRequest struct {
 	PageRequest
 	OrderBy string `json:"order_by" query:"order_by" validate:"omitempty,oneof='id asc' 'temperature desc'" default:"id asc"`
@@ -724,6 +728,22 @@ type TagCreateRequest struct {
 	Name string `json:"name" validate:"required,min=1,max=20"`
 }
 
+func (t TagCreateRequest) GetName() string {
+	return t.Name
+}
+
+type Tagger interface {
+	GetName() string
+}
+
+func ToTagNames[T Tagger](tags []T) (names []string) {
+	names = make([]string, len(tags))
+	for i := range tags {
+		names[i] = tags[i].GetName()
+	}
+	return
+}
+
 type TagModifyRequest struct {
 	Name        *string `json:"name" validate:"omitempty,min=1,max=20"`
 	Temperature *int    `json:"temperature" validate:"omitempty,min=1,max=100"`
@@ -736,13 +756,13 @@ func (t TagModifyRequest) IsEmpty() bool {
 /* Chat */
 
 type ChatCommonResponse struct {
-	ID            int       `json:"id"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
-	OneUserID     int       `json:"one_user_id"`
-	AnotherUserID int       `json:"another_user_id"`
-	LastMessage   string    `json:"last_message"`
-	MessageCount  int       `json:"message_count"`
+	ID                 int       `json:"id"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
+	OneUserID          int       `json:"one_user_id"`
+	AnotherUserID      int       `json:"another_user_id"`
+	LastMessageContent string    `json:"last_message_content"`
+	MessageCount       int       `json:"message_count"`
 }
 
 type ChatListResponse struct {

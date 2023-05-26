@@ -7,4 +7,9 @@ func TestAll(t *testing.T) {
 	t.Run("TestAccountLogin", testAccountLogin)
 	t.Run("TestListBoxes", testListBoxes)
 	t.Run("TestCreateABox", testCreateABox)
+
+	// chat
+	t.Run("TestCreateMessage", testCreateMessage)
+	t.Run("TestListMessages", testListMessages)
+	t.Run("TestListChats", testListChats)
 }

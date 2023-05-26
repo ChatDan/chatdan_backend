@@ -33,7 +33,7 @@ func ListChats(c *fiber.Ctx) (err error) {
 
 	// construct response
 	var response ChatListResponse
-	if err = copier.Copy(&response.Chats, &chats); err != nil {
+	if err = copier.CopyWithOption(&response.Chats, &chats, CopyOption); err != nil {
 		return
 	}
 
@@ -71,7 +71,18 @@ func ListMessages(c *fiber.Ctx) (err error) {
 	if OneUserID > AnotherUserID {
 		OneUserID, AnotherUserID = AnotherUserID, OneUserID
 	}
-	querySet := DB.Limit(query.PageSize).Where("one_user_id = ? and another_user_id = ?", OneUserID, AnotherUserID)
+
+	// load chat
+	var chat Chat
+	if err = DB.Where("one_user_id = ? and another_user_id = ?", OneUserID, AnotherUserID).First(&chat).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return Success(c, &MessageListResponse{})
+		}
+		return
+	}
+
+	// load messages by chat
+	querySet := DB.Limit(query.PageSize).Where("chat_id = ?", chat.ID)
 	if query.StartTime != nil {
 		querySet = querySet.Where("created_at < ?", query.StartTime)
 	}
@@ -140,19 +151,11 @@ func CreateMessage(c *fiber.Ctx) (err error) {
 		}
 
 		var chat Chat
-		if err = tx.Clauses(LockClause).
-			Where("one_user_id = ? and another_user_id = ?", OneUserID, AnotherUserID).First(&chat).Error; err != nil {
-			if err == gorm.ErrRecordNotFound {
-				chat = Chat{
-					OneUserID:     OneUserID,
-					AnotherUserID: AnotherUserID,
-				}
-				if err = tx.Create(&chat).Error; err != nil {
-					return
-				}
-			} else {
-				return
-			}
+		if err = tx.Clauses(LockClause).Where(Chat{
+			OneUserID:     OneUserID,
+			AnotherUserID: AnotherUserID,
+		}).FirstOrCreate(&chat).Error; err != nil {
+			return
 		}
 
 		// create message
@@ -163,7 +166,7 @@ func CreateMessage(c *fiber.Ctx) (err error) {
 
 		// update chat message_count and last_message
 		if err = tx.Model(&chat).Updates(Map{
-			"message_count":        gorm.Expr("message_count + ?", 1),
+			"message_count":        gorm.Expr("message_count + 1"),
 			"last_message_content": message.Content,
 			"last_message_id":      message.ID,
 		}).Error; err != nil {

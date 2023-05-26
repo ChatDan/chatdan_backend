@@ -115,7 +115,7 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 		return err
 	}
 	topic.PosterID = user.ID
-	err = topic.FindOrCreateTags(DB, body.Tags)
+	err = topic.FindOrCreateTags(DB, ToTagNames(body.Tags))
 	if err != nil {
 		return err
 	}
@@ -235,7 +235,7 @@ func ModifyATopic(c *fiber.Ctx) (err error) {
 			// clear associations
 			err = tx.Model(&topic).Association("Tags").Clear()
 
-			err = topic.FindOrCreateTags(tx, body.Tags)
+			err = topic.FindOrCreateTags(tx, ToTagNames(body.Tags))
 			if err != nil {
 				return err
 			}
