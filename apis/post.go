@@ -52,6 +52,9 @@ func ListPosts(c *fiber.Ctx) (err error) {
 	if err = copier.CopyWithOption(&response.Posts, &posts, CopyOption); err != nil {
 		return
 	}
+	for i := range response.Posts {
+		response.Posts[i].IsOwner = posts[i].PosterID == user.ID
+	}
 
 	return Success(c, &response)
 }
@@ -101,6 +104,7 @@ func GetAPost(c *fiber.Ctx) (err error) {
 		return
 	}
 	response.Channels = channelsContent
+	response.IsOwner = user.ID == response.PosterID
 
 	return Success(c, &response)
 }
@@ -152,6 +156,7 @@ func CreateAPost(c *fiber.Ctx) (err error) {
 	if err = copier.CopyWithOption(&response, &post, CopyOption); err != nil {
 		return
 	}
+	response.IsOwner = true
 
 	return Created(c, &response)
 }
@@ -210,6 +215,7 @@ func ModifyAPost(c *fiber.Ctx) (err error) {
 	if err = copier.Copy(&response, &post); err != nil {
 		return
 	}
+	response.IsOwner = true
 
 	return Success(c, &response)
 }
