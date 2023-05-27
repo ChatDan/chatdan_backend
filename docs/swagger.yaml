@@ -114,7 +114,7 @@ definitions:
         type: string
       id:
         type: integer
-      last_message:
+      last_message_content:
         type: string
       message_count:
         type: integer
@@ -540,7 +540,7 @@ definitions:
         type: integer
       tags:
         items:
-          type: string
+          $ref: '#/definitions/apis.TagCommonResponse'
         type: array
       title:
         type: string
@@ -564,7 +564,7 @@ definitions:
         type: boolean
       tags:
         items:
-          type: string
+          $ref: '#/definitions/apis.TagCreateRequest'
         type: array
       title:
         maxLength: 50
@@ -598,7 +598,7 @@ definitions:
       tags:
         description: owner or admin
         items:
-          type: string
+          $ref: '#/definitions/apis.TagCreateRequest'
         type: array
       title:
         maxLength: 50

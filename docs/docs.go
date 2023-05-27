@@ -4094,7 +4094,7 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "last_message": {
+                "last_message_content": {
                     "type": "string"
                 },
                 "message_count": {
@@ -4712,7 +4712,7 @@ const docTemplate = `{
                 "tags": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/apis.TagCommonResponse"
                     }
                 },
                 "title": {
@@ -4751,7 +4751,7 @@ const docTemplate = `{
                 "tags": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/apis.TagCreateRequest"
                     }
                 },
                 "title": {
@@ -4793,7 +4793,7 @@ const docTemplate = `{
                     "description": "owner or admin",
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "$ref": "#/definitions/apis.TagCreateRequest"
                     }
                 },
                 "title": {
