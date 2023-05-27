@@ -13,3 +13,9 @@ func TestAll(t *testing.T) {
 	t.Run("TestListMessages", testListMessages)
 	t.Run("TestListChats", testListChats)
 }
+
+func BenchmarkAll(b *testing.B) {
+	registerOnce(b)
+
+	b.Run("BenchAccountLogin", benchAccountLogin)
+}

@@ -41,3 +41,34 @@ func testAccountLogin(t *testing.T) {
 	userTester.Token = response.Data.AccessToken
 	userTester.ID = response.Data.ID
 }
+
+func benchAccountRegister(b *testing.B) {
+	var data = Map{
+		"username": "test",
+		"password": "test123456",
+	}
+	var response utils.Response[apis.LoginResponse]
+	defaultTester.testPost(b, "/api/user/register", 200, data, &response)
+	assert.EqualValues(b, "test", response.Data.Username)
+}
+
+func benchAccountLogin(b *testing.B) {
+	var data = Map{
+		"username": "test",
+		"password": "test123456",
+	}
+	var response utils.Response[apis.LoginResponse]
+	defaultTester.testPost(b, "/api/user/login", 200, data, &response)
+	assert.EqualValues(b, "test", response.Data.Username)
+	userTester.Token = response.Data.AccessToken
+	userTester.ID = response.Data.ID
+}
+
+func registerOnce(t assert.TestingT) {
+	var data = Map{
+		"username": "test",
+		"password": "test123456",
+	}
+	var response utils.Response[apis.LoginResponse]
+	defaultTester.testPost(t, "/api/user/register", 200, data, &response)
+}
