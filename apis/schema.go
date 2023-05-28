@@ -5,7 +5,6 @@ import (
 	. "chatdan_backend/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-module/carbon/v2"
 	"github.com/jinzhu/copier"
 	"github.com/juju/errors"
 	"github.com/oleiade/reflections"
@@ -257,13 +256,13 @@ type WallCommonResponse struct {
 
 type WallListRequest struct {
 	PageRequest
-	Date *carbon.Date `json:"date" query:"date" validate:"omitempty" swaggertype:"string" example:"2006-01-02"` // 日期，不填默认当天（即昨天发送的表白墙）
+	Date *time.Time `json:"date" query:"date" validate:"omitempty"` // 日期（所对应的时间，只解析时间），不填默认当天（即昨天发送的表白墙）
 }
 
 type WallListResponse struct {
 	Posts []WallCommonResponse `json:"posts"`
-	Total int                  `json:"total"`                                          // Post 总数，便于前端分页
-	Date  carbon.Date          `json:"date" swaggertype:"string" example:"2006-01-02"` // 日期
+	Total int                  `json:"total"`                     // Post 总数，便于前端分页
+	Date  time.Time            `json:"date" swaggertype:"string"` // 日期
 }
 
 type WallCreateRequest struct {

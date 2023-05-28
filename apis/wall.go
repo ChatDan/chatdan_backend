@@ -4,8 +4,8 @@ import (
 	. "chatdan_backend/models"
 	. "chatdan_backend/utils"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-module/carbon/v2"
 	"github.com/jinzhu/copier"
+	"time"
 )
 
 // ListWalls
@@ -25,20 +25,23 @@ func ListWalls(c *fiber.Ctx) (err error) {
 		return err
 	}
 
+	nowTime := time.Now()
+	nowDate := time.Date(nowTime.Year(), nowTime.Month(), nowTime.Day(), 0, 0, 0, 0, time.Local)
+
 	// construct querySet and load walls from database（昨日发送的表白墙）
-	queryDate := carbon.Date{Carbon: carbon.Yesterday()}
+	queryDate := time.Now().AddDate(0, 0, -1)
 	if query.Date != nil {
 		queryDate = *query.Date
 	}
-	if queryDate.Carbon.Gt(carbon.Now()) {
+	if queryDate.After(nowDate) {
 		return BadRequest("不允许查询未来的表白墙")
 	}
 
 	var walls []Wall
 	if err = query.QuerySet(DB).Where(
 		"created_at between ? and ?",
-		queryDate.StartOfDay().ToDateTimeString(),
-		queryDate.EndOfDay().ToDateTimeString(),
+		time.Date(queryDate.Year(), queryDate.Month(), queryDate.Day(), 0, 0, 0, 0, time.Local),
+		time.Date(queryDate.Year(), queryDate.Month(), queryDate.Day(), 23, 59, 59, 999, time.Local),
 	).Find(&walls).Error; err != nil {
 		return err
 	}
@@ -121,7 +124,10 @@ func CreateAWall(c *fiber.Ctx) (err error) {
 	if err = copier.Copy(&response, &wall); err != nil {
 		return
 	}
-	response.IsShown = carbon.FromStdTime(wall.CreatedAt).Lte(carbon.Yesterday().EndOfDay()) // 创建时间在昨天结束之前的才会显示
+
+	yesterday := time.Now().AddDate(0, 0, -1)
+	endOfYesterday := time.Date(yesterday.Year(), yesterday.Month(), yesterday.Day(), 23, 59, 59, 999, time.Local)
+	response.IsShown = wall.CreatedAt.Before(endOfYesterday) // 创建时间在昨天结束之前的才会显示
 
 	return Created(c, &response)
 }

@@ -3754,8 +3754,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "example": "2006-01-02",
-                        "description": "日期，不填默认当天（即昨天发送的表白墙）",
+                        "description": "日期（所对应的时间，只解析时间），不填默认当天（即昨天发送的表白墙）",
                         "name": "date",
                         "in": "query"
                     },
@@ -4954,8 +4953,7 @@ const docTemplate = `{
             "properties": {
                 "date": {
                     "description": "日期",
-                    "type": "string",
-                    "example": "2006-01-02"
+                    "type": "string"
                 },
                 "posts": {
                     "type": "array",
