@@ -108,6 +108,8 @@ definitions:
     type: object
   apis.ChatCommonResponse:
     properties:
+      another_user:
+        $ref: '#/definitions/apis.UserResponse'
       another_user_id:
         type: integer
       created_at:
@@ -118,6 +120,8 @@ definitions:
         type: string
       message_count:
         type: integer
+      one_user:
+        $ref: '#/definitions/apis.UserResponse'
       one_user_id:
         type: integer
       updated_at:

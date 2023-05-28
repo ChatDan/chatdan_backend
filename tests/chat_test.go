@@ -11,10 +11,12 @@ import (
 func testListChats(t *testing.T) {
 	const url = "/api/chats"
 	user0 := otherTester[0]
+	user1 := otherTester[1]
 
 	var response = utils.Response[apis.ChatListResponse]{}
 	user0.testGet(t, url, 200, nil, &response)
 	assert.EqualValues(t, 1, len(response.Data.Chats))
+	assert.EqualValues(t, user1.ID, response.Data.Chats[0].AnotherUser.ID)
 }
 
 func testListMessages(t *testing.T) {

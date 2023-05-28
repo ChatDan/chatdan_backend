@@ -755,13 +755,15 @@ func (t TagModifyRequest) IsEmpty() bool {
 /* Chat */
 
 type ChatCommonResponse struct {
-	ID                 int       `json:"id"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
-	OneUserID          int       `json:"one_user_id"`
-	AnotherUserID      int       `json:"another_user_id"`
-	LastMessageContent string    `json:"last_message_content"`
-	MessageCount       int       `json:"message_count"`
+	ID                 int           `json:"id"`
+	CreatedAt          time.Time     `json:"created_at"`
+	UpdatedAt          time.Time     `json:"updated_at"`
+	OneUserID          int           `json:"one_user_id"`
+	OneUser            *UserResponse `json:"one_user"`
+	AnotherUserID      int           `json:"another_user_id"`
+	AnotherUser        *UserResponse `json:"another_user"`
+	LastMessageContent string        `json:"last_message_content"`
+	MessageCount       int           `json:"message_count"`
 }
 
 type ChatListResponse struct {

@@ -4084,6 +4084,9 @@ const docTemplate = `{
         "apis.ChatCommonResponse": {
             "type": "object",
             "properties": {
+                "another_user": {
+                    "$ref": "#/definitions/apis.UserResponse"
+                },
                 "another_user_id": {
                     "type": "integer"
                 },
@@ -4098,6 +4101,9 @@ const docTemplate = `{
                 },
                 "message_count": {
                     "type": "integer"
+                },
+                "one_user": {
+                    "$ref": "#/definitions/apis.UserResponse"
                 },
                 "one_user_id": {
                     "type": "integer"
