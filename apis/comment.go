@@ -149,8 +149,17 @@ func CreateAComment(c *fiber.Ctx) (err error) {
 
 		// update user comment count
 		result = tx.Model(&user).Update("comment_count", gorm.Expr("comment_count + 1"))
-		return result.Error
+		if result.Error != nil {
+			return result.Error
+		}
+
+		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	err = SearchAddOrReplace(comment.ToSearchModel())
 	if err != nil {
 		return err
 	}
@@ -218,6 +227,11 @@ func ModifyAComment(c *fiber.Ctx) (err error) {
 		// update comment
 		return tx.Model(&comment).Select("Content", "IsHidden").Updates(&comment).Error
 	}); err != nil {
+		return err
+	}
+
+	err = SearchAddOrReplace(comment.ToSearchModel())
+	if err != nil {
 		return err
 	}
 

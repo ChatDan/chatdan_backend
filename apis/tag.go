@@ -132,6 +132,11 @@ func CreateATag(c *fiber.Ctx) (err error) {
 		return
 	}
 
+	err = SearchAddOrReplace(tag.ToSearchModel())
+	if err != nil {
+		return err
+	}
+
 	var response TagCommonResponse
 	err = copier.Copy(&response, &tag)
 	if err != nil {
@@ -228,5 +233,11 @@ func DeleteATag(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return
 	}
+
+	err = SearchDelete[TagSearchModel](tag.ID)
+	if err != nil {
+		return err
+	}
+
 	return Success(c, &EmptyStruct{})
 }

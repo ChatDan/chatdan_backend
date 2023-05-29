@@ -99,6 +99,16 @@ func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
 		return
 	}
 
+	// save to search engine
+	var tagSearchModels []TagSearchModel
+	for _, tag := range newTags {
+		tagSearchModels = append(tagSearchModels, tag.ToSearchModel())
+	}
+	err = SearchAddOrReplaceInBatch(tagSearchModels)
+	if err != nil {
+		return
+	}
+
 	t.Tags = append(tags, newTags...)
 	return nil
 }
@@ -189,6 +199,17 @@ func (Comment) TableName() string {
 	return "comment"
 }
 
+func (c *Comment) ToSearchModel() CommentSearchModel {
+	return CommentSearchModel{
+		ID:        c.ID,
+		CreatedAt: int(c.CreatedAt.UnixMicro()),
+		UpdatedAt: int(c.UpdatedAt.UnixMicro()),
+		TopicID:   c.TopicID,
+		Content:   c.Content,
+		PosterID:  c.PosterID,
+	}
+}
+
 // CommentSearchModel 评论搜索模型
 type CommentSearchModel struct {
 	ID        int    `json:"id"`
@@ -256,6 +277,14 @@ type TagSearchModel struct {
 	Temperature int    `json:"temperature"`
 }
 
+func (t *Tag) ToSearchModel() TagSearchModel {
+	return TagSearchModel{
+		ID:          t.ID,
+		Name:        t.Name,
+		Temperature: t.Temperature,
+	}
+}
+
 func (t TagSearchModel) GetID() int {
 	return t.ID
 }
@@ -277,7 +306,7 @@ func (TagSearchModel) SearchableAttributes() []string {
 }
 
 func (TagSearchModel) SortableAttributes() []string {
-	return []string{"temperature"}
+	return []string{"id", "temperature"}
 }
 
 func (TagSearchModel) RankingRules() []string {

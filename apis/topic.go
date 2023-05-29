@@ -256,6 +256,12 @@ func ModifyATopic(c *fiber.Ctx) (err error) {
 		return err
 	}
 
+	// save to meilisearch
+	err = SearchAddOrReplace(topic.ToSearchModel())
+	if err != nil {
+		return err
+	}
+
 	var response TopicCommonResponse
 	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
@@ -280,19 +286,29 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 	if !user.IsAdmin {
 		return Forbidden()
 	}
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return err
 	}
+
 	var topic Topic
 	result := DB.First(&topic, id)
 	if result.Error != nil {
 		return NotFound()
 	}
+
 	result = DB.Where("id = ?", id).Delete(&topic)
 	if result.Error != nil {
 		return result.Error
 	}
+
+	// delete from meilisearch
+	err = SearchDelete[TagSearchModel](topic.ID)
+	if err != nil {
+		return err
+	}
+
 	return Success(c, &EmptyStruct{})
 }
 
