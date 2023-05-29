@@ -22,6 +22,14 @@ func TestAll(t *testing.T) {
 	t.Run("TestCreateTopic", testCreatATopic)
 	t.Run("TestListTopics", testListTopics)
 	t.Run("TestGetATopic", testGetATopic)
+	t.Run("TestModifyTopic", testModifyTopic)
+	t.Run("TestDeleteTopic", testDeleteTopic)
+	t.Run("TestCreateTopic2", testCreatATopic)
+	t.Run("TestGetATopic2", testGetATopic2)
+
+	//comment
+	t.Run("TestCreateComment", testCreateComment)
+	t.Run("TestListComments", testListComments)
 }
 
 func BenchmarkAll(b *testing.B) {

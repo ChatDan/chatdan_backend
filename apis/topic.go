@@ -23,7 +23,7 @@ func ListTopics(c *fiber.Ctx) (err error) {
 	var user User
 	err = GetCurrentUser(c, &user)
 	if err != nil {
-		return nil
+		return err
 	}
 	var query TopicListRequest
 	err = ValidateQuery(c, &query)
@@ -274,9 +274,7 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	if !user.IsAdmin {
-		return Forbidden()
-	}
+
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return err
@@ -285,6 +283,9 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 	result := DB.First(&topic, id)
 	if result.Error != nil {
 		return NotFound()
+	}
+	if !user.IsAdmin && topic.PosterID != user.ID {
+		return Forbidden()
 	}
 	result = DB.Where("id = ?", id).Delete(&topic)
 	if result.Error != nil {

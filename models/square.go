@@ -364,7 +364,7 @@ func FindOrGenerateAnonyname(tx *gorm.DB, topicID, userID int) (string, error) {
 	err := tx.
 		Model(&TopicAnonynameMapping{}).
 		Select("anonyname").
-		Where("hole_id = ?", topicID).
+		Where("topic_id = ?", topicID).
 		Where("user_id = ?", userID).
 		Take(&anonyname).Error
 
@@ -374,7 +374,7 @@ func FindOrGenerateAnonyname(tx *gorm.DB, topicID, userID int) (string, error) {
 			err = tx.
 				Clauses(clause.Locking{Strength: "UPDATE"}).
 				Model(&TopicAnonynameMapping{}).
-				Where("hole_id = ?", topicID).
+				Where("topic_id = ?", topicID).
 				Order("anonyname asc").
 				Pluck("anonyname", &names).Error
 			if err != nil {
