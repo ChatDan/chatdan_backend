@@ -82,6 +82,7 @@ func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
 			newTagNames = append(newTagNames, tagName)
 		}
 	}
+	t.Tags = tags
 
 	if len(newTagNames) == 0 {
 		return
