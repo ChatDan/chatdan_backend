@@ -23,3 +23,9 @@ func TestAll(t *testing.T) {
 	t.Run("TestListTopics", testListTopics)
 	t.Run("TestGetATopic", testGetATopic)
 }
+
+func BenchmarkAll(b *testing.B) {
+	registerOnce(b)
+
+	b.Run("BenchAccountLogin", benchAccountLogin)
+}

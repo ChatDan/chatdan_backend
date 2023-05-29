@@ -32,7 +32,7 @@ func InitSearch() {
 		// create or update index
 		var index *meilisearch.Index
 		if index, err = meilisearchClient.GetIndex(indexName); err != nil {
-			if meiliError, ok := err.(meilisearch.Error); ok {
+			if meiliError, ok := err.(*meilisearch.Error); ok {
 				if meiliError.StatusCode == 404 {
 					if _, err = meilisearchClient.CreateIndex(&meilisearch.IndexConfig{
 						Uid:        indexName,

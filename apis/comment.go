@@ -41,16 +41,13 @@ func ListComments(c *fiber.Ctx) (err error) {
 	tx = tx.Limit(query.PageSize).Offset(query.PageNum * query.PageSize)
 
 	var comments []Comment
-
 	result := tx.Find(&comments)
-
 	if result.Error != nil {
 		return result.Error
 	}
 
-	var response CommentListRequest
-
-	if err = copier.CopyWithOption(&response, &comments, CopyOption); err != nil {
+	var response CommentListResponse
+	if err = copier.CopyWithOption(&response.Comments, &comments, CopyOption); err != nil {
 		return err
 	}
 
@@ -84,11 +81,9 @@ func GetAComment(c *fiber.Ctx) (err error) {
 	}
 
 	var response CommentCommonResponse
-
 	if err = copier.CopyWithOption(&response, &comment, CopyOption); err != nil {
 		return err
 	}
-
 	return Success(c, &response)
 }
 

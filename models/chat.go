@@ -15,7 +15,6 @@ type Chat struct {
 	AnotherUserID      int           `json:"another_user_id" gorm:"index;index:idx_chat_one_another,priority:2"`
 	AnotherUser        *User         `json:"-" gorm:"foreignKey:AnotherUserID"`
 	LastMessageID      int           `json:"last_message_id"`
-	LastMessage        *ChatMessage  `json:"last_message" gorm:"foreignKey:LastMessageID"`
 	LastMessageContent string        `json:"last_message_content"`
 	Messages           []ChatMessage `json:"messages"`
 

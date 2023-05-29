@@ -11,7 +11,6 @@ require (
 	github.com/gofiber/fiber/v2 v2.46.0
 	github.com/gofiber/swagger v0.1.12
 	github.com/golang-jwt/jwt/v5 v5.0.0
-	github.com/golang-module/carbon/v2 v2.2.3
 	github.com/hetiansu5/urlquery v1.2.7
 	github.com/jinzhu/copier v0.3.5
 	github.com/juju/errors v1.0.0

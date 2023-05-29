@@ -26,8 +26,11 @@ func ListChats(c *fiber.Ctx) (err error) {
 
 	// load chats from database
 	var chats []Chat
-	if err = DB.Where("one_user_id = @user_id or another_user_id = @user_id", sql.Named("user_id", user.ID)).
-		Order("updated_at desc").Find(&chats).Error; err != nil {
+	if err = DB.
+		Preload("OneUser").Preload("AnotherUser").
+		Where("one_user_id = @user_id or another_user_id = @user_id", sql.Named("user_id", user.ID)).
+		Order("updated_at desc").
+		Find(&chats).Error; err != nil {
 		return
 	}
 

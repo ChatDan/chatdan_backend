@@ -5,7 +5,6 @@ import (
 	. "chatdan_backend/utils"
 	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-module/carbon/v2"
 	"github.com/jinzhu/copier"
 	"github.com/juju/errors"
 	"github.com/oleiade/reflections"
@@ -163,9 +162,9 @@ type PostListRequest struct {
 }
 
 type PostListResponse struct {
-	Posts   []PostCommonResponse
-	Version int `json:"version"`
-	Total   int `json:"total"` // Post 总数，便于前端分页
+	Posts   []PostCommonResponse `json:"posts"`
+	Version int                  `json:"version"`
+	Total   int                  `json:"total"` // Post 总数，便于前端分页
 }
 
 type PostGetResponse struct {
@@ -257,13 +256,13 @@ type WallCommonResponse struct {
 
 type WallListRequest struct {
 	PageRequest
-	Date *carbon.Date `json:"date" query:"date" validate:"omitempty" swaggertype:"string" example:"2006-01-02"` // 日期，不填默认当天（即昨天发送的表白墙）
+	Date *time.Time `json:"date" query:"date" validate:"omitempty"` // 日期（所对应的时间，只解析时间），不填默认当天（即昨天发送的表白墙）
 }
 
 type WallListResponse struct {
 	Posts []WallCommonResponse `json:"posts"`
-	Total int                  `json:"total"`                                          // Post 总数，便于前端分页
-	Date  carbon.Date          `json:"date" swaggertype:"string" example:"2006-01-02"` // 日期
+	Total int                  `json:"total"`                     // Post 总数，便于前端分页
+	Date  time.Time            `json:"date" swaggertype:"string"` // 日期
 }
 
 type WallCreateRequest struct {
@@ -448,9 +447,9 @@ func (t *TopicListResponse) Postprocess(c *fiber.Ctx) (err error) {
 		topicIDs = append(topicIDs, topic.ID)
 	}
 	err = DB.Raw(
-		`select * from comments 
+		`select * from comment 
 			where topic_id in (?) and id in (
-				select max(id) from comments group by topic_id
+				select max(id) from comment group by topic_id
 			)`, topicIDs).Scan(&comments).Error
 	if err != nil {
 		return err
@@ -756,13 +755,15 @@ func (t TagModifyRequest) IsEmpty() bool {
 /* Chat */
 
 type ChatCommonResponse struct {
-	ID                 int       `json:"id"`
-	CreatedAt          time.Time `json:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at"`
-	OneUserID          int       `json:"one_user_id"`
-	AnotherUserID      int       `json:"another_user_id"`
-	LastMessageContent string    `json:"last_message_content"`
-	MessageCount       int       `json:"message_count"`
+	ID                 int           `json:"id"`
+	CreatedAt          time.Time     `json:"created_at"`
+	UpdatedAt          time.Time     `json:"updated_at"`
+	OneUserID          int           `json:"one_user_id"`
+	OneUser            *UserResponse `json:"one_user"`
+	AnotherUserID      int           `json:"another_user_id"`
+	AnotherUser        *UserResponse `json:"another_user"`
+	LastMessageContent string        `json:"last_message_content"`
+	MessageCount       int           `json:"message_count"`
 }
 
 type ChatListResponse struct {
