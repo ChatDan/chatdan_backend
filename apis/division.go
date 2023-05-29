@@ -17,6 +17,11 @@ import (
 // @Failure 400 {object} RespForSwagger{data=ErrorDetail}
 // @Failure 500 {object} RespForSwagger
 func ListDivisions(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
 	var divisions []Division
 	result := DB.Find(&divisions)
 	if result.Error != nil {
@@ -41,6 +46,11 @@ func ListDivisions(c *fiber.Ctx) (err error) {
 // @Failure 400 {object} RespForSwagger
 // @Failure 500 {object} RespForSwagger
 func GetADivision(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return err
+	}
 	divisionID, err := c.ParamsInt("id")
 	if err != nil {
 		return err
