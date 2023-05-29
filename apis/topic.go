@@ -472,6 +472,11 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 		if result.RowsAffected == 0 {
 			return BadRequest()
 		}
+
+		result = DB.Model(&user).UpdateColumn("favorite_topics_count", gorm.Expr("favorite_topics_count + 1"))
+		if result.Error != nil {
+			return result.Error
+		}
 	}
 
 	var response TopicCommonResponse

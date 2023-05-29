@@ -30,6 +30,12 @@ func ListComments(c *fiber.Ctx) (err error) {
 		return err
 	}
 
+	var topic Topic
+	err = DB.First(&topic, query.TopicID).Error
+	if err != nil {
+		return err
+	}
+
 	tx := query.QuerySet(DB).Where("topic_id = ?", query.TopicID)
 	if query.OrderBy == "id" {
 		tx = tx.Order(query.OrderBy + " asc")
