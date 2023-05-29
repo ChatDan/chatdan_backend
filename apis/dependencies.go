@@ -66,6 +66,7 @@ func GetCurrentUser(c *fiber.Ctx, user *User) (err error) {
 		// convert to user
 		user.ID = claims.UserID
 		user.IsAdmin = claims.IsAdmin
+		c.Locals("user_id", user.ID)
 	}
 	return nil
 }
