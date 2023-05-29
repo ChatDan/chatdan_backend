@@ -47,6 +47,18 @@ func (e *ErrorDetailElement) Error() string {
 type ErrorDetail []*ErrorDetailElement
 
 func (e *ErrorDetail) Error() string {
+	var errStringBuilder strings.Builder
+	if len(*e) > 0 {
+		if len(*e) == 1 {
+			return (*e)[0].Error()
+		}
+		errStringBuilder.WriteString((*e)[0].Error())
+		for _, err := range (*e)[1:] {
+			errStringBuilder.WriteString(", ")
+			errStringBuilder.WriteString(err.Error())
+		}
+		return errStringBuilder.String()
+	}
 	return "Validation Error"
 }
 

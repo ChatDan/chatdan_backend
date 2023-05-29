@@ -6,7 +6,6 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
-	"time"
 )
 
 // ListComments godoc
@@ -31,17 +30,15 @@ func ListComments(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	tx := DB.Where("topic_id = ?", query.TopicID)
+	tx := query.QuerySet(DB).Where("topic_id = ?", query.TopicID)
 	if query.OrderBy == "id" {
-		tx = tx.Order(query.OrderBy + "asc")
+		tx = tx.Order(query.OrderBy + " asc")
 	} else {
-		tx = tx.Order(query.OrderBy + "desc")
+		tx = tx.Order(query.OrderBy + " desc")
 	}
 
-	tx = tx.Limit(query.PageSize).Offset(query.PageNum * query.PageSize)
-
 	var comments []Comment
-	result := tx.Find(&comments)
+	result := tx.Preload("Poster").Find(&comments)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -145,12 +142,24 @@ func CreateAComment(c *fiber.Ctx) (err error) {
 		}
 
 		// update topic
-		result = tx.Model(&topic).Update("comment_count", gorm.Expr("comment_count + ?", 1))
+		result = tx.Model(&topic).Update("comment_count", gorm.Expr("comment_count + 1"))
 		if result.Error != nil {
 			return result.Error
 		}
+
+		// update user comment count
+		result = tx.Model(&user).Update("comment_count", gorm.Expr("comment_count + 1"))
+		if result.Error != nil {
+			return result.Error
+		}
+
 		return nil
 	})
+	if err != nil {
+		return err
+	}
+
+	err = SearchAddOrReplace(comment.ToSearchModel())
 	if err != nil {
 		return err
 	}
@@ -218,6 +227,11 @@ func ModifyAComment(c *fiber.Ctx) (err error) {
 		// update comment
 		return tx.Model(&comment).Select("Content", "IsHidden").Updates(&comment).Error
 	}); err != nil {
+		return err
+	}
+
+	err = SearchAddOrReplace(comment.ToSearchModel())
+	if err != nil {
 		return err
 	}
 
@@ -297,37 +311,43 @@ func LikeOrDislikeAComment(c *fiber.Ctx) (err error) {
 	}
 
 	var comment Comment
-	result := DB.First(&comment, id)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	var commentUserLikes CommentUserLikes
-	result = DB.Model(&commentUserLikes).Where("uesr_id = ? AND comment_id = ?", user.ID, id).First(&commentUserLikes)
-
-	if result.Error != nil {
-		comment.LikeCount = comment.LikeCount - commentUserLikes.LikeData + likeData
-		commentUserLikes.LikeData = likeData
-		result = DB.Model(&commentUserLikes).Updates(commentUserLikes)
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		result := tx.Clauses(LockClause).First(&comment, id)
 		if result.Error != nil {
 			return result.Error
 		}
-	} else {
-		comment.LikeCount = comment.LikeCount + likeData
-		commentUserLikes.CommentID = id
-		commentUserLikes.UserID = user.ID
-		commentUserLikes.CreatedAt = time.Now()
-		commentUserLikes.LikeData = likeData
 
-		result = DB.Create(&commentUserLikes)
-		if result.RowsAffected == 0 {
-			return BadRequest()
+		var commentUserLikes = CommentUserLikes{
+			CommentID: id,
+			UserID:    user.ID,
+			LikeData:  likeData,
 		}
-	}
+		result = tx.Save(&commentUserLikes)
+		if result.Error != nil {
+			return result.Error
+		}
 
-	result = DB.Model(&comment).Updates(comment)
-	if result.RowsAffected == 0 {
-		return BadRequest()
+		var likeCount int64
+		result = tx.Model(CommentUserLikes{}).Where("topic_id = ? and like_data = 1", id).Count(&likeCount)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		var dislikeCount int64
+		result = tx.Model(CommentUserLikes{}).Where("topic_id = ? and like_data = -1", id).Count(&dislikeCount)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		result = tx.Model(&comment).UpdateColumns(Map{
+			"like_count":    likeCount,
+			"dislike_count": dislikeCount,
+		})
+
+		return result.Error
+	})
+	if err != nil {
+		return err
 	}
 
 	var response CommentCommonResponse
@@ -364,9 +384,9 @@ func ListCommentsByUser(c *fiber.Ctx) (err error) {
 
 	tx := DB.Where("poster_id = ? and is_anonymous", uid, false)
 	if query.OrderBy == "id" {
-		tx = tx.Order(query.OrderBy + "asc")
+		tx = tx.Order(query.OrderBy + " asc")
 	} else {
-		tx = tx.Order(query.OrderBy + "desc")
+		tx = tx.Order(query.OrderBy + " desc")
 	}
 
 	tx = query.QuerySet(tx)
@@ -377,8 +397,8 @@ func ListCommentsByUser(c *fiber.Ctx) (err error) {
 		return result.Error
 	}
 
-	var response CommentListRequest
-	if err = copier.CopyWithOption(&response, &comments, CopyOption); err != nil {
+	var response CommentListResponse
+	if err = copier.CopyWithOption(&response.Comments, &comments, CopyOption); err != nil {
 		return err
 	}
 
@@ -414,7 +434,7 @@ func SearchComments(c *fiber.Ctx) (err error) {
 	}
 
 	var response CommentListResponse
-	if err = copier.CopyWithOption(&response, &comments, CopyOption); err != nil {
+	if err = copier.CopyWithOption(&response.Comments, &comments, CopyOption); err != nil {
 		return err
 	}
 

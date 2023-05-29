@@ -99,24 +99,18 @@ func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
 		return
 	}
 
+	// save to search engine
+	var tagSearchModels []TagSearchModel
+	for _, tag := range newTags {
+		tagSearchModels = append(tagSearchModels, tag.ToSearchModel())
+	}
+	err = SearchAddOrReplaceInBatch(tagSearchModels)
+	if err != nil {
+		return
+	}
+
 	t.Tags = append(tags, newTags...)
 	return nil
-}
-
-func (t *Topic) AfterCreate(tx *gorm.DB) (err error) {
-	if !t.IsAnonymous {
-		t.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
-	}
-	return
-}
-
-func (t *Topic) AfterFind(tx *gorm.DB) (err error) {
-	if !t.IsAnonymous {
-		t.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
-	}
-	return
 }
 
 func (t Topic) ToSearchModel() TopicSearchModel {
@@ -205,20 +199,15 @@ func (Comment) TableName() string {
 	return "comment"
 }
 
-func (c *Comment) AfterFind(tx *gorm.DB) (err error) {
-	if !c.IsAnonymous {
-		c.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
+func (c *Comment) ToSearchModel() CommentSearchModel {
+	return CommentSearchModel{
+		ID:        c.ID,
+		CreatedAt: int(c.CreatedAt.UnixMicro()),
+		UpdatedAt: int(c.UpdatedAt.UnixMicro()),
+		TopicID:   c.TopicID,
+		Content:   c.Content,
+		PosterID:  c.PosterID,
 	}
-	return nil
-}
-
-func (c *Comment) AfterCreate(tx *gorm.DB) (err error) {
-	if !c.IsAnonymous {
-		c.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
-	}
-	return nil
 }
 
 // CommentSearchModel 评论搜索模型
@@ -288,6 +277,14 @@ type TagSearchModel struct {
 	Temperature int    `json:"temperature"`
 }
 
+func (t *Tag) ToSearchModel() TagSearchModel {
+	return TagSearchModel{
+		ID:          t.ID,
+		Name:        t.Name,
+		Temperature: t.Temperature,
+	}
+}
+
 func (t TagSearchModel) GetID() int {
 	return t.ID
 }
@@ -309,7 +306,7 @@ func (TagSearchModel) SearchableAttributes() []string {
 }
 
 func (TagSearchModel) SortableAttributes() []string {
-	return []string{"temperature"}
+	return []string{"id", "temperature"}
 }
 
 func (TagSearchModel) RankingRules() []string {

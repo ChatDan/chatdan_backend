@@ -32,22 +32,20 @@ func ListTopics(c *fiber.Ctx) (err error) {
 	}
 	nowTime := time.Now()
 	if query.StartTime == nil {
-
 		query.StartTime = &nowTime
 	}
-	var topics []*Topic
-	result := DB.Where("? < ?", query.OrderBy, query.StartTime).Order(query.OrderBy + " desc").Limit(query.PageSize)
-	if result.Error != nil {
-		return err
-	}
+
+	var topics []Topic
+	querySet := DB.Order(query.OrderBy+" desc").Limit(query.PageSize).
+		Where("? < ?", clause.Column{Name: query.OrderBy}, query.StartTime)
 	if query.DivisionID != nil {
-		result = result.Where("division_id = ?", *query.DivisionID).Find(&topics)
-	} else {
-		result = result.Preload("Poster").Find(&topics)
+		querySet = querySet.Where("division_id = ?", *query.DivisionID)
 	}
+	result := querySet.Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
 		return result.Error
 	}
+
 	var response TopicListResponse
 	if err = copier.CopyWithOption(&response.Topics, &topics, CopyOption); err != nil {
 		return err
@@ -76,7 +74,7 @@ func GetATopic(c *fiber.Ctx) (err error) {
 	}
 
 	var topic Topic
-	result := DB.Preload("Tags").First(&topic, id)
+	result := DB.Preload("Tags").Preload("Poster").First(&topic, id)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -152,6 +150,11 @@ func CreateATopic(c *fiber.Ctx) (err error) {
 			if err != nil {
 				return err
 			}
+		}
+
+		result := tx.Model(&user).Update("topic_count", gorm.Expr("topic_count + 1"))
+		if result.Error != nil {
+			return result.Error
 		}
 
 		// save to meilisearch
@@ -253,6 +256,12 @@ func ModifyATopic(c *fiber.Ctx) (err error) {
 		return err
 	}
 
+	// save to meilisearch
+	err = SearchAddOrReplace(topic.ToSearchModel())
+	if err != nil {
+		return err
+	}
+
 	var response TopicCommonResponse
 	if err = copier.CopyWithOption(&response, &topic, CopyOption); err != nil {
 		return err
@@ -274,7 +283,6 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-
 	id, err := c.ParamsInt("id")
 	if err != nil {
 		return err
@@ -291,6 +299,13 @@ func DeleteATopic(c *fiber.Ctx) (err error) {
 	if result.Error != nil {
 		return result.Error
 	}
+
+	// delete from meilisearch
+	err = SearchDelete[TagSearchModel](topic.ID)
+	if err != nil {
+		return err
+	}
+
 	return Success(c, &EmptyStruct{})
 }
 
@@ -315,45 +330,49 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 	if err != nil {
 		return err
 	}
-	likeData, err := c.ParamsInt("like_data")
+	likeData, err := c.ParamsInt("data")
 	if err != nil {
 		return err
 	}
+
 	var topic Topic
-
-	result := DB.First(&topic, id)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	var topicUserLikes TopicUserLikes
-	result = DB.Model(&topicUserLikes).Where("user_id = ? and topic_id = ?", user.ID, id).First(&topicUserLikes)
-	if result.Error != nil {
-		return result.Error
-	}
-
-	if result.Error != nil {
-		topic.LikeCount = topic.LikeCount - topicUserLikes.LikeData + likeData
-		topicUserLikes.LikeData = likeData
-		result = DB.Model(&topicUserLikes).Updates(topicUserLikes)
+	err = DB.Transaction(func(tx *gorm.DB) error {
+		result := tx.Clauses(LockClause).First(&topic, id)
 		if result.Error != nil {
 			return result.Error
 		}
-	} else {
-		topic.LikeCount = topic.LikeCount + likeData
-		topicUserLikes.TopicID = id
-		topicUserLikes.UserID = user.ID
-		topicUserLikes.CreatedAt = time.Now()
-		topicUserLikes.LikeData = likeData
-		result = DB.Create(&topicUserLikes)
-		if result.RowsAffected == 0 {
-			return BadRequest()
-		}
-	}
 
-	result = DB.Model(&topic).Updates(topic)
-	if result.RowsAffected == 0 {
-		return BadRequest()
+		var topicUserLikes = TopicUserLikes{
+			UserID:   user.ID,
+			TopicID:  id,
+			LikeData: likeData,
+		}
+		result = tx.Save(&topicUserLikes)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		var likeCount int64
+		result = tx.Model(TopicUserLikes{}).Where("topic_id = ? and like_data = 1", id).Count(&likeCount)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		var dislikeCount int64
+		result = tx.Model(TopicUserLikes{}).Where("topic_id = ? and like_data = -1", id).Count(&dislikeCount)
+		if result.Error != nil {
+			return result.Error
+		}
+
+		result = tx.Model(&topic).UpdateColumns(Map{
+			"like_count":    likeCount,
+			"dislike_count": dislikeCount,
+		})
+
+		return result.Error
+	})
+	if err != nil {
+		return err
 	}
 
 	var response TopicCommonResponse
@@ -603,17 +622,19 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 		query.StartTime = &nowTime
 	}
 	var topics []Topic
-	tx := DB.Where("? < ?", query.OrderBy, query.StartTime).Order(query.OrderBy + "desc").Limit(query.PageSize)
+	querySet := DB.Order(query.OrderBy+" desc").Limit(query.PageSize).
+		Where("? < ?", clause.Column{Name: query.OrderBy}, query.StartTime).
+		Where("poster_id = ? and is_anonymous = false", uid)
 	if query.DivisionID != nil {
-		tx = tx.Where("division_id = ?", *query.DivisionID)
+		querySet = querySet.Where("division_id = ?", *query.DivisionID)
 	}
-	result := tx.Where("poster_id = ?", uid).Find(&topics)
+	result := querySet.Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
 		return result.Error
 	}
 
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
+	if err = copier.CopyWithOption(&response.Topics, &topics, CopyOption); err != nil {
 		return err
 	}
 
@@ -650,7 +671,7 @@ func ListTopicsByTag(c *fiber.Ctx) (err error) {
 	}
 
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
+	if err = copier.CopyWithOption(&response.Topics, &topics, CopyOption); err != nil {
 		return err
 	}
 
@@ -686,7 +707,7 @@ func SearchTopics(c *fiber.Ctx) (err error) {
 	}
 
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
+	if err = copier.CopyWithOption(&response.Topics, &topics, CopyOption); err != nil {
 		return err
 	}
 
