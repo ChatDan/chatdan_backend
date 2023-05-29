@@ -93,6 +93,8 @@ func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
 	if err != nil {
 		return
 	}
+
+	t.Tags = append(tags, newTags...)
 	return nil
 }
 

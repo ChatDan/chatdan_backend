@@ -162,9 +162,9 @@ type PostListRequest struct {
 }
 
 type PostListResponse struct {
-	Posts   []PostCommonResponse
-	Version int `json:"version"`
-	Total   int `json:"total"` // Post 总数，便于前端分页
+	Posts   []PostCommonResponse `json:"posts"`
+	Version int                  `json:"version"`
+	Total   int                  `json:"total"` // Post 总数，便于前端分页
 }
 
 type PostGetResponse struct {
