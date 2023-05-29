@@ -49,7 +49,7 @@ func ListTopics(c *fiber.Ctx) (err error) {
 		return result.Error
 	}
 	var response TopicListResponse
-	if err = copier.CopyWithOption(&response, &topics, CopyOption); err != nil {
+	if err = copier.CopyWithOption(&response.Topics, &topics, CopyOption); err != nil {
 		return err
 	}
 	return Success(c, &response)
