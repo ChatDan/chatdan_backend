@@ -103,22 +103,6 @@ func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
 	return nil
 }
 
-func (t *Topic) AfterCreate(tx *gorm.DB) (err error) {
-	if !t.IsAnonymous {
-		t.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
-	}
-	return
-}
-
-func (t *Topic) AfterFind(tx *gorm.DB) (err error) {
-	if !t.IsAnonymous {
-		t.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", t.PosterID), &t.Poster)
-	}
-	return
-}
-
 func (t Topic) ToSearchModel() TopicSearchModel {
 	return TopicSearchModel{
 		ID:         t.ID,
@@ -203,22 +187,6 @@ func (c Comment) GetID() int {
 
 func (Comment) TableName() string {
 	return "comment"
-}
-
-func (c *Comment) AfterFind(tx *gorm.DB) (err error) {
-	if !c.IsAnonymous {
-		c.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
-	}
-	return nil
-}
-
-func (c *Comment) AfterCreate(tx *gorm.DB) (err error) {
-	if !c.IsAnonymous {
-		c.Poster = new(User)
-		err = LoadModel(tx.Where("id = ?", c.PosterID), &c.Poster)
-	}
-	return nil
 }
 
 // CommentSearchModel 评论搜索模型
@@ -364,7 +332,7 @@ func FindOrGenerateAnonyname(tx *gorm.DB, topicID, userID int) (string, error) {
 	err := tx.
 		Model(&TopicAnonynameMapping{}).
 		Select("anonyname").
-		Where("hole_id = ?", topicID).
+		Where("topic_id = ?", topicID).
 		Where("user_id = ?", userID).
 		Take(&anonyname).Error
 
@@ -374,7 +342,7 @@ func FindOrGenerateAnonyname(tx *gorm.DB, topicID, userID int) (string, error) {
 			err = tx.
 				Clauses(clause.Locking{Strength: "UPDATE"}).
 				Model(&TopicAnonynameMapping{}).
-				Where("hole_id = ?", topicID).
+				Where("topic_id = ?", topicID).
 				Order("anonyname asc").
 				Pluck("anonyname", &names).Error
 			if err != nil {

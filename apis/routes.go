@@ -70,7 +70,7 @@ func RegisterRoutes(app *fiber.App) {
 	group.Post("/topic", CreateATopic)
 	group.Put("/topic/:id", ModifyATopic)
 	group.Delete("/topic/:id", DeleteATopic)
-	group.Put("/topic/:id/like/:data", LikeOrDislikeATopic)
+	group.Put("/topic/:id/_like/:data", LikeOrDislikeATopic)
 	group.Put("/topic/:id/_view", ViewATopic)
 	group.Put("/topic/:id/_favor", FavorATopic)
 	group.Delete("/topic/:id/_unfavor", UnfavorATopic)
@@ -85,7 +85,7 @@ func RegisterRoutes(app *fiber.App) {
 	group.Post("/comment", CreateAComment)
 	group.Put("/comment/:id", ModifyAComment)
 	group.Delete("/comment/:id", DeleteAComment)
-	group.Put("/comment/:id/like/:data", LikeOrDislikeAComment)
+	group.Put("/comment/:id/_like/:data", LikeOrDislikeAComment)
 	group.Get("/comments/_user/:id", ListCommentsByUser)
 	group.Get("/comments/_search", SearchComments)
 

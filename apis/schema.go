@@ -369,14 +369,19 @@ func (t *TopicCommonResponse) Postprocess(c *fiber.Ctx) (err error) {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return
 		}
+		err = nil
 	} else {
 		var commentResponse CommentCommonResponse
-		err = copier.Copy(&commentResponse, &comment)
+		err = copier.CopyWithOption(&commentResponse, &comment, CopyOption)
 		if err != nil {
 			return
 		}
 
 		t.LastComment = &commentResponse
+		err = t.LastComment.Postprocess(c)
+		if err != nil {
+			return err
+		}
 	}
 
 	// load like
@@ -447,7 +452,7 @@ func (t *TopicListResponse) Postprocess(c *fiber.Ctx) (err error) {
 		topicIDs = append(topicIDs, topic.ID)
 	}
 	err = DB.Raw(
-		`select * from comment 
+		`select * from comment
 			where topic_id in (?) and id in (
 				select max(id) from comment group by topic_id
 			)`, topicIDs).Scan(&comments).Error
@@ -455,7 +460,7 @@ func (t *TopicListResponse) Postprocess(c *fiber.Ctx) (err error) {
 		return err
 	}
 	var commentResponses []CommentCommonResponse
-	err = copier.Copy(&commentResponses, &comments)
+	err = copier.CopyWithOption(&commentResponses, &comments, CopyOption)
 	if err != nil {
 		return
 	}
@@ -591,6 +596,19 @@ func (comment *CommentCommonResponse) Postprocess(c *fiber.Ctx) (err error) {
 		comment.IsOwner = true
 	}
 
+	// load poster
+	var poster User
+	err = DB.First(&poster, comment.PosterID).Error
+	if err != nil {
+		return err
+	}
+
+	var userResponse UserResponse
+	if err = copier.CopyWithOption(&userResponse, &poster, CopyOption); err != nil {
+		return err
+	}
+	comment.Poster = &userResponse
+
 	// load like
 	var like CommentUserLikes
 	err = DB.Where("comment_id = ? AND user_id = ?", comment.ID, userID).First(&like).Error
@@ -598,6 +616,7 @@ func (comment *CommentCommonResponse) Postprocess(c *fiber.Ctx) (err error) {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return
 		}
+		err = nil
 	} else {
 		switch like.LikeData {
 		case 1:
