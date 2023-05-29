@@ -447,9 +447,9 @@ func (t *TopicListResponse) Postprocess(c *fiber.Ctx) (err error) {
 		topicIDs = append(topicIDs, topic.ID)
 	}
 	err = DB.Raw(
-		`select * from comments 
+		`select * from comment 
 			where topic_id in (?) and id in (
-				select max(id) from comments group by topic_id
+				select max(id) from comment group by topic_id
 			)`, topicIDs).Scan(&comments).Error
 	if err != nil {
 		return err
