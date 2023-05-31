@@ -630,9 +630,12 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 	var topics []Topic
 	querySet := DB.Order(query.OrderBy+" desc").Limit(query.PageSize).
 		Where("? < ?", clause.Column{Name: query.OrderBy}, query.StartTime).
-		Where("poster_id = ? and is_anonymous = false", uid)
+		Where("poster_id = ?", uid)
 	if query.DivisionID != nil {
 		querySet = querySet.Where("division_id = ?", *query.DivisionID)
+	}
+	if uid != user.ID {
+		querySet = querySet.Where("is_anonymous = false")
 	}
 	result := querySet.Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
