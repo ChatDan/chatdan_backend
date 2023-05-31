@@ -337,7 +337,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 
 	var topic Topic
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		result := tx.Clauses(LockClause).First(&topic, id)
+		result := tx.Clauses(LockClause).Preload("Tags").Preload("Poster").First(&topic, id)
 		if result.Error != nil {
 			return result.Error
 		}
@@ -403,7 +403,7 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 		return err
 	}
 	var topic Topic
-	result := DB.First(&topic, id)
+	result := DB.Preload("Tags").Preload("Poster").First(&topic, id)
 	if result.Error != nil {
 		return NotFound()
 	}
@@ -454,7 +454,7 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 		return err
 	}
 	var topic Topic
-	result := DB.First(&topic, id)
+	result := DB.Preload("Tags").Preload("Poster").First(&topic, id)
 	if result.Error != nil {
 		return NotFound()
 	}
@@ -536,7 +536,8 @@ func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 	if query.DivisionID != nil {
 		tx = tx.Where(&Topic{DivisionID: *query.DivisionID})
 	}
-	result = tx.Joins("inner join topic_user_favorites on topic_user_favorites.topic_id = topic.id and topic_user_favorites.user_id = ?", user.ID).Find(&topics)
+	result = tx.Joins("inner join topic_user_favorites on topic_user_favorites.topic_id = topic.id and topic_user_favorites.user_id = ?", user.ID).
+		Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -670,7 +671,7 @@ func ListTopicsByTag(c *fiber.Ctx) (err error) {
 	tx := DB.Model(&Topic{}).Joins("inner join topic_tags on topic_tags.topic_id = topic.id")
 
 	var topics []Topic
-	result := tx.Where("tag_id = ?", tagID).Find(&topics)
+	result := tx.Where("tag_id = ?", tagID).Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
 		return result.Error
 	}
