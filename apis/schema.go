@@ -803,8 +803,26 @@ type ChatCommonResponse struct {
 	MessageCount       int           `json:"message_count"`
 }
 
+func (chat *ChatCommonResponse) Postprocess(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(int)
+	if chat.AnotherUserID == userID {
+		chat.OneUserID, chat.AnotherUserID = chat.AnotherUserID, chat.OneUserID
+		chat.OneUser, chat.AnotherUser = chat.AnotherUser, chat.OneUser
+	}
+	return nil
+}
+
 type ChatListResponse struct {
 	Chats []ChatCommonResponse `json:"chats"` // 返回时按照 UpdatedAt 降序排列
+}
+
+func (chats *ChatListResponse) Postprocess(c *fiber.Ctx) error {
+	for i := range chats.Chats {
+		if err := chats.Chats[i].Postprocess(c); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 /* Message */
