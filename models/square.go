@@ -62,6 +62,10 @@ func (t Topic) TableName() string {
 }
 
 func (t *Topic) FindOrCreateTags(tx *gorm.DB, tagNames []string) (err error) {
+	if len(tagNames) == 0 {
+		return
+	}
+
 	// batch find and create if not exists
 	var tags []*Tag
 	err = tx.Where("name IN ?", tagNames).Find(&tags).Error
