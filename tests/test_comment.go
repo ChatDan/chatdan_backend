@@ -43,12 +43,12 @@ func testCreateComment(t *testing.T) {
 
 	body2 := Map{
 		"topic_id":     2,
-		"content":      "Test Comment",
+		"content":      "Test anonymous Comment",
 		"is_anonymous": true,
 	}
 
 	defaultTester.testPost(t, url, 401, body, &response)
-	userTester.testPost(t, url, 200, body, &response)
-	userTester.testPost(t, url, 200, body2, &response)
+	userTester.testPost(t, url, 201, body, &response)
+	userTester.testPost(t, url, 201, body2, &response)
 
 }

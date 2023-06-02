@@ -26,6 +26,8 @@ func TestAll(t *testing.T) {
 	t.Run("TestDeleteTopic", testDeleteTopic)
 	t.Run("TestCreateTopic2", testCreatATopic)
 	t.Run("TestGetATopic2", testGetATopic2)
+	t.Run("TestCreateTopic3", testCreatATopic)
+
 	t.Run("TestLikeOrDislikeATopic", testLikeOrDislikeATopic)
 
 	//comment

@@ -6,6 +6,7 @@ import (
 	. "chatdan_backend/utils"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"log"
 	"testing"
 )
 
@@ -80,8 +81,11 @@ func testDeleteTopic(t *testing.T) {
 
 func testLikeOrDislikeATopic(t *testing.T) {
 	const url = "/api/topic/2/_like/1"
+	const url2 = "/api/topic/3/_like/-1"
 	var response Response[apis.TopicCommonResponse]
 
 	defaultTester.testPut(t, url, 401, nil, &response)
 	userTester.testPut(t, url, 200, nil, &response)
+	userTester.testPut(t, url2, 200, nil, &response)
+	log.Printf("%v", response)
 }

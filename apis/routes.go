@@ -73,7 +73,7 @@ func RegisterRoutes(app *fiber.App) {
 	group.Put("/topic/:id/_like/:data", LikeOrDislikeATopic)
 	group.Put("/topic/:id/_view", ViewATopic)
 	group.Put("/topic/:id/_favor", FavorATopic)
-	group.Delete("/topic/:id/_unfavor", UnfavorATopic)
+	group.Delete("/topic/:id/_favor", UnfavorATopic)
 	group.Get("/topics/_favor", ListFavoriteTopics)
 	group.Get("/topics/_user/:id", ListTopicsByUser)
 	group.Get("/topics/_tag/:tag", ListTopicsByTag)
