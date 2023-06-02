@@ -4275,7 +4275,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "is_box_owner": {
+                    "type": "boolean"
+                },
                 "is_owner": {
+                    "type": "boolean"
+                },
+                "is_post_owner": {
                     "type": "boolean"
                 },
                 "post_id": {

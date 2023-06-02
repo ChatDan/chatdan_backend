@@ -5,6 +5,7 @@ import (
 	. "chatdan_backend/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
+	"gorm.io/gorm"
 )
 
 // ListChannels
@@ -37,7 +38,8 @@ func ListChannels(c *fiber.Ctx) (err error) {
 
 	// load channels from database
 	var channels []Channel
-	if err = query.QuerySet(DB).Where("post_id = ?", query.PostID).Find(&channels).Error; err != nil {
+	if err = query.QuerySet(DB).Preload("Post").Preload("Post.Box").
+		Where("post_id = ?", query.PostID).Find(&channels).Error; err != nil {
 		return
 	}
 
@@ -48,6 +50,8 @@ func ListChannels(c *fiber.Ctx) (err error) {
 	}
 	for i := range response.Channels {
 		response.Channels[i].IsOwner = channels[i].OwnerID == user.ID
+		response.Channels[i].IsPostOwner = channels[i].Post.PosterID == user.ID
+		response.Channels[i].IsBoxOwner = channels[i].Post.Box.OwnerID == user.ID
 	}
 
 	return Success(c, &response)
@@ -77,7 +81,7 @@ func GetAChannel(c *fiber.Ctx) (err error) {
 
 	// load channel from database
 	var channel Channel
-	if err = DB.First(&channel, channelID).Error; err != nil {
+	if err = DB.Preload("Post").Preload("Post.Box").First(&channel, channelID).Error; err != nil {
 		return
 	}
 
@@ -87,6 +91,8 @@ func GetAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 	response.IsOwner = channel.OwnerID == user.ID
+	response.IsPostOwner = channel.Post.PosterID == user.ID
+	response.IsBoxOwner = channel.Post.Box.OwnerID == user.ID
 
 	return Success(c, &response)
 }
@@ -116,23 +122,35 @@ func CreateAChannel(c *fiber.Ctx) (err error) {
 
 	// load post and related Box
 	var post Post
-	if err = DB.Preload("Box").First(&post, body.PostID).Error; err != nil {
-		return
-	}
+	var channel Channel
+	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
+		if err = DB.Preload("Box").Clauses(LockClause).First(&post, body.PostID).Error; err != nil {
+			return
+		}
 
-	// check if user is owner of the post or owner of the message box
-	if post.PosterID != user.ID && post.Box.OwnerID != user.ID {
-		return Forbidden("只有提问者或者提问箱的所有者才能创建回复 thread")
-	}
+		// check if user is owner of the post or owner of the message box
+		if post.PosterID != user.ID && post.Box.OwnerID != user.ID {
+			return Forbidden("只有提问者或者提问箱的所有者才能创建回复 thread")
+		}
 
-	// create channel
-	channel := Channel{
-		PostID:  body.PostID,
-		OwnerID: user.ID,
-		Content: body.Content,
-	}
-	if err = DB.Create(&channel).Error; err != nil {
+		// create channel
+		channel = Channel{
+			PostID:  body.PostID,
+			OwnerID: user.ID,
+			Content: body.Content,
+		}
+		if err = tx.Create(&channel).Error; err != nil {
+			return
+		}
+
+		// update post.channel_count
+		if err = tx.Model(&post).Update("channel_count", gorm.Expr("channel_count + 1")).Error; err != nil {
+			return
+		}
+
 		return
+	}); err != nil {
+		return err
 	}
 
 	// construct response
@@ -141,6 +159,8 @@ func CreateAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 	response.IsOwner = true
+	response.IsPostOwner = post.PosterID == user.ID
+	response.IsBoxOwner = post.Box.OwnerID == user.ID
 
 	return Created(c, &response)
 }

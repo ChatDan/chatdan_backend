@@ -229,10 +229,12 @@ type PostModifyResponse struct {
 /* Channel 频道、回复 */
 
 type ChannelCommonResponse struct {
-	ID      int    `json:"id"`
-	PostID  int    `json:"post_id"`
-	Content string `json:"content"`
-	IsOwner bool   `json:"is_owner"`
+	ID          int    `json:"id"`
+	PostID      int    `json:"post_id"`
+	Content     string `json:"content"`
+	IsOwner     bool   `json:"is_owner"`
+	IsPostOwner bool   `json:"is_post_owner"`
+	IsBoxOwner  bool   `json:"is_box_owner"`
 }
 
 type ChannelCreateRequest struct {
