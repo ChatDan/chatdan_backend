@@ -343,9 +343,10 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 		}
 
 		var topicUserLikes = TopicUserLikes{
-			UserID:   user.ID,
-			TopicID:  id,
-			LikeData: likeData,
+			UserID:    user.ID,
+			TopicID:   id,
+			LikeData:  likeData,
+			CreatedAt: time.Now(),
 		}
 		result = tx.Save(&topicUserLikes)
 		if result.Error != nil {
