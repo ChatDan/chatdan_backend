@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"time"
 )
 
 // ListUsers godoc
@@ -303,4 +304,227 @@ func DeleteAUser(c *fiber.Ctx) (err error) {
 	Delete(CacheName(&user))
 
 	return Success(c, &EmptyStruct{})
+}
+
+// FollowAUser godoc
+// @Summary 关注用户
+// @Tags User Module
+// @Produce json
+// @Router /user/{id}/_follow [post]
+// @Param id path int true "user id"
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
+func FollowAUser(c *fiber.Ctx) (err error) {
+	// get current user
+	var currentUser User
+	if err = GetCurrentUser(c, &currentUser); err != nil {
+		return
+	}
+
+	// get userID
+	var userID int
+	if userID, err = c.ParamsInt("id"); err != nil {
+		return
+	}
+
+	// load user from database
+	var user User
+
+	// transaction
+	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
+
+		if err = tx.Clauses(LockClause).First(&user, userID).Error; err != nil {
+			return
+		}
+
+		// follow user
+		var userFollows = UserFollows{
+			UserID:     userID,
+			FollowerID: currentUser.ID,
+			CreatedAt:  time.Now(),
+		}
+		result := tx.FirstOrCreate(&userFollows)
+		if result.Error != nil {
+			return result.Error
+		} else if result.RowsAffected == 0 {
+			return BadRequest("已经关注过该用户")
+		}
+
+		// update count
+		if err = tx.Model(&user).
+			UpdateColumn("followers_count", gorm.Expr("followers_count + 1")).Error; err != nil {
+			return
+		}
+
+		if err = tx.Model(&currentUser).
+			UpdateColumn("following_users_count", gorm.Expr("following_users_count + 1")).Error; err != nil {
+			return
+		}
+
+		return nil
+	}); err != nil {
+		return
+	}
+
+	// construct response
+	var response EmptyStruct
+	return Success(c, &response)
+}
+
+// UnfollowAUser godoc
+// @Summary 取消关注用户
+// @Tags User Module
+// @Produce json
+// @Router /user/{id}/_follow [delete]
+// @Param id path int true "user id"
+// @Success 200 {object} RespForSwagger{data=EmptyStruct}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
+func UnfollowAUser(c *fiber.Ctx) (err error) {
+	// get current user
+	var currentUser User
+	if err = GetCurrentUser(c, &currentUser); err != nil {
+		return
+	}
+
+	// get userID
+	var userID int
+	if userID, err = c.ParamsInt("id"); err != nil {
+		return
+	}
+
+	var user User
+
+	// transaction
+	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
+
+		if err = tx.Clauses(LockClause).First(&user, userID).Error; err != nil {
+			return
+		}
+
+		// unfollow user
+		var userFollows = UserFollows{
+			UserID:     userID,
+			FollowerID: currentUser.ID,
+		}
+		result := tx.Delete(&userFollows)
+		if result.Error != nil {
+			return result.Error
+		} else if result.RowsAffected == 0 {
+			return BadRequest("未关注该用户")
+		}
+
+		// update count
+		if err = tx.Model(&user).
+			UpdateColumn("followers_count", gorm.Expr("followers_count - 1")).Error; err != nil {
+			return
+		}
+
+		if err = tx.Model(&currentUser).
+			UpdateColumn("following_users_count", gorm.Expr("following_users_count - 1")).Error; err != nil {
+			return
+		}
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	// construct response
+	var response EmptyStruct
+	return Success(c, &response)
+}
+
+// ListUserFollowers godoc
+// @Summary 获取用户的粉丝列表
+// @Tags User Module
+// @Produce json
+// @Router /user/{id}/_followers [get]
+// @Param id path int true "user id"
+// @Param page query UserListRequest true "page"
+// @Success 200 {object} RespForSwagger{data=UserListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
+func ListUserFollowers(c *fiber.Ctx) (err error) {
+	// get userID
+	var userID int
+	if userID, err = c.ParamsInt("id"); err != nil {
+		return
+	}
+
+	// get and validate request query
+	var query UserListRequest
+	if err = ValidateQuery(c, &query); err != nil {
+		return
+	}
+
+	// load user from database
+	var user User
+	if err = DB.First(&user, userID).Error; err != nil {
+		return
+	}
+
+	// get followers
+	var followers []User
+	if err = query.QuerySet(DB).Model(&user).
+		Joins("inner join user_follows on user_follows.follower_id = user.id and user_follows.user_id = ?", user.ID).
+		Order("user_follows.created_at desc").
+		Find(&followers).Error; err != nil {
+		return
+	}
+
+	// construct response
+	var response UserListResponse
+	if err = copier.Copy(&response.Users, &followers); err != nil {
+		return
+	}
+
+	return Success(c, &response)
+}
+
+// ListUserFollowing godoc
+// @Summary 获取用户的关注列表
+// @Tags User Module
+// @Produce json
+// @Router /user/{id}/_following [get]
+// @Param id path int true "user id"
+// @Param page query UserListRequest true "page"
+// @Success 200 {object} RespForSwagger{data=UserListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
+func ListUserFollowing(c *fiber.Ctx) (err error) {
+	// get userID
+	var userID int
+	if userID, err = c.ParamsInt("id"); err != nil {
+		return
+	}
+
+	// get and validate request query
+	var query UserListRequest
+	if err = ValidateQuery(c, &query); err != nil {
+		return
+	}
+
+	// load user from database
+	var user User
+	if err = DB.First(&user, userID).Error; err != nil {
+		return
+	}
+
+	// get following
+	var following []User
+	if err = query.QuerySet(DB).Model(&user).
+		Joins("inner join user_follows on user_follows.user_id = user.id and user_follows.follower_id = ?", user.ID).
+		Order("user_follows.created_at desc").
+		Find(&following).Error; err != nil {
+		return
+	}
+
+	// construct response
+	var response UserListResponse
+	if err = copier.Copy(&response.Users, &following); err != nil {
+		return
+	}
+
+	return Success(c, &response)
 }
