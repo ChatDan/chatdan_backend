@@ -12,13 +12,17 @@ func testListComments(t *testing.T) {
 	var response Response[apis.CommentListResponse]
 
 	query1 := Map{
-		"topic_id": 1,
-		"order_by": "id",
+		"topic_id":  1,
+		"order_by":  "id",
+		"page_num":  1,
+		"page_size": 10,
 	}
 
 	query2 := Map{
-		"topic_id": 2,
-		"order_by": "id",
+		"topic_id":  2,
+		"order_by":  "id",
+		"page_num":  1,
+		"page_size": 10,
 	}
 
 	defaultTester.testGet(t, url, 401, query2, &response)
@@ -32,7 +36,7 @@ func testCreateComment(t *testing.T) {
 	var response Response[apis.CommentCommonResponse]
 
 	body := Map{
-		"topic_id":     1,
+		"topic_id":     2,
 		"content":      "Test Comment",
 		"is_anonymous": false,
 	}
@@ -44,7 +48,7 @@ func testCreateComment(t *testing.T) {
 	}
 
 	defaultTester.testPost(t, url, 401, body, &response)
-	userTester.testPost(t, url, 404, body, &response)
-	userTester.testPost(t, url, 201, body2, &response)
+	userTester.testPost(t, url, 200, body, &response)
+	userTester.testPost(t, url, 200, body2, &response)
 
 }

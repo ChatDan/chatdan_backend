@@ -31,7 +31,7 @@ func ListWalls(c *fiber.Ctx) (err error) {
 	// construct querySet and load walls from database（昨日发送的表白墙）
 	queryDate := time.Now().AddDate(0, 0, -1)
 	if query.Date != nil {
-		queryDate = *query.Date
+		queryDate = (*query.Date).AddDate(0, 0, -1)
 	}
 	if queryDate.After(nowDate) {
 		return BadRequest("不允许查询未来的表白墙")
@@ -42,7 +42,7 @@ func ListWalls(c *fiber.Ctx) (err error) {
 		"created_at between ? and ?",
 		time.Date(queryDate.Year(), queryDate.Month(), queryDate.Day(), 0, 0, 0, 0, time.Local),
 		time.Date(queryDate.Year(), queryDate.Month(), queryDate.Day(), 23, 59, 59, 999, time.Local),
-	).Find(&walls).Error; err != nil {
+	).Preload("Poster").Find(&walls).Error; err != nil {
 		return err
 	}
 

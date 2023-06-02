@@ -30,6 +30,12 @@ func ListComments(c *fiber.Ctx) (err error) {
 		return err
 	}
 
+	var topic Topic
+	err = DB.First(&topic, query.TopicID).Error
+	if err != nil {
+		return err
+	}
+
 	tx := query.QuerySet(DB).Where("topic_id = ?", query.TopicID)
 	if query.OrderBy == "id" {
 		tx = tx.Order(query.OrderBy + " asc")
@@ -72,7 +78,7 @@ func GetAComment(c *fiber.Ctx) (err error) {
 	}
 	var comment Comment
 
-	result := DB.First(&comment, id)
+	result := DB.Preload("Poster").First(&comment, id)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -392,7 +398,7 @@ func ListCommentsByUser(c *fiber.Ctx) (err error) {
 	tx = query.QuerySet(tx)
 
 	var comments []Comment
-	result := tx.Find(&comments)
+	result := tx.Preload("Poster").Find(&comments)
 	if result.Error != nil {
 		return result.Error
 	}

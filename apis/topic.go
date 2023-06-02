@@ -337,7 +337,7 @@ func LikeOrDislikeATopic(c *fiber.Ctx) (err error) {
 
 	var topic Topic
 	err = DB.Transaction(func(tx *gorm.DB) error {
-		result := tx.Clauses(LockClause).First(&topic, id)
+		result := tx.Clauses(LockClause).Preload("Tags").Preload("Poster").First(&topic, id)
 		if result.Error != nil {
 			return result.Error
 		}
@@ -403,7 +403,7 @@ func ViewATopic(c *fiber.Ctx) (err error) {
 		return err
 	}
 	var topic Topic
-	result := DB.First(&topic, id)
+	result := DB.Preload("Tags").Preload("Poster").First(&topic, id)
 	if result.Error != nil {
 		return NotFound()
 	}
@@ -454,7 +454,7 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 		return err
 	}
 	var topic Topic
-	result := DB.First(&topic, id)
+	result := DB.Preload("Tags").Preload("Poster").First(&topic, id)
 	if result.Error != nil {
 		return NotFound()
 	}
@@ -471,6 +471,11 @@ func FavorATopic(c *fiber.Ctx) (err error) {
 		result = DB.Model(&topic).UpdateColumn("favor_count", gorm.Expr("favor_count + 1"))
 		if result.RowsAffected == 0 {
 			return BadRequest()
+		}
+
+		result = DB.Model(&user).UpdateColumn("favorite_topics_count", gorm.Expr("favorite_topics_count + 1"))
+		if result.Error != nil {
+			return result.Error
 		}
 	}
 
@@ -531,7 +536,8 @@ func ListFavoriteTopics(c *fiber.Ctx) (err error) {
 	if query.DivisionID != nil {
 		tx = tx.Where(&Topic{DivisionID: *query.DivisionID})
 	}
-	result = tx.Joins("inner join topic_user_favorites on topic_user_favorites.topic_id = topic.id and topic_user_favorites.user_id = ?", user.ID).Find(&topics)
+	result = tx.Joins("inner join topic_user_favorites on topic_user_favorites.topic_id = topic.id and topic_user_favorites.user_id = ?", user.ID).
+		Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -624,9 +630,12 @@ func ListTopicsByUser(c *fiber.Ctx) (err error) {
 	var topics []Topic
 	querySet := DB.Order(query.OrderBy+" desc").Limit(query.PageSize).
 		Where("? < ?", clause.Column{Name: query.OrderBy}, query.StartTime).
-		Where("poster_id = ? and is_anonymous = false", uid)
+		Where("poster_id = ?", uid)
 	if query.DivisionID != nil {
 		querySet = querySet.Where("division_id = ?", *query.DivisionID)
+	}
+	if uid != user.ID {
+		querySet = querySet.Where("is_anonymous = false")
 	}
 	result := querySet.Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
@@ -665,7 +674,7 @@ func ListTopicsByTag(c *fiber.Ctx) (err error) {
 	tx := DB.Model(&Topic{}).Joins("inner join topic_tags on topic_tags.topic_id = topic.id")
 
 	var topics []Topic
-	result := tx.Where("tag_id = ?", tagID).Find(&topics)
+	result := tx.Where("tag_id = ?", tagID).Preload("Tags").Preload("Poster").Find(&topics)
 	if result.Error != nil {
 		return result.Error
 	}

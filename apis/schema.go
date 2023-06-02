@@ -254,6 +254,15 @@ type WallCommonResponse struct {
 	IsShown     bool          `json:"is_shown"` // 是否显示在表白墙页面
 }
 
+func (w *WallCommonResponse) Postprocess(_ *fiber.Ctx) error {
+	if w.IsAnonymous {
+		w.Poster = nil
+		w.PosterID = 0
+	}
+	w.Visibility = "public"
+	return nil
+}
+
 type WallListRequest struct {
 	PageRequest
 	Date *time.Time `json:"date" query:"date" validate:"omitempty"` // 日期（所对应的时间，只解析时间），不填默认当天（即昨天发送的表白墙）
@@ -263,6 +272,15 @@ type WallListResponse struct {
 	Posts []WallCommonResponse `json:"posts"`
 	Total int                  `json:"total"`                     // Post 总数，便于前端分页
 	Date  time.Time            `json:"date" swaggertype:"string"` // 日期
+}
+
+func (w *WallListResponse) Postprocess(c *fiber.Ctx) error {
+	for i := range w.Posts {
+		if err := w.Posts[i].Postprocess(c); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type WallCreateRequest struct {
@@ -785,8 +803,26 @@ type ChatCommonResponse struct {
 	MessageCount       int           `json:"message_count"`
 }
 
+func (chat *ChatCommonResponse) Postprocess(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(int)
+	if chat.AnotherUserID == userID {
+		chat.OneUserID, chat.AnotherUserID = chat.AnotherUserID, chat.OneUserID
+		chat.OneUser, chat.AnotherUser = chat.AnotherUser, chat.OneUser
+	}
+	return nil
+}
+
 type ChatListResponse struct {
 	Chats []ChatCommonResponse `json:"chats"` // 返回时按照 UpdatedAt 降序排列
+}
+
+func (chats *ChatListResponse) Postprocess(c *fiber.Ctx) error {
+	for i := range chats.Chats {
+		if err := chats.Chats[i].Postprocess(c); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 /* Message */
