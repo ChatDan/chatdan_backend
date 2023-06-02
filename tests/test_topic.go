@@ -87,5 +87,5 @@ func testLikeOrDislikeATopic(t *testing.T) {
 	defaultTester.testPut(t, url, 401, nil, &response)
 	userTester.testPut(t, url, 200, nil, &response)
 	userTester.testPut(t, url2, 200, nil, &response)
-	log.Printf("%v", response)
+	log.Printf("%+v", response.Data)
 }
