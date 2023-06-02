@@ -32,7 +32,7 @@ func testCreateComment(t *testing.T) {
 	var response Response[apis.CommentCommonResponse]
 
 	body := Map{
-		"topic_id":     2,
+		"topic_id":     1,
 		"content":      "Test Comment",
 		"is_anonymous": false,
 	}
@@ -44,7 +44,7 @@ func testCreateComment(t *testing.T) {
 	}
 
 	defaultTester.testPost(t, url, 401, body, &response)
-	userTester.testPost(t, url, 200, body, &response)
-	userTester.testPost(t, url, 200, body2, &response)
+	userTester.testPost(t, url, 404, body, &response)
+	userTester.testPost(t, url, 201, body2, &response)
 
 }

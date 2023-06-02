@@ -77,3 +77,11 @@ func testDeleteTopic(t *testing.T) {
 	userTester.testDelete(t, url, 200, nil, nil)
 
 }
+
+func testLikeOrDislikeATopic(t *testing.T) {
+	const url = "/api/topic/2/_like/1"
+	var response Response[apis.TopicCommonResponse]
+
+	defaultTester.testPut(t, url, 401, nil, &response)
+	userTester.testPut(t, url, 200, nil, &response)
+}
