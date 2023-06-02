@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"time"
 )
 
 // ListComments godoc
@@ -327,6 +328,7 @@ func LikeOrDislikeAComment(c *fiber.Ctx) (err error) {
 			CommentID: id,
 			UserID:    user.ID,
 			LikeData:  likeData,
+			CreatedAt: time.Now(),
 		}
 		result = tx.Save(&commentUserLikes)
 		if result.Error != nil {
