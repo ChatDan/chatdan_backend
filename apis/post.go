@@ -36,7 +36,7 @@ func ListPosts(c *fiber.Ctx) (err error) {
 	}
 
 	// construct querySet
-	querySet := query.QuerySet(DB).Where("box_id = ?", query.BoxID)
+	querySet := query.QuerySet(DB).Preload("Poster").Where("box_id = ?", query.BoxID)
 	if user.ID != box.OwnerID {
 		querySet = querySet.Where("is_public = ?", true)
 	}
@@ -83,7 +83,7 @@ func GetAPost(c *fiber.Ctx) (err error) {
 
 	// load post and associated box from database
 	var post Post
-	if err = DB.Preload("Box").First(&post, postID).Error; err != nil {
+	if err = DB.Preload("Box").Preload("Poster").First(&post, postID).Error; err != nil {
 		return
 	}
 

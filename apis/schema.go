@@ -156,6 +156,14 @@ type PostCommonResponse struct {
 	ViewCount    int           `json:"view_count"`
 }
 
+func (p *PostCommonResponse) Postprocess(_ *fiber.Ctx) error {
+	if p.IsAnonymous {
+		p.Poster = nil
+		p.PosterID = 0
+	}
+	return nil
+}
+
 type PostListRequest struct {
 	PageRequest
 	BoxID int `json:"message_box_id" query:"message_box_id" validate:"required"`
@@ -165,6 +173,13 @@ type PostListResponse struct {
 	Posts   []PostCommonResponse `json:"posts"`
 	Version int                  `json:"version"`
 	Total   int                  `json:"total"` // Post 总数，便于前端分页
+}
+
+func (p *PostListResponse) Postprocess(_ *fiber.Ctx) error {
+	for i := range p.Posts {
+		_ = p.Posts[i].Postprocess(nil)
+	}
+	return nil
 }
 
 type PostGetResponse struct {
