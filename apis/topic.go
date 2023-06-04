@@ -711,9 +711,27 @@ func SearchTopics(c *fiber.Ctx) (err error) {
 	}
 
 	var topics []Topic
-	_, err = Search(DB, &topics, query.Search, "", []string{"id desc"}, "title", query.PageRequest)
+	_, err = Search(DB.Preload("Tags"), &topics, query.Search, "", []string{"id desc"}, "title", query.PageRequest)
 	if err != nil {
 		return
+	}
+
+	// load topics poster
+	posterIDs := make([]int, len(topics))
+	for i, topic := range topics {
+		posterIDs[i] = topic.PosterID
+	}
+	var posters []User
+	result := DB.Where("id in (?)", posterIDs).Find(&posters)
+	if result.Error != nil {
+		return result.Error
+	}
+	posterMap := make(map[int]*User)
+	for i := range posters {
+		posterMap[posters[i].ID] = &posters[i]
+	}
+	for i := range topics {
+		topics[i].Poster = posterMap[topics[i].PosterID]
 	}
 
 	var response TopicListResponse
