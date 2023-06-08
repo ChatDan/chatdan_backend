@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 var meilisearchClient *meilisearch.Client
@@ -24,31 +26,75 @@ func InitSearch() {
 	utils.Logger.Info("Meilisearch initialized")
 
 	// create or update indexes
-	var searchModels = []SearchModel{BoxSearchModel{}, TagSearchModel{}, TopicSearchModel{}, CommentSearchModel{}}
+	var searchModels = []SearchModel{
+		BoxSearchModel{},
+		TagSearchModel{},
+		TopicSearchModel{},
+		CommentSearchModel{},
+		UserSearchModel{},
+	}
+
+	var createIndexTasks []*meilisearch.TaskInfo
 
 	for _, model := range searchModels {
 		indexName := model.IndexName()
 
 		// create or update index
-		var index *meilisearch.Index
-		if index, err = meilisearchClient.GetIndex(indexName); err != nil {
+		if _, err = meilisearchClient.GetIndex(indexName); err != nil {
 			if meiliError, ok := err.(*meilisearch.Error); ok {
 				if meiliError.StatusCode == 404 {
-					if _, err = meilisearchClient.CreateIndex(&meilisearch.IndexConfig{
+					var indexTaskInfo *meilisearch.TaskInfo
+					if indexTaskInfo, err = meilisearchClient.CreateIndex(&meilisearch.IndexConfig{
 						Uid:        indexName,
 						PrimaryKey: model.PrimaryKey(),
 					}); err != nil {
 						utils.Logger.Panic("Cannot create index "+indexName, zap.Error(err))
 					}
 
-					index, err = meilisearchClient.GetIndex(indexName)
-					if err != nil {
-						utils.Logger.Panic("Cannot get index "+indexName, zap.Error(err))
-					}
+					createIndexTasks = append(createIndexTasks, indexTaskInfo)
 				}
 			} else {
 				utils.Logger.Panic("Cannot get index "+indexName, zap.Error(err))
 			}
+		}
+	}
+
+	// wait for index creation task
+	var taskWaitGroup sync.WaitGroup
+
+	for i := range createIndexTasks {
+		taskWaitGroup.Add(1)
+		var taskInfo = createIndexTasks[i]
+		go func() {
+			defer taskWaitGroup.Done()
+			for {
+				task, err := meilisearchClient.GetTask(taskInfo.TaskUID)
+				if err != nil {
+					utils.Logger.Panic("Cannot get task", zap.Error(err))
+				}
+				if task.Status == "processed" {
+					time.Sleep(1 * time.Millisecond)
+				} else {
+					if task.Status == "failed" {
+						utils.Logger.Panic("Task failed", zap.Any("task", task))
+					}
+					break
+				}
+			}
+		}()
+	}
+
+	taskWaitGroup.Wait()
+
+	var reloadWaitGroup sync.WaitGroup
+
+	for _, model := range searchModels {
+		indexName := model.IndexName()
+		var index *meilisearch.Index
+
+		index, err = meilisearchClient.GetIndex(indexName)
+		if err != nil {
+			utils.Logger.Panic("Cannot get index "+indexName, zap.Error(err))
 		}
 
 		var filterableAttributes = model.FilterableAttributes()
@@ -70,6 +116,22 @@ func InitSearch() {
 		if _, err = index.UpdateRankingRules(&rankingRules); err != nil {
 			utils.Logger.Panic("Cannot update ranking rules", zap.Error(err))
 		}
+
+		if config.Config.MeilisearchReload {
+			// reload model concurrently
+			reloadWaitGroup.Add(1)
+			go func() {
+				defer reloadWaitGroup.Done()
+				if err = model.ReloadModel(); err != nil {
+					utils.Logger.Panic("Cannot reload model "+indexName, zap.Error(err))
+				}
+			}()
+		}
+	}
+
+	if config.Config.MeilisearchReload {
+		utils.Logger.Info("Meilisearch reload started")
+		reloadWaitGroup.Wait()
 	}
 }
 
@@ -81,6 +143,7 @@ type SearchModel interface {
 	SearchableAttributes() []string
 	SortableAttributes() []string
 	RankingRules() []string
+	ReloadModel() error
 }
 
 func SearchAddOrReplace[T SearchModel](model T) (err error) {
@@ -93,6 +156,9 @@ func SearchAddOrReplace[T SearchModel](model T) (err error) {
 
 func SearchAddOrReplaceInBatch[T SearchModel](models []T) (err error) {
 	if config.Config.MeilisearchUrl == "" {
+		return
+	}
+	if len(models) == 0 {
 		return
 	}
 	_, err = meilisearchClient.Index(models[0].IndexName()).AddDocuments(models, "id")

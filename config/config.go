@@ -18,6 +18,7 @@ var Config struct {
 	ApisixAdminKey    string `env:"APISIX_ADMIN_KEY"`
 	MeilisearchUrl    string `env:"MEILISEARCH_URL"`
 	MeilisearchApiKey string `env:"MEILISEARCH_API_KEY"`
+	MeilisearchReload bool   `env:"MEILISEARCH_RELOAD" envDefault:"false"`
 }
 
 func InitConfig() {

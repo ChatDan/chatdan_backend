@@ -73,7 +73,18 @@ func (BoxSearchModel) RankingRules() []string {
 	return []string{"words", "attribute", "sort", "exactness"}
 }
 
-func (b Box) ToBoxSearchModel() BoxSearchModel {
+func (BoxSearchModel) ReloadModel() error {
+	var boxes []Box
+	return DB.FindInBatches(&boxes, 100, func(tx *gorm.DB, batch int) error {
+		var boxSearchModels []BoxSearchModel
+		for _, box := range boxes {
+			boxSearchModels = append(boxSearchModels, box.ToBoxSearchModel())
+		}
+		return SearchAddOrReplaceInBatch(boxSearchModels)
+	}).Error
+}
+
+func (b *Box) ToBoxSearchModel() BoxSearchModel {
 	return BoxSearchModel{
 		ID:        b.ID,
 		CreatedAt: int(b.CreatedAt.UnixMicro()),

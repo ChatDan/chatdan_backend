@@ -106,16 +106,24 @@ func ModifyUserMe(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	// load user from cache or database
-	if err = LoadModel(DB, &user); err != nil {
-		return
-	}
+	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
+		// load user from database
+		if err = LoadModel(DB, &user); err != nil {
+			return
+		}
 
-	// modify user
-	if err = copier.CopyWithOption(&user, &body, CopyOption); err != nil {
-		return
-	}
-	if err = DB.Model(&user).Select(body.Fields()).Updates(&user).Error; err != nil {
+		// modify user
+		if err = UpdateModel(DB, &user, body); err != nil {
+			return
+		}
+
+		// update search
+		if err = SearchAddOrReplace(user.ToSearchModel()); err != nil {
+			return
+		}
+
+		return nil
+	}); err != nil {
 		return
 	}
 
@@ -144,20 +152,31 @@ func DeleteUserMe(c *fiber.Ctx) (err error) {
 	}
 
 	// delete user
-	if err = DB.Transaction(func(tx *gorm.DB) error {
+	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
+		// load user from database
+		if err = DB.Clauses(LockClause).First(&user, user.ID).Error; err != nil {
+			return
+		}
+
 		// change user's username
 		if err = tx.Model(&user).Update("username", user.DeletedUsername()).Error; err != nil {
-			return err
+			return
 		}
 
 		// delete user
-		return DB.Delete(&user).Error
+		if err = DeleteModel(tx, &user); err != nil {
+			return
+		}
+
+		// delete search
+		if err = SearchDelete[UserSearchModel](user.ID); err != nil {
+			return
+		}
+
+		return nil
 	}); err != nil {
 		return
 	}
-
-	// 删除缓存
-	Delete(CacheName(&user))
 
 	return Success(c, &EmptyStruct{})
 }
@@ -233,17 +252,25 @@ func ModifyAUser(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	// load user from database
 	var user User
-	if err = LoadModel(DB, &user); err != nil {
-		return
-	}
+	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
+		// load user from database
+		if err = LoadModel(DB, &user); err != nil {
+			return
+		}
 
-	// modify user
-	if err = copier.CopyWithOption(&user, &body, CopyOption); err != nil {
-		return
-	}
-	if err = DB.Model(&user).Select(body.Fields()).Updates(&user).Error; err != nil {
+		// modify user
+		if err = UpdateModel(DB, &user, body); err != nil {
+			return
+		}
+
+		// update search
+		if err = SearchAddOrReplace(user.ToSearchModel()); err != nil {
+			return
+		}
+
+		return nil
+	}); err != nil {
 		return
 	}
 
@@ -295,7 +322,16 @@ func DeleteAUser(c *fiber.Ctx) (err error) {
 		}
 
 		// delete user
-		return DB.Delete(&User{ID: userID}).Error
+		if err = DeleteModel(tx, &user); err != nil {
+			return
+		}
+
+		// delete search
+		if err = SearchDelete[UserSearchModel](user.ID); err != nil {
+			return
+		}
+
+		return nil
 	}); err != nil {
 		return err
 	}
@@ -439,7 +475,7 @@ func UnfollowAUser(c *fiber.Ctx) (err error) {
 // @Summary 获取用户的粉丝列表
 // @Tags User Module
 // @Produce json
-// @Router /user/{id}/_followers [get]
+// @Router /users/{id}/_followers [get]
 // @Param id path int true "user id"
 // @Param page query UserListRequest true "page"
 // @Success 200 {object} RespForSwagger{data=UserListResponse}
@@ -486,7 +522,7 @@ func ListUserFollowers(c *fiber.Ctx) (err error) {
 // @Summary 获取用户的关注列表
 // @Tags User Module
 // @Produce json
-// @Router /user/{id}/_following [get]
+// @Router /users/{id}/_following [get]
 // @Param id path int true "user id"
 // @Param page query UserListRequest true "page"
 // @Success 200 {object} RespForSwagger{data=UserListResponse}
@@ -525,6 +561,45 @@ func ListUserFollowing(c *fiber.Ctx) (err error) {
 	if err = copier.Copy(&response.Users, &following); err != nil {
 		return
 	}
+
+	return Success(c, &response)
+}
+
+// SearchUsers godoc
+// @Summary 搜索用户
+// @Tags User Module
+// @Produce json
+// @Router /users/_search [get]
+// @Param page query UserSearchRequest true "page"
+// @Success 200 {object} RespForSwagger{data=UserListResponse}
+// @Failure 400 {object} RespForSwagger
+// @Failure 500 {object} RespForSwagger
+func SearchUsers(c *fiber.Ctx) (err error) {
+	var user User
+	err = GetCurrentUser(c, &user)
+	if err != nil {
+		return
+	}
+
+	// get and validate request query
+	var query UserSearchRequest
+	if err = ValidateQuery(c, &query); err != nil {
+		return
+	}
+
+	// get users
+	var users []User
+	var total int
+	if total, err = Search(query.QuerySet(DB), &users, query.Search, "", nil, "username", query.PageRequest); err != nil {
+		return
+	}
+
+	// construct response
+	var response UserListResponse
+	if err = copier.Copy(&response.Users, &users); err != nil {
+		return
+	}
+	response.Total = total
 
 	return Success(c, &response)
 }

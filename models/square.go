@@ -167,6 +167,17 @@ func (t TopicSearchModel) RankingRules() []string {
 	return []string{"words", "attribute", "sort", "exactness"}
 }
 
+func (TopicSearchModel) ReloadModel() error {
+	var topics []Topic
+	return DB.FindInBatches(&topics, 100, func(tx *gorm.DB, batch int) error {
+		var searchModels []TopicSearchModel
+		for _, topic := range topics {
+			searchModels = append(searchModels, topic.ToSearchModel())
+		}
+		return SearchAddOrReplaceInBatch(searchModels)
+	}).Error
+}
+
 var _ SearchModel = TopicSearchModel{}
 
 // Comment 评论
@@ -252,6 +263,17 @@ func (c CommentSearchModel) RankingRules() []string {
 	return []string{"words", "attribute", "sort", "exactness"}
 }
 
+func (CommentSearchModel) ReloadModel() error {
+	var comments []Comment
+	return DB.FindInBatches(&comments, 100, func(tx *gorm.DB, batch int) error {
+		var searchModels []CommentSearchModel
+		for _, comment := range comments {
+			searchModels = append(searchModels, comment.ToSearchModel())
+		}
+		return SearchAddOrReplaceInBatch(searchModels)
+	}).Error
+}
+
 var _ SearchModel = CommentSearchModel{}
 
 // Tag 标签
@@ -315,6 +337,17 @@ func (TagSearchModel) SortableAttributes() []string {
 
 func (TagSearchModel) RankingRules() []string {
 	return []string{"words", "attribute", "sort", "exactness"}
+}
+
+func (TagSearchModel) ReloadModel() error {
+	var tags []Tag
+	return DB.FindInBatches(&tags, 100, func(tx *gorm.DB, batch int) error {
+		var searchModels []TagSearchModel
+		for _, tag := range tags {
+			searchModels = append(searchModels, tag.ToSearchModel())
+		}
+		return SearchAddOrReplaceInBatch(searchModels)
+	}).Error
 }
 
 var _ SearchModel = TagSearchModel{}

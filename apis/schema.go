@@ -99,6 +99,11 @@ func (u UserModifyRequest) Fields() []string {
 	return fields
 }
 
+type UserSearchRequest struct {
+	PageRequest
+	Search string `json:"search" query:"search" validate:"omitempty,min=2"`
+}
+
 /* Box 提问箱 */
 
 type BoxCommonResponse struct {

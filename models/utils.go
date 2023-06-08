@@ -3,6 +3,7 @@ package models
 import (
 	"chatdan_backend/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"strconv"
 	"time"
 )
@@ -245,7 +246,7 @@ func LoadModelAll[T IDTabler](tx *gorm.DB, model *[]T) (err error) {
 }
 
 func CreateModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
-	if err = tx.FirstOrCreate(model).Error; err != nil {
+	if err = tx.FirstOrCreate(model).Omit(clause.Associations).Error; err != nil {
 		return
 	}
 
@@ -258,7 +259,7 @@ func CreateModel[T IDTabler](tx *gorm.DB, model *T) (err error) {
 }
 
 func UpdateModel[T IDTabler](tx *gorm.DB, model *T, columns any) (err error) {
-	if err = tx.Model(model).Updates(columns).Error; err != nil {
+	if err = tx.Model(model).Omit(clause.Associations).Updates(columns).Error; err != nil {
 		return
 	}
 

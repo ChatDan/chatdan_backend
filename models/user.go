@@ -54,6 +54,59 @@ func (user User) DeletedUsername() string {
 	}
 }
 
+func (user *User) ToSearchModel() UserSearchModel {
+	return UserSearchModel{
+		ID:       user.ID,
+		Username: user.Username,
+	}
+}
+
+type UserSearchModel struct {
+	ID       int    `json:"id"`
+	Username string `json:"username"`
+}
+
+func (u UserSearchModel) GetID() int {
+	return u.ID
+}
+
+func (u UserSearchModel) IndexName() string {
+	return "user"
+}
+
+func (u UserSearchModel) PrimaryKey() string {
+	return "id"
+}
+
+func (u UserSearchModel) FilterableAttributes() []string {
+	return nil
+}
+
+func (u UserSearchModel) SearchableAttributes() []string {
+	return []string{"username"}
+}
+
+func (u UserSearchModel) SortableAttributes() []string {
+	return []string{"id"}
+}
+
+func (u UserSearchModel) RankingRules() []string {
+	return []string{"words", "attribute", "sort", "exactness"}
+}
+
+func (UserSearchModel) ReloadModel() error {
+	var users []User
+	return DB.FindInBatches(&users, 100, func(tx *gorm.DB, batch int) error {
+		var searchModels []UserSearchModel
+		for _, user := range users {
+			searchModels = append(searchModels, user.ToSearchModel())
+		}
+		return SearchAddOrReplaceInBatch(searchModels)
+	}).Error
+}
+
+var _ SearchModel = UserSearchModel{}
+
 type UserFollows struct {
 	UserID     int       `json:"user_id" gorm:"primaryKey"`
 	FollowerID int       `json:"follower_id" gorm:"primaryKey"`

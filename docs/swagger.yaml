@@ -2821,100 +2821,6 @@ paths:
       summary: 关注用户
       tags:
       - User Module
-  /user/{id}/_followers:
-    get:
-      parameters:
-      - description: user id
-        in: path
-        name: id
-        required: true
-        type: integer
-      - in: query
-        minimum: 1
-        name: page_num
-        required: true
-        type: integer
-      - in: query
-        maximum: 100
-        minimum: 1
-        name: page_size
-        required: true
-        type: integer
-      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
-        in: query
-        minimum: 0
-        name: version
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.RespForSwagger'
-            - properties:
-                data:
-                  $ref: '#/definitions/apis.UserListResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.RespForSwagger'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.RespForSwagger'
-      summary: 获取用户的粉丝列表
-      tags:
-      - User Module
-  /user/{id}/_following:
-    get:
-      parameters:
-      - description: user id
-        in: path
-        name: id
-        required: true
-        type: integer
-      - in: query
-        minimum: 1
-        name: page_num
-        required: true
-        type: integer
-      - in: query
-        maximum: 100
-        minimum: 1
-        name: page_size
-        required: true
-        type: integer
-      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
-        in: query
-        minimum: 0
-        name: version
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/utils.RespForSwagger'
-            - properties:
-                data:
-                  $ref: '#/definitions/apis.UserListResponse'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.RespForSwagger'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/utils.RespForSwagger'
-      summary: 获取用户的关注列表
-      tags:
-      - User Module
   /user/login:
     post:
       consumes:
@@ -3175,6 +3081,146 @@ paths:
           schema:
             $ref: '#/definitions/utils.RespForSwagger'
       summary: 查询所有用户, admin only
+      tags:
+      - User Module
+  /users/_search:
+    get:
+      parameters:
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - in: query
+        minLength: 2
+        name: search
+        type: string
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.RespForSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+      summary: 搜索用户
+      tags:
+      - User Module
+  /users/{id}/_followers:
+    get:
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.RespForSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+      summary: 获取用户的粉丝列表
+      tags:
+      - User Module
+  /users/{id}/_following:
+    get:
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - in: query
+        minimum: 1
+        name: page_num
+        required: true
+        type: integer
+      - in: query
+        maximum: 100
+        minimum: 1
+        name: page_size
+        required: true
+        type: integer
+      - description: 分页版本号，一个时间戳，用于保证分页查询的一致性和正确性。不填默认使用最新版本时间戳
+        in: query
+        minimum: 0
+        name: version
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.RespForSwagger'
+            - properties:
+                data:
+                  $ref: '#/definitions/apis.UserListResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.RespForSwagger'
+      summary: 获取用户的关注列表
       tags:
       - User Module
   /wall:
