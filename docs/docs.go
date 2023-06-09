@@ -4253,6 +4253,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "owner": {
+                    "$ref": "#/definitions/apis.UserResponse"
+                },
                 "owner_id": {
                     "type": "integer"
                 },
@@ -4289,6 +4292,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "owner": {
+                    "$ref": "#/definitions/apis.UserResponse"
                 },
                 "owner_id": {
                     "type": "integer"

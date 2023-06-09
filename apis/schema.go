@@ -107,13 +107,29 @@ type UserSearchRequest struct {
 /* Box 提问箱 */
 
 type BoxCommonResponse struct {
-	ID        int       `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	OwnerID   int       `json:"owner_id"`
-	Title     string    `json:"title"`
-	PostCount int       `json:"post_count"`
-	ViewCount int       `json:"view_count"`
+	ID        int           `json:"id"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	OwnerID   int           `json:"owner_id"`
+	Owner     *UserResponse `json:"owner,omitempty"`
+	Title     string        `json:"title"`
+	PostCount int           `json:"post_count"`
+	ViewCount int           `json:"view_count"`
+}
+
+func (b *BoxCommonResponse) Postprocess(c *fiber.Ctx) (err error) {
+	// load owner
+	if b.OwnerID != 0 {
+		var user User
+		if err = DB.First(&user, b.OwnerID).Error; err != nil {
+			return
+		}
+		b.Owner = &UserResponse{}
+		if err = copier.Copy(b.Owner, user); err != nil {
+			return
+		}
+	}
+	return
 }
 
 type BoxCreateRequest struct {
@@ -131,6 +147,32 @@ type BoxListResponse struct {
 	MessageBoxes []BoxCommonResponse `json:"messageBoxes"`
 	Version      int                 `json:"version"`
 	Total        int                 `json:"total"` // Box 总数，便于前端分页
+}
+
+func (b *BoxListResponse) Postprocess(c *fiber.Ctx) (err error) {
+	// batch load owner
+	ownerIDs := make([]int, 0, len(b.MessageBoxes))
+	for _, box := range b.MessageBoxes {
+		ownerIDs = append(ownerIDs, box.OwnerID)
+	}
+
+	var users []User
+	if err = DB.Find(&users, ownerIDs).Error; err != nil {
+		return
+	}
+
+	for i := range b.MessageBoxes {
+		for j := range users {
+			if b.MessageBoxes[i].OwnerID == users[j].ID {
+				b.MessageBoxes[i].Owner = &UserResponse{}
+				if err = copier.Copy(b.MessageBoxes[i].Owner, users[j]); err != nil {
+					return
+				}
+				break
+			}
+		}
+	}
+	return
 }
 
 type BoxGetResponse struct {

@@ -4246,6 +4246,9 @@
                 "id": {
                     "type": "integer"
                 },
+                "owner": {
+                    "$ref": "#/definitions/apis.UserResponse"
+                },
                 "owner_id": {
                     "type": "integer"
                 },
@@ -4282,6 +4285,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "owner": {
+                    "$ref": "#/definitions/apis.UserResponse"
                 },
                 "owner_id": {
                     "type": "integer"
