@@ -38,7 +38,7 @@ func ListPosts(c *fiber.Ctx) (err error) {
 	// construct querySet
 	querySet := query.QuerySet(DB).Preload("Poster").Where("box_id = ?", query.BoxID)
 	if user.ID != box.OwnerID {
-		querySet = querySet.Where("is_public = ?", true)
+		querySet = querySet.Where("is_public = true or poster_id = ?", user.ID)
 	}
 
 	// load posts from database
