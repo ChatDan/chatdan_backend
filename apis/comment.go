@@ -277,6 +277,12 @@ func DeleteAComment(c *fiber.Ctx) (err error) {
 		return result.Error
 	}
 
+	var topic Topic
+	err = DB.First(&topic, comment.TopicID).Error
+	if err != nil {
+		return NotFound()
+	}
+
 	if !user.IsAdmin && user.ID != comment.PosterID {
 		return Forbidden()
 	}
@@ -286,6 +292,10 @@ func DeleteAComment(c *fiber.Ctx) (err error) {
 		return BadRequest()
 	}
 
+	result = DB.Model(&topic).Update("comment_count", gorm.Expr("comment_count - 1"))
+	if result.Error != nil {
+		return result.Error
+	}
 	return Success(c, &EmptyStruct{})
 }
 
