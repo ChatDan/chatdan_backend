@@ -243,12 +243,6 @@ func DeleteAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 
-	// get and validate request
-	var body ChannelModifyRequest
-	if err = ValidateBody(c, &body); err != nil {
-		return
-	}
-
 	// load channel from database
 	var channel Channel
 	if err = DB.First(&channel, channelID).Error; err != nil {
