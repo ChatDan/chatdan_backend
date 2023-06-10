@@ -214,6 +214,9 @@ func ModifyABox(c *fiber.Ctx) (err error) {
 	}
 
 	// update box
+	if err = copier.CopyWithOption(&box, &body, copier.Option{IgnoreEmpty: true}); err != nil {
+		return err
+	}
 	if err = DB.Model(&box).Select("title").Updates(&box).Error; err != nil {
 		return
 	}
