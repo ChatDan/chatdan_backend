@@ -400,11 +400,14 @@ func ListCommentsByUser(c *fiber.Ctx) (err error) {
 		return err
 	}
 
-	tx := DB.Where("poster_id = ? and is_anonymous", uid, false)
+	tx := DB.Where("poster_id = ?", uid)
 	if query.OrderBy == "id" {
 		tx = tx.Order(query.OrderBy + " asc")
 	} else {
 		tx = tx.Order(query.OrderBy + " desc")
+	}
+	if user.ID != uid {
+		tx = tx.Where("is_anonymous = false")
 	}
 
 	tx = query.QuerySet(tx)
