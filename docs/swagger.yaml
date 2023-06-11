@@ -1119,7 +1119,7 @@ paths:
       summary: 修改一个评论
       tags:
       - Comment Module
-  /comment/{id}/like/{like_data}:
+  /comment/{id}/_like/{like_data}:
     post:
       parameters:
       - description: comment id

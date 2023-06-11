@@ -303,7 +303,7 @@ func DeleteAComment(c *fiber.Ctx) (err error) {
 // @Summary 点赞或点踩一个评论，或者取消点赞或点踩
 // @Tags Comment Module
 // @Produce json
-// @Router /comment/{id}/like/{like_data} [post]
+// @Router /comment/{id}/_like/{like_data} [put]
 // @Param id path int true "comment id"
 // @Param like_data path int true "1: like, -1: dislike, 0: reset" Enums(1, -1, 0)
 // @Success 200 {object} RespForSwagger{data=EmptyStruct}
@@ -346,13 +346,13 @@ func LikeOrDislikeAComment(c *fiber.Ctx) (err error) {
 		}
 
 		var likeCount int64
-		result = tx.Model(CommentUserLikes{}).Where("topic_id = ? and like_data = 1", id).Count(&likeCount)
+		result = tx.Model(CommentUserLikes{}).Where("comment_id = ? and like_data = 1", id).Count(&likeCount)
 		if result.Error != nil {
 			return result.Error
 		}
 
 		var dislikeCount int64
-		result = tx.Model(CommentUserLikes{}).Where("topic_id = ? and like_data = -1", id).Count(&dislikeCount)
+		result = tx.Model(CommentUserLikes{}).Where("comment_id = ? and like_data = -1", id).Count(&dislikeCount)
 		if result.Error != nil {
 			return result.Error
 		}

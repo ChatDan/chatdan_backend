@@ -614,7 +614,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/comment/{id}/like/{like_data}": {
+        "/comment/{id}/_like/{like_data}": {
             "post": {
                 "produces": [
                     "application/json"
