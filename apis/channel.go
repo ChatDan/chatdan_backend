@@ -50,8 +50,8 @@ func ListChannels(c *fiber.Ctx) (err error) {
 	}
 	for i := range response.Channels {
 		response.Channels[i].IsOwner = channels[i].OwnerID == user.ID
-		response.Channels[i].IsPostOwner = channels[i].Post.PosterID == user.ID
-		response.Channels[i].IsBoxOwner = channels[i].Post.Box.OwnerID == user.ID
+		response.Channels[i].IsPostOwner = channels[i].Post.PosterID == channels[i].OwnerID
+		response.Channels[i].IsBoxOwner = channels[i].Post.Box.OwnerID == channels[i].OwnerID
 	}
 
 	return Success(c, &response)
@@ -91,8 +91,8 @@ func GetAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 	response.IsOwner = channel.OwnerID == user.ID
-	response.IsPostOwner = channel.Post.PosterID == user.ID
-	response.IsBoxOwner = channel.Post.Box.OwnerID == user.ID
+	response.IsPostOwner = channel.Post.PosterID == channel.OwnerID
+	response.IsBoxOwner = channel.Post.Box.OwnerID == channel.OwnerID
 
 	return Success(c, &response)
 }
@@ -159,8 +159,8 @@ func CreateAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 	response.IsOwner = true
-	response.IsPostOwner = post.PosterID == user.ID
-	response.IsBoxOwner = post.Box.OwnerID == user.ID
+	response.IsPostOwner = post.PosterID == channel.OwnerID
+	response.IsBoxOwner = post.Box.OwnerID == channel.OwnerID
 
 	return Created(c, &response)
 }
@@ -197,18 +197,24 @@ func ModifyAChannel(c *fiber.Ctx) (err error) {
 
 	// load channel from database
 	var channel Channel
-	if err = DB.First(&channel, channelID).Error; err != nil {
-		return
-	}
+	if err = DB.Transaction(func(tx *gorm.DB) (err error) {
+		if err = DB.Preload("Post").Preload("Post.Box").First(&channel, channelID).Error; err != nil {
+			return
+		}
 
-	// check if user is owner
-	if channel.OwnerID != user.ID {
-		return Forbidden("you are not the owner of this channel")
-	}
+		// check if user is owner
+		if channel.OwnerID != user.ID {
+			return Forbidden("you are not the owner of this channel")
+		}
 
-	// update channel
-	if err = DB.Model(&channel).Updates(body).Error; err != nil {
-		return
+		// update channel
+		if err = DB.Model(&channel).Updates(body).Error; err != nil {
+			return
+		}
+
+		return nil
+	}); err != nil {
+		return err
 	}
 
 	// construct response
@@ -217,6 +223,8 @@ func ModifyAChannel(c *fiber.Ctx) (err error) {
 		return
 	}
 	response.IsOwner = true
+	response.IsPostOwner = channel.Post.PosterID == channel.OwnerID
+	response.IsBoxOwner = channel.Post.Box.OwnerID == channel.OwnerID
 
 	return Success(c, &response)
 }
