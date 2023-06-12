@@ -91,6 +91,11 @@ func Register(c *fiber.Ctx) (err error) {
 		return BadRequest("用户名已存在")
 	}
 
+	// insert into meilisearch
+	if err = SearchAddOrReplace(user.ToSearchModel()); err != nil {
+		return err
+	}
+
 	// create jwt token
 	token, err := CreateJwtToken(&user)
 	if err != nil {
