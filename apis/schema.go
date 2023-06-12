@@ -613,7 +613,7 @@ type TopicCreateRequest struct {
 	Content     string             `json:"content" validate:"required,min=1,max=2000"`
 	DivisionID  int                `json:"division_id" validate:"required,min=1"`
 	IsAnonymous bool               `json:"is_anonymous"` // 默认不传为 false
-	Tags        []TagCreateRequest `json:"tags" validate:"omitempty,dive,min=1,max=10,dive"`
+	Tags        []TagCreateRequest `json:"tags" validate:"required,min=1,max=10,dive"`
 }
 
 type TopicModifyRequest struct {
