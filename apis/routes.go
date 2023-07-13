@@ -1,8 +1,10 @@
 package apis
 
 import (
+	"chatdan_backend/models"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
+	"github.com/gofiber/websocket/v2"
 )
 
 func RegisterRoutes(app *fiber.App) {
@@ -105,4 +107,17 @@ func RegisterRoutes(app *fiber.App) {
 	group.Get("/chats", ListChats)
 	group.Get("/messages", ListMessages)
 	group.Post("/messages", CreateMessage)
+
+	// Upgrade to websocket
+	app.Use("/ws", func(c *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(c) {
+			c.Locals("allowed", true)
+			if err := GetCurrentUser(c, &models.User{}); err != nil {
+				return err
+			}
+			return c.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
+	app.Use("/ws/message", websocket.New(MessageHandler))
 }

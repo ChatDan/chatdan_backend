@@ -5,9 +5,69 @@ import (
 	. "chatdan_backend/utils"
 	"database/sql"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 	"github.com/jinzhu/copier"
 	"gorm.io/gorm"
+	"log"
+	"sync"
 )
+
+type message struct {
+	mt       int
+	senderId string
+	context  string
+}
+
+var messageChan sync.Map
+
+func MessageHandler(c *websocket.Conn) {
+	go MessageWrite(c)
+	MessageRead(c)
+}
+
+func MessageWrite(c *websocket.Conn) {
+	for {
+		msgChan, ok := messageChan.Load(c.Locals("user_id").(string))
+		if !ok {
+			log.Println("write chan not exist")
+			break
+		}
+		msg := <-msgChan.(chan message)
+		err := c.WriteMessage(msg.mt, []byte(msg.context))
+		if err != nil {
+			log.Println("Write err")
+			messageChan.Delete(c.Locals("user_id").(string))
+			break
+		}
+	}
+}
+
+func MessageRead(c *websocket.Conn) {
+	for {
+		mt, ctx, err := c.ReadMessage()
+		if err != nil {
+			log.Println("Read err")
+			break
+		}
+		go func() {
+			toUserId := c.Query("ToUserID")
+			if _, ok := messageChan.Load(toUserId); !ok {
+				messageChan.Store(toUserId, make(chan message))
+			}
+
+			var msg message
+			msg.mt = mt
+			msg.senderId = c.Locals("user_id").(string)
+			msg.context = string(ctx)
+			msgChan, ok := messageChan.Load(toUserId)
+			if !ok {
+				log.Println("read chan not exist")
+				return
+			}
+			msgChan.(chan message) <- msg
+		}()
+	}
+}
 
 // ListChats godoc
 // @Summary 查询所有聊天记录，按照 updated_at 倒序排序

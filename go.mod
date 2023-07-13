@@ -1,6 +1,6 @@
 module chatdan_backend
 
-go 1.20
+go 1.19
 
 require (
 	github.com/allegro/bigcache/v3 v3.1.0
@@ -10,6 +10,7 @@ require (
 	github.com/goccy/go-json v0.10.2
 	github.com/gofiber/fiber/v2 v2.46.0
 	github.com/gofiber/swagger v0.1.12
+	github.com/gofiber/websocket/v2 v2.2.1
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/hetiansu5/urlquery v1.2.7
 	github.com/jinzhu/copier v0.3.5
@@ -35,6 +36,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
+	github.com/fasthttp/websocket v1.5.3 // indirect
 	github.com/gabriel-vasile/mimetype v1.4.2 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
